@@ -159,7 +159,7 @@ void glutIdleFunc()
 }
 
 // helper function, remove me
-void renderScene( const World& world )
+void renderScene( /*const*/ World& world )
 {
     renderScene( world, GCamera );
 }
@@ -236,7 +236,7 @@ public:
         // Draw a cube
         //
         glPushMatrix();
-        glTranslatef( pos[0], pos[2], -pos[1] );
+        glTranslatef( pos[0], pos[2] , -pos[1] );
 
 //        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         drawCube();
@@ -248,7 +248,7 @@ private:
     Camera m_camera;
 };
 
-void renderScene( const World& world, const Camera& camera )
+void renderScene( /*const*/ World& world, const Camera& camera )
 {
     // Clear the rendering buffrs
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -269,6 +269,9 @@ void renderScene( const World& world, const Camera& camera )
     //
     // Lighting
     //
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+
     GLfloat lightPos[4] = { 0.0, 5.0, 2.0, 1.0 };
     GLfloat lightAmb[4] = { 0.75, 0.75, 0.75, 1.0 };
     GLfloat lightDif[4] = { 1.0, 1.0, 1.0, 1.0 };
@@ -279,13 +282,62 @@ void renderScene( const World& world, const Camera& camera )
     glLightfv( GL_LIGHT0, GL_DIFFUSE,  lightDif );
     glLightfv( GL_LIGHT0, GL_SPECULAR, lightSpc );
 
+    Vec3 cCenter = camera.center();
+    Vec3 cDir    = camera.direction();
+
+    cCenter[1]   = -1 * camera.center().at(2);
+    cCenter[2]   =      camera.center().at(1);
+
+    cDir[1] = -1 * camera.direction().at(2);
+    cDir[2] = camera.direction().at(1);
+
+    std::cout << "pos is " << cCenter[0] << ", " << cCenter[1] << ", " << cCenter[2] << std::endl;
+    std::cout << "dir is " << cDir[0] << ", " << cDir[1] << ", " << cDir[2] << std::endl;
+
+    WorldCube wc = world.firstCubeIntersecting( cCenter, cCenter + (cDir*10));// (cCenter + cDir)*50 );
+    wc->setBaseMaterial( Materials::Water );
+
+    std::cout << " nearest is: " << wc.position()[0] << ", "
+        << wc.position()[1] << ", " << wc.position()[2] << std::endl;
+
     //
     // Yay braindead renderer.
     //
     CubeRenderVisitor visitor(camera);
     world.visitAllCubes( visitor );
 
-    
+    // 
+    // Draw a line representing the camera's view
+    //
+    Vec3 camDirection = camera.direction() * 50;
+    Vec3 camCenter    = camera.center();
+
+    glDisable( GL_LIGHTING );
+
+    glPushMatrix();
+    glTranslatef( camCenter[0], camCenter[1], camCenter[2] );
+
+    glBegin( GL_LINES );
+        // +X
+        glColor3f( 0.0, 0.50, 0.50 );
+        glVertex3f( 0.01, 0.01f, -0.1f ); glVertex3f( 1.0, 0.01, -0.01 );
+
+        // +Y
+        glColor3f( 0.0, 0.0, 0.50 );
+        glVertex3f( 0.01, 0.01f, -0.1f ); glVertex3f( 0.01, 1.0, -0.01 );
+
+        // +Z
+        glColor3f( 0.0, 0.50, 0.0 );
+        glVertex3f( 0.01, 0.01f, -0.1f ); glVertex3f( 0.01, 0.01, -1.0 );
+
+        // Line
+        glColor3f( 1.0, 0.0, 0.0 );
+        glVertex3f( 0.01f, 0.01f, -0.1f );
+        glVertex3f( camDirection[0], camDirection[1], camDirection[2] );
+    glEnd();
+
+    glPopMatrix();
+
     checkForErrors();
 
     calcFPS();
@@ -297,7 +349,7 @@ void renderScene( const World& world, const Camera& camera )
 void drawCube()
 {
     glBegin(GL_QUADS);
-/*        glNormal3f( 0.0f, 1.0f, 0.0f );
+        glNormal3f( 0.0f, 1.0f, 0.0f );
         glVertex3f( 1.0f, 1.0f,0.0f);			// Top Right Of The Quad (Top)
         glVertex3f(0.0f, 1.0f,0.0f);			// Top Left Of The Quad (Top)
         glVertex3f(0.0f, 1.0f, 1.0f);			// Bottom Left Of The Quad (Top)
@@ -331,10 +383,10 @@ void drawCube()
         glVertex3f( 1.0f, 1.0f,0.0f);			// Top Right Of The Quad (Right)
         glVertex3f( 1.0f, 1.0f, 1.0f);			// Top Left Of The Quad (Right)
         glVertex3f( 1.0f,0.0f, 1.0f);			// Bottom Left Of The Quad (Right)
-        glVertex3f( 1.0f,0.0f,0.0f);			// Bottom Right Of The Quad (Right)*/
+        glVertex3f( 1.0f,0.0f,0.0f);			// Bottom Right Of The Quad (Right)
     glEnd();
 
-    glutSolidCube(1.0);
+//    glutSolidCube(1.0);
 }
 
 void initScene()
@@ -464,6 +516,12 @@ void handleKeyboard( unsigned char key, int x, int y )
     }
 }
 
+void doCameraSelect()
+{
+    std::cout << "camera select" << std::endl;
+    return;
+}
+
 void handleSpecialKeys( int key, int mx, int my )
 {
     float rotate_y = 0.0f, rotate_x = 0.0f;
@@ -473,6 +531,10 @@ void handleSpecialKeys( int key, int mx, int my )
     {
         case GLUT_KEY_F2:
             GCamera.printDebugInfo();
+            break;
+
+        case GLUT_KEY_F3:
+            doCameraSelect();
             break;
 
         case GLUT_KEY_F5:

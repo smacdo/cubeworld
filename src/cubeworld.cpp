@@ -1,5 +1,6 @@
 #include "cubeworld.h"
 #include <vector>
+#include <limits>
 
 using namespace Rogue;
 
@@ -104,6 +105,20 @@ int World::cubeCount() const
     }
 }
 
+WorldCube World::firstCubeIntersecting( const Vec3& origin, const Vec3& dir )
+{
+    WorldChunk * chunk = getChunk( 0, 0, 0 );
+    
+    if ( chunk )
+    {
+        return chunk->firstCubeIntersecting( origin, dir );
+    }
+    else
+    {
+        assert( false );
+    }
+}
+
 void World::makeRelativeToChunk( int& row, int& col, int& depth ) const
 {
     row   = row   % WChunkRows;
@@ -204,6 +219,103 @@ void WorldChunk::visitAllCubes( CubeVisitor& visitor ) const
     {
         visitor.process( *itr );
     }
+}
+
+bool intersects( const Point& boxMin, const Vec3& origin, const Vec3& dest )
+{
+    float mx = boxMin[0]; float tx = mx + 1.0f;
+    float my = boxMin[1]; float ty = my + 1.0f;
+    float mz = boxMin[2]; float tz = mz + 1.0f;
+
+    float ddx = 1.0 / ( origin[0] - dest[0] );
+    float ddy = 1.0 / ( origin[1] - dest[1] );
+
+    float txmin = 0;
+    float txmax = 0;
+    float tymin = 0;
+    float tymax = 0;
+
+    if ( ddx >= 0 )
+    {
+        txmin = ( mx - origin[0] ) * ddx;
+        txmax = ( tx - origin[0]) * ddx;
+    }
+    else
+    {
+        txmin = ( tx - origin[0] ) * ddx;
+        txmax = ( mx - origin[0] ) * ddx;
+    }
+
+    if ( ddy >= 0 )
+    {
+        tymin = ( my - origin[1] ) * ddy;
+        tymax = ( ty - origin[1] ) * ddy;
+    }
+    else
+    {
+        tymin = ( ty - origin[1] ) * ddy;
+        tymax = ( my - origin[1] ) * ddy;
+    }
+
+    if ( (txmin > tymax) || (tymin > txmax) ) { return false; }
+
+    if ( tymin > txmin ) { txmin = tymin; }
+    if ( tymax < txmax ) { txmax = tymax; }
+
+    float tzmin = 0.0f, tzmax = 0.0f;
+    float ddz  = 1.0 / ( origin[2] - dest[2] );
+
+    if ( ddz >= 0 )
+    {
+        tzmin = ( mz - origin[2] ) * ddz;
+        tzmax = ( tz - origin[2] ) * ddz;
+    }
+    else
+    {
+        tzmin = ( tz - origin[2] ) * ddz;
+        tzmax = ( mz - origin[2] ) * ddz;
+    }
+
+    if ( txmin > tzmax || tzmin > txmax ) { return false; }
+    else
+    {
+        return true;
+    }
+}
+
+WorldCube WorldChunk::firstCubeIntersecting( const Vec3& origin, const Vec3& dest )
+{
+    int offset = findCubeOffsetByPosition( Point( 0, 0, 0 ) );
+    std::vector<WorldCube>::const_iterator itr;
+
+    WorldCube best = m_cubes[offset];
+    float minDist  = std::numeric_limits<float>::max();
+
+    for ( itr = m_cubes.begin(); itr != m_cubes.end(); ++itr )
+    {
+        Point p = itr->position();
+
+        // Find a cube that intersects
+        if (! intersects( p, origin, dest ) )
+        {
+            continue;
+        }
+
+        // Is it the closest one so far?
+        float dist = ( p[0] - origin[0] + 0.5 ) * ( p[0] - origin[0] + 0.5 ) +
+                     ( p[1] - origin[1] + 0.5 ) * ( p[1] - origin[1] + 0.5 ) +
+                     ( p[2] - origin[2] + 0.5 ) * ( p[2] - origin[2] + 0.5 );
+
+        dist = sqrt(dist);
+
+        if ( dist < minDist )
+        {
+            minDist = dist;
+            best    = *itr;
+        }
+    }
+
+    return best;
 }
 
 int WorldChunk::cubeCount() const

@@ -2,6 +2,7 @@
 #define SCOTT_ROGUELIKE_CUBEWORLD_H
 
 #include "point.h"
+#include "math/vector.h"
 #include <vector>
 #include <iosfwd>
 
@@ -125,6 +126,8 @@ public:
     WorldCube getAt( int x, int y, int z ) { return getAt(Point(x,y,z)); }
     WorldCube getAt( const Point& position );
 
+    WorldCube firstCubeIntersecting( const Vec3& origin, const Vec3& dir );
+
     bool isEmptyAt( int x, int y, int z ) { return isEmptyAt(Point(x,y,z)); }
     bool isEmptyAt( const Point& position ) const;
 
@@ -162,6 +165,8 @@ public:
     WorldCube getAt( const Point& position );
 
     bool isEmptyAt( const Point& position ) const;
+
+    WorldCube firstCubeIntersecting( const Vec3& origin, const Vec3& dir );
 
     std::vector<WorldCube> getAllCubes() const;
 
