@@ -72,10 +72,18 @@ public:
      */
     void printDebugInfo() const;
 
+protected:
+    void rotateYAxis( float angle );
+    void rotateXAxis( float angle );
+
 private:
     Vec3 m_center;
     Vec3 m_direction;
     Vec3 m_up;
+    Vec3 m_right;
+    Vec3 m_rotation;        // used for debugging purposes only
+    
+
     float m_viewDistance;
     float m_baseSpeed;
 

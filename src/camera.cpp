@@ -6,11 +6,14 @@
 #include <iostream>
 
 #define CAMERA_DEBUG 1
+const Vec3 DefaultCameraCenter( 0.0f, 0.0f, 10.0f );
 
 Camera::Camera()
-    : m_center( 0, 0, 10 ),
-      m_direction( 0, 0, -1 ),
-      m_up( 0, 1, 0 ),
+    : m_center( DefaultCameraCenter ),
+      m_direction( 0.0f, 0.0f, -1.0f ),
+      m_up( 0.0f, 1.0f, 0.0f ),
+      m_right( 1.0f, 0.0f, 0.0f ),
+      m_rotation( 0.0f, 0.0f, 0.0f ),
       m_viewDistance( 1000.0f ),
       m_baseSpeed( 0.25 )
 {
@@ -18,8 +21,10 @@ Camera::Camera()
 
 Camera::Camera( const Vec3& center )
     : m_center( center ),
-      m_direction( 0, 0, -1 ),
-      m_up( 0, 1, 0 ),
+      m_direction( 0.0f, 0.0f, -1.0f ),
+      m_up( 0.0f, 1.0f, 0.0f ),
+      m_right( 1.0f, 0.0f, 0.0f ),
+      m_rotation( 0.0f, 0.0f, 0.0f ),
       m_viewDistance( 1000.0f ),
       m_baseSpeed( 0.25 )
 {
@@ -29,6 +34,8 @@ Camera::Camera( const Camera& cam )
     : m_center( cam.m_center ),
       m_direction( cam.m_direction ),
       m_up( cam.m_up ),
+      m_right( cam.m_right ),
+      m_rotation( cam.m_rotation ),
       m_viewDistance( cam.m_viewDistance ),
       m_baseSpeed( cam.m_baseSpeed )
 {
@@ -36,20 +43,25 @@ Camera::Camera( const Camera& cam )
 
 void Camera::reset()
 {
-    resetTo( Vec3( 0.0, 0.0, -0.25 ) );
+    resetTo( Vec3( DefaultCameraCenter ) );
 }
 
 void Camera::resetTo( const Vec3& center )
 {
     m_center       = center;
-    m_direction    = Vec3( 0, 0, -1 );
-    m_up           = Vec3( 0, 1,  0 );
+    m_direction    = Vec3( 0.0f, 0.0f, -1.0f );
+    m_up           = Vec3( 0.0f, 1.0f,  0.0f );
+    m_right        = Vec3( 1.0f, 0.0f,  0.0f );
+    m_rotation     = Vec3( 0.0f, 0.0f,  0.0f );
     m_viewDistance = 1000.0f;
 }
 
 void Camera::resetDirection()
 {
-    m_direction    = Vec3( 0, 0, -1 );
+    m_direction    = Vec3( 0.0f, 0.0f, -1.0f );
+    m_up           = Vec3( 0.0f, 1.0f, 0.0f );
+    m_right        = Vec3( 1.0f, 0.0f, 0.0f );
+    m_rotation     = Vec3( 0.0f, 0.0f, 0.0f );
 }
 
 void Camera::moveForward( float distance )
@@ -110,51 +122,45 @@ float deg2rad( float d )
     return d / 180.0f / 3.141592654f;
 }
 
-Vec3 rotateYAxis( const Vec3& v, float angle )
+void Camera::rotateYAxis( float angle )
 {
+    m_rotation[1] += angle;     // debugging info, sum of rotation
     float r = deg2rad( angle );
 
-    float x = v[2] * sin(r) + v[0] * cos(r);
-    float y = v[1];
-    float z = v[2] * cos(r) - v[0] * sin(r);
+    // Rotate direction around the up vector
+    Vec3 result = (m_direction * cos(r)) - (m_right * sin(r));
+    m_direction = result.normalized();
 
-    return Vec3( x, y, z );
+    // Recompute right vector by using cross product
+    result      = cross( m_direction, m_up );
+    m_right     = result.normalized();
 }
 
-Vec3 rotateXAxis( const Vec3& v, float angle )
+void Camera::rotateXAxis( float angle )
 {
+    m_rotation[0] += angle;     // debugging info, sum of rotation
     float r = deg2rad( angle );
 
-    float x = v[0];
-    float y = v[1] * cos(r) - v[2] * sin(r);
-    float z = v[1] * sin(r) + v[2] * cos(r);
+    // Rotate direction around the right vector
+    Vec3 result = (m_direction * cos(r)) + (m_up * sin(r));
+    m_direction = result.normalized();
 
-    return Vec3( x, y, z );
+    // Recompute up vector using cross product
+    result      = cross( m_direction, m_right ) * -1;
+    m_right     = result.normalized();
 }
 
 void Camera::addMouseLookDelta( float deltaX, float deltaY )
 {
     if ( deltaY != 0.0f )
     {
-        Vec3 result = rotateYAxis( m_direction, deltaY );
-        m_direction = result.normalized();
+        rotateYAxis( deltaY );
     }
 
     if ( deltaX != 0.0f )
     {
-        Vec3 result = rotateXAxis( m_direction, deltaX );
-        m_direction = result.normalized();
+        rotateXAxis( deltaX );
     }
-
-#ifdef CAMERA_DEBUG
-  /*      std::cout << "CAMERA:ROTATE " << std::endl
-                  << "\tdX="   << deltaX << ", dY=" << deltaY << std::endl
-                  << "\trY_X=" << x << "rY_Y=" << y << std::endl
-                  << "\tdir="  << m_direction[0] << ", "
-                               << m_direction[1] << ", "
-                               << m_direction[2]
-                  << std::endl;*/
-#endif
 }
 
 void Camera::printDebugInfo() const
@@ -172,6 +178,14 @@ void Camera::printDebugInfo() const
                   << m_up[0] << ", "
                   << m_up[1] << ", "
                   << m_up[2] << std::endl
+              << "\tRIGHT: "
+                  << m_right[0] << ", "
+                  << m_right[1] << ", "
+                  << m_right[2] << ", " << std::endl
+              << "\tROTATION: "
+                  << m_rotation[0] << ", "
+                  << m_rotation[1] << ", "
+                  << m_rotation[2] << ", " << std::endl
               << "\tVIEWDIST : "
                   << m_viewDistance << std::endl;
 }
