@@ -90,6 +90,20 @@ void World::visitAllCubes( CubeVisitor& visitor ) const
     }
 }
 
+int World::cubeCount() const
+{
+    WorldChunk * chunk = getChunk( 0, 0, 0 );
+    
+    if ( chunk )
+    {
+        return chunk->cubeCount();
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 void World::makeRelativeToChunk( int& row, int& col, int& depth ) const
 {
     row   = row   % WChunkRows;
@@ -190,6 +204,11 @@ void WorldChunk::visitAllCubes( CubeVisitor& visitor ) const
     {
         visitor.process( *itr );
     }
+}
+
+int WorldChunk::cubeCount() const
+{
+    return m_cubes.size();
 }
 
 int WorldChunk::findCubeOffset( const WorldCube& cube ) const

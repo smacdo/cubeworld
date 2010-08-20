@@ -1,6 +1,6 @@
 #include "gtest.h"
-#include "octreeworld.h"
-#include "worldcube.h"
+#include "cubeworld.h"
+#include "cubedata.h"
 
 using namespace Rogue;
 
@@ -9,7 +9,7 @@ class OWTest : public ::testing::Test
 protected:
     virtual void SetUp()
     {
-        world = new OctreeWorld( 4, 4, 3 );
+        world = new World( 64, 64, 64 );
     }
 
     virtual void TearDown()
@@ -17,7 +17,7 @@ protected:
         delete world;
     }
 
-    OctreeWorld * world;
+    World * world;
 };
 
 /*class OWVisitor : public OctreeWorldVisitor
@@ -71,11 +71,8 @@ TEST_F(OWTest,GetACube)
 
 TEST_F(OWTest,GetACubeDoesNotReturnSameCubes)
 {
-    WorldCube cubeA( 1, 1, 2);
-    WorldCube cubeB( 2, 0, 2);
-
-    cubeA->setBaseMaterial( Materials::Water );
-    cubeB->setBaseMaterial( Materials::Dirt );
+    WorldCube cubeA(Point(1, 1, 2), new CubeData(Materials::Water));
+    WorldCube cubeB(Point(2, 0, 2), new CubeData(Materials::Dirt));
 
     world->put( cubeA );
     world->put( cubeB );
@@ -86,13 +83,9 @@ TEST_F(OWTest,GetACubeDoesNotReturnSameCubes)
 
 TEST_F(OWTest,GetAllCubesInWorld)
 {
-    WorldCube cubeA( 1, 1, 2);
-    WorldCube cubeB( 2, 0, 2);
-    WorldCube cubeC( 0, 0, 0);
-
-    cubeA->setBaseMaterial( Materials::Water );
-    cubeB->setBaseMaterial( Materials::Dirt );
-    cubeC->setBaseMaterial( Materials::Rock );
+    WorldCube cubeA(Point(1, 1, 2), new CubeData(Materials::Water));
+    WorldCube cubeB(Point(2, 0, 2), new CubeData(Materials::Dirt));
+    WorldCube cubeC(Point(0, 0, 0), new CubeData(Materials::Rock));
 
     world->put( cubeA );
     world->put( cubeB );

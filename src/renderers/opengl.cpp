@@ -5,7 +5,8 @@
 
 #include "appcore/logging.h"
 #include "renderers/opengl.h"
-#include "octreeworld.h"
+#include "cubeworld.h"
+#include "cubedata.h"
 #include "camera.h"
 #include "gameapp.h"
 
@@ -36,6 +37,7 @@ void handleSpecialKeys( int key, int x, int y );
 void handleMouseWheel( int button, int dir, int x, int y );
 void drawCube();
 float calcFPS();
+void mouseMovement( int x, int y );
 
 void startRenderer( int argc, char* argv[] )
 {
@@ -59,6 +61,7 @@ void startRenderer( int argc, char* argv[] )
     glutKeyboardFunc(handleKeyboard);
     glutSpecialFunc(handleSpecialKeys);
     glutMouseWheelFunc(handleMouseWheel);
+    glutPassiveMotionFunc(mouseMovement);
 
     //
     // Initialize the game loop, and then let OpenGL set up default init
@@ -156,59 +159,29 @@ void glutIdleFunc()
 }
 
 // helper function, remove me
-void renderScene( const OctreeWorld& world )
+void renderScene( const World& world )
 {
     renderScene( world, GCamera );
 }
 
-void renderScene( const OctreeWorld& world, const Camera& camera )
+struct CubeRenderVisitor : public Rogue::CubeVisitor
 {
-    // Clear the rendering buffrs
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-    // Reset model view matrix
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
-    // Move the camera back a little bit (so we can see the origin -Z)
-    Vec3 lookAt = camera.direction() * camera.viewDistance();
-    Vec3 center = camera.center();
-    Vec3 up     = camera.up();
-
-    gluLookAt( center[0], center[1], center[2],
-               lookAt[0], lookAt[1], lookAt[2],
-               up[0],     up[1],     up[2] );
-
-    //
-    // Lighting
-    //
-    GLfloat lightPos[4] = { 0.0, 5.0, 2.0, 1.0 };
-    GLfloat lightAmb[4] = { 0.75, 0.75, 0.75, 1.0 };
-    GLfloat lightDif[4] = { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat lightSpc[4] = { 1.0, 0.25, 0.25, 1.0 };
-
-    glLightfv( GL_LIGHT0, GL_POSITION, lightPos );
-    glLightfv( GL_LIGHT0, GL_AMBIENT,  lightAmb );
-    glLightfv( GL_LIGHT0, GL_DIFFUSE,  lightDif );
-    glLightfv( GL_LIGHT0, GL_SPECULAR, lightSpc );
-
-    //
-    // Yay braindead renderer.
-    //
-    std::vector<WorldCube> cubes = world.getAllCubes();
-    std::vector<WorldCube>::iterator itr;
-    
-
-    for ( itr = cubes.begin(); itr != cubes.end(); ++itr )
+public:
+    CubeRenderVisitor( const Camera& camera )
+        : m_camera(camera)
     {
-        Point pos = itr->position();
+    }
+
+    void process( const WorldCube& cube )
+    {
+        Point pos = cube.position();
 
         // determine color
         float color[3] = { 0.0, 0.0, 0.0 };
 
-        if ( itr->hasData() )
+        if ( cube.hasData() )
         {
-            switch ( (*itr)->baseMaterial() )
+            switch ( cube->baseMaterial() )
             {
                 case Materials::Grass:
                     color[1] = 1.0;
@@ -270,6 +243,47 @@ void renderScene( const OctreeWorld& world, const Camera& camera )
 
         glPopMatrix();
     }
+
+private:
+    Camera m_camera;
+};
+
+void renderScene( const World& world, const Camera& camera )
+{
+    // Clear the rendering buffrs
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+    // Reset model view matrix
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    // Move the camera back a little bit (so we can see the origin -Z)
+    Vec3 lookAt = camera.direction() * camera.viewDistance();
+    Vec3 center = camera.center();
+    Vec3 up     = camera.up();
+
+    gluLookAt( center[0], center[1], center[2],
+               lookAt[0], lookAt[1], lookAt[2],
+               up[0],     up[1],     up[2] );
+
+    //
+    // Lighting
+    //
+    GLfloat lightPos[4] = { 0.0, 5.0, 2.0, 1.0 };
+    GLfloat lightAmb[4] = { 0.75, 0.75, 0.75, 1.0 };
+    GLfloat lightDif[4] = { 1.0, 1.0, 1.0, 1.0 };
+    GLfloat lightSpc[4] = { 1.0, 0.25, 0.25, 1.0 };
+
+    glLightfv( GL_LIGHT0, GL_POSITION, lightPos );
+    glLightfv( GL_LIGHT0, GL_AMBIENT,  lightAmb );
+    glLightfv( GL_LIGHT0, GL_DIFFUSE,  lightDif );
+    glLightfv( GL_LIGHT0, GL_SPECULAR, lightSpc );
+
+    //
+    // Yay braindead renderer.
+    //
+    CubeRenderVisitor visitor(camera);
+    world.visitAllCubes( visitor );
 
     
     checkForErrors();
@@ -486,9 +500,24 @@ void handleSpecialKeys( int key, int mx, int my )
     GCamera.addMouseLookDelta( rotate_x, rotate_y );
 }
 
+void mouseMovement( int x, int y )
+{
+    static int lastX = -1;
+    static int lastY = -1;
+
+    if ( lastX == -1 && lastY == -1 ) { lastX = x; lastY = y; return; }
+
+    int deltaX = x - lastX;
+    int deltaY = y - lastY;
+
+    lastX      = x;
+    lastY      = y;
+
+    GCamera.addMouseLookDelta( deltaY, -deltaX ); //deltaY/10 );
+}
+
 void handleMouseWheel( int button, int dir, int x, int y )
 {
-    std::cout << "bleh" << std::endl;
     if ( dir > 0 )
     {
         GCamera.moveForward();      // or "zoom" or are they the same?

@@ -1,6 +1,7 @@
 #include "gameapp.h"
 #include "renderers/opengl.h"
-#include "octreeworld.h"
+#include "cubeworld.h"
+#include "cubedata.h"
 
 #include <vector>
 #include <iostream>
@@ -10,11 +11,11 @@
 
 using namespace Rogue;
 
-std::vector<WorldCube> makeStressfulWorld();
-std::vector<WorldCube> makeSimpleWorld( int rows, int cols, int depth );
-std::vector<WorldCube> makeFirstWorld();
+void makeStressfulWorld( World& world );
+void makeSimpleWorld( World& world );
+void makeFlatWorld( World& world );
 
-OctreeWorld * GWorld;
+World * GWorld;
 
 int rand( int min, int max )
 {
@@ -26,94 +27,68 @@ int rand( int min, int max )
 
 void runGame()
 {
-    std::cout << "Creating game world 128x128x128" << std::endl;
-    GWorld = new OctreeWorld( 128, 128, 128 );
     srand(time(NULL));
+    GWorld = new World( 64, 64, 64 );
 
-    std::cout << "Generating cubes for world" << std::endl;
-    std::vector<WorldCube> cubes = makeSimpleWorld( 64, 64, 24 );
+    std::cout << "Creating game world " 
+              << GWorld->rows()  << "x"
+              << GWorld->cols()  << "x"
+              << GWorld->depth() << std::endl;
 
-    std::cout << "Generated " << cubes.size() << " cubes" << std::endl;
+    makeSimpleWorld( *GWorld );
 
-    std::cout << "Populating cubes into world" << std::endl;
-    for ( int i = 0; i < cubes.size(); ++i )
-    {
-        GWorld->put( cubes[i] );
-    }
-
-    std::cout << "Done!" << std::endl;
+    std::cout << "Created " << GWorld->cubeCount() << " cubes" << std::endl;
+    std::cout << "Game is starting..." << std::endl;
 }
 
-std::vector<WorldCube> makeFirstWorld()
+void makeFlatWorld( World& world )
 {
-    std::vector<WorldCube> cubes;
+    assert( world.depth() > 2 );
 
     // Make ground level all rock
-    for ( int r = 0; r < 4; ++r )
+    for ( int r = 0; r < world.rows(); ++r )
     {
-        for ( int c = 0; c < 4; ++c )
+        for ( int c = 0; c < world.cols(); ++c )
         {
-            Point p( c, r, 0 );
-            CubeData * data = new CubeData(Materials::Rock);
-            cubes.push_back( WorldCube( p, data ) );
+            WorldCube wc( Point( c, r, 0 ),
+                          new CubeData(Materials::Rock) );
+
+            world.put( wc );
         }
+
+        if ( r % 16 == 0 ) { std::cout << "-"; std::cout.flush(); }
     }
 
-    // Make back wall level 1 also rock
-    for ( int c = 0; c < 4; ++c )
+    // Make a grass level
+    for ( int r = 0; r < world.rows(); ++r )
     {
-        Point p( c, 3, 1 );
-        cubes.push_back( WorldCube( p, new CubeData(Materials::Rock) ) );
+        for ( int c = 0; c < world.cols(); ++c )
+        {
+            WorldCube wc( Point( c, r, 1 ),
+                          new CubeData(Materials::Grass) );
+
+            world.put( wc );
+        }
+
+        if ( r % 16 == 0 ) { std::cout << "-"; std::cout.flush(); }
     }
 
-        // Now make rest of level 1
-    cubes.push_back(WorldCube(Point(1,0,1),new CubeData(Materials::Liquid)) );
-    cubes.push_back(WorldCube(Point(2,0,1),new CubeData(Materials::Dirt)) );
-    cubes.push_back(WorldCube(Point(3,0,1),new CubeData(Materials::Sand)) );
-    
-    cubes.push_back(WorldCube(Point(0,1,1),new CubeData(Materials::Grass)));
-    cubes.push_back(WorldCube(Point(1,1,1),new CubeData(Materials::Water)));
-    cubes.push_back(WorldCube(Point(2,1,1),new CubeData(Materials::Water)));
-    cubes.push_back(WorldCube(Point(3,1,1),new CubeData(Materials::Sand)) );
-    
-    cubes.push_back(WorldCube(Point(0,2,1),new CubeData(Materials::Grass)));
-    cubes.push_back(WorldCube(Point(1,2,1),new CubeData(Materials::Water)));
-    cubes.push_back(WorldCube(Point(2,2,1),new CubeData(Materials::Water)));
-    cubes.push_back(WorldCube(Point(3,2,1),new CubeData(Materials::Dirt)) );
-
-    cubes.push_back(WorldCube(Point(0,0,2),new CubeData(Materials::Wood)));
-
-    return cubes;
+    std::cout << std::endl;
 }
 
-std::vector<WorldCube> makeStressfulWorld()
+void makeStressfulWorld( World& world )
 {
-    std::vector<WorldCube> cubes;
+    assert( world.depth() >= 10 );
 
     //
     // Stress test the game
     //
-    int cubesToMake = rand( 2048*2, 2048*4 );
-    int collision   = 0;
-
-    std::cout << "Creating 128x128x128 world, populating "
-              << cubesToMake << " cubes... ";
-
-    for ( int i = 0; i < cubesToMake; ++i )
+    for ( int r = 0; r < world.rows(); ++r )
     {
-        int r = rand( 0, 128 );
-        int c = rand( 0, 128 );
-        int d = rand( 0, 32 );
-
-        Point p( c, r, d );
-
-        // check for collision
-        if (! GWorld->isEmptyAt( p ) )
+        for ( int c = 0; c < world.cols(); ++c )
         {
-            collision++;
-        }
-        else
-        {
+            int d = rand( 1, 10 );
+
             int t = rand( 0, 2 );
             Materials::Material m;
 
@@ -121,34 +96,63 @@ std::vector<WorldCube> makeStressfulWorld()
             if ( t == 1 ) { m = Materials::Grass; }
             if ( t == 2 ) { m = Materials::Water; }
 
-            cubes.push_back( WorldCube( p, new CubeData(m) ) );
-        }
-    }
-
-    std::cout << "done!" << std::endl;
-    std::cout << "Added " << (cubesToMake-collision) << " cubes with "
-              << collision << " collisions" << std::endl;
-
-    return cubes;
-}
-
-std::vector<WorldCube> makeSimpleWorld( int rows, int cols, int depth )
-{
-    assert( depth > 12 );
-    std::vector<WorldCube> cubes;
-
-    int rockDepth = rand( 1, 3 );
-
-    // make a rock ground
-    for ( int d = 0; d < rockDepth; ++d )
-    {
-        for ( int r = 0; r < rows; ++r )
-        {
-            for ( int c = 0; c < cols; ++c )
+            for ( int i = 0; i < d; ++i )
             {
-                cubes.push_back(WorldCube(Point(c,r,d), new CubeData(Materials::Rock)));
+                WorldCube wc( Point(c,r,i), new CubeData(m) );
+                world.put( wc );
             }
         }
+
+        if ( r % 8 == 0 ) { std::cout << "-"; std::cout.flush(); }
+    }
+
+    std::cout << std::endl;
+}
+
+void makeSimpleWorld( World& world )
+{
+    int depth = world.depth();
+    int rows  = world.rows();
+    int cols  = world.cols();
+
+    assert( depth > 8 );
+    std::vector<WorldCube> cubes;
+
+    // make a rock ground one layer deep
+    for ( int r = 0; r < rows; ++r )
+    {
+        for ( int c = 0; c < cols; ++c )
+        {
+            WorldCube wc(WorldCube(Point(c,r,0), 
+                         new CubeData(Materials::Rock)));
+            world.put( wc );
+        }
+
+        if ( r % 16 == 0 ) { std::cout << "-"; std::cout.flush(); }
+    }
+
+    // how about some dirt and rock in the middle?
+    for ( int r = 0; r < rows; ++r )
+    {
+        for ( int c = 0; c < cols; ++c )
+        {
+            Materials::Material mat;
+        
+            if ( rand( 0, 1 ) == 0 )
+            {
+                mat = Materials::Dirt;
+            }
+            else
+            {
+                mat = Materials::Rock;
+            }
+
+            WorldCube wc(WorldCube(Point(c,r,1), 
+                         new CubeData(mat)));
+            world.put( wc );
+        }
+
+        if ( r % 16 == 0 ) { std::cout << "-"; std::cout.flush(); }
     }
 
     // make a grass floor
@@ -156,23 +160,34 @@ std::vector<WorldCube> makeSimpleWorld( int rows, int cols, int depth )
     {
         for ( int c = 0; c < cols; ++c )
         {
-            cubes.push_back(WorldCube(Point(c,r,rockDepth),new CubeData(Materials::Grass)));
+            WorldCube wc( WorldCube( Point( c, r, 2 ),
+                            new CubeData(Materials::Grass)));
+            world.put( wc );
         }
+
+        if ( r % 16 == 0 ) { std::cout << "-"; std::cout.flush(); }
     }
 
     // add random rocks
-    int rocks = rand( 64, 1024 );
+    int rocks = rand( 128, 1024 );
 
     for ( int i = 0; i < rocks; ++i )
     {
         int r = rand( 0, rows );
         int c = rand( 0, cols );
-        int d = rockDepth + 2;
-     
-        cubes.push_back(WorldCube(Point(c,r,d),new CubeData(Materials::Wood)));
+        int d = rand( 0, 4 );
+
+        for ( int j = 0; j < d; ++j )
+        {
+            WorldCube wc( WorldCube(Point(c,r,3+j),
+                        new CubeData(Materials::Wood)));
+            world.put( wc );
+        }
+
+        if ( i % 64 == 0 ) { std::cout << "-"; std::cout.flush(); }
     }
-    
-    return cubes;
+
+    std::cout << std::endl;
 }
 
 void doGameTick( float deltaTime, float gameTime )

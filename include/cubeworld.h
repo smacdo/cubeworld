@@ -132,9 +132,10 @@ public:
 
     void visitAllCubes( CubeVisitor& visitor ) const;
 
-    int rows() const { return m_rows; }
-    int cols() const { return m_cols; }
+    int rows() const  { return m_rows; }
+    int cols() const  { return m_cols; }
     int depth() const { return m_depth; }
+    int cubeCount() const;
 
 protected:
     WorldChunk* getChunk( int chunk_r, int chunk_c, int chunk_d );
@@ -165,6 +166,7 @@ public:
     std::vector<WorldCube> getAllCubes() const;
 
     void visitAllCubes( CubeVisitor& visitor ) const;
+    int cubeCount() const;
 
 private:
 

@@ -2,7 +2,11 @@
 ### Project specific source code
 #######################################################################
 # Game sources
-SET(game_srcs gameworld.cpp typesio.cpp camera.cpp gameapp.cpp)
+SET(game_srcs gameworld.cpp
+              typesio.cpp
+              camera.cpp
+              cubeworld.cpp
+              gameapp.cpp)
 
 # Application level logic (main, gui, etc)
 SET(app_srcs rogue.cpp renderers/curses.cpp renderers/opengl.cpp)

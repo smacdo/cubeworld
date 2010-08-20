@@ -1,16 +1,8 @@
+#include "cubeworld.h"
+#include "cubedata.h"
 #include "point.h"
-#include "octreeworld.h"
-#include "worldcube.h"
 
 #include <ostream>
-
-std::ostream& operator << ( std::ostream& stream, const Point& p )
-{
-    return stream << "["  << p.x
-                  << ", " << p.y
-                  << ", " << p.z
-                  << "]";
-}
 
 namespace Rogue
 {
@@ -37,4 +29,13 @@ std::ostream& operator << ( std::ostream& stream, const WorldCube& w )
     return stream;
 }
 
+}
+
+
+std::ostream& operator << ( std::ostream& stream, const Point& p )
+{
+    return stream << "["  << p.x
+                  << ", " << p.y
+                  << ", " << p.z
+                  << "]";
 }
