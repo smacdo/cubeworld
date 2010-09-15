@@ -1,57 +1,72 @@
+###########################################################################
+# Project Forge                                                           #
+# (c) 2010 Scott MacDonald                                                #
+#                                                                         #
+# Build system script                                                     #
+###########################################################################
 cmake_minimum_required(VERSION 2.6)
 project(ScottsRoguelike)
 
-#######################################################################
-### Build system properties
-#######################################################################
-set(BIN_NAME rogue)
+#==========================================================================
+# Build settings and configurations
+#==========================================================================
+set(APP_BIN_NAME "forgeclient")
 
-#######################################################################
-### CMake Required Modules
-#######################################################################
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/extra/cmake")
+#==========================================================================
+# Build setup and paths
+#==========================================================================
+set(GTEST_PATH "${PROJECT_SOURCE_DIR}/thirdparty/googletest")
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/thirdparty/cmake")
 
-find_package(Curses REQUIRED)
-find_package(GLUT REQUIRED)
-find_package(GLU REQUIRED)
-find_package(OpenGL REQUIRED)
+#==========================================================================
+# Build options
+#==========================================================================
+option(BUILD_RELEASE "Build application with all optimizations enabled" OFF)
+option(BUILD_DEBUG   "Build application with debugging symbols"          ON)
+option(ENABLE_TESTS  "Enable building of unit tests"                     ON)
 
-#######################################################################
-### Build system options and flags
-#######################################################################
-OPTION(OPT_DEBUG     "Enable application debugging" ON)
-OPTION(OPT_TESTING   "Enable unit testing" ON)
-OPTION(OPT_ENGINELIB "Generate a engine library" OFF)
+#==========================================================================
+# Build configuration
+#==========================================================================
+# 
+# Set standard C++ compiler flags
+#
+if(MSVC)
+    set(cxx_flags "${cxx_flags} -GS -W4 -WX")
+    set(cxx_flags "${cxx_flags} -wd4127 -wd4251 -wd4275 -nologo -J -Zi")
+    set(cxx_flags "${cxx_flags} -DSTRICT -DWIN32_LEAN_AND_MEAN")
+elseif(CMAKE_COMPILER_IS_GNUCXX)
+    # Enable stricter warnings
+    set(cxx_flags "${cxx_flags} -Wall -Wextra -Wshadow")
 
-IF(OPT_DEBUG)
-    #    add_subdirectory(tests)
-    SET(CMAKE_BUILD_TYPE Debug)
-ELSE(OPT_DEBUG)
-    SET(CMAKE_BUILD_TYPE ReleaseWithDebInfo)
-ENDIF(OPT_DEBUG)
+    # Enable SSE1 and SSE2 extensions
+    set(cxx_flags "${cxx_flags} -msse2")
+endif()
 
-#######################################################################
-### Visual Studio specific options
-#######################################################################
-IF(WIN32)
-    #    set_target_properties(glsandbox PROPERTIES 
-    #                      LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
-ENDIF(WIN32)
+#
+# Linking configuration - are we creating a release, release w/ deb info,
+# or a debug build?
+#
+if(BUILD_RELEASE)
+    message(STATUS "Building in release mode")
+    set(cxx_flags "${cxx_flags} -O2 -fomit-frame-pointer")
+elseif(BUILD_RELEASE AND BUILD_DEBUG)
+    message(STATUS "Building in release mode with debug symbols enabled")
+    set(cxx_flags "${cxx_flags} -O2 -ggdb")
+elseif(BUILD_DEBUG)
+    message(STATUS "Building in debug mode")
+    set(cxx_flags "${cxx_flags} -ggdb")
+else()
+    message(FATAL_ERROR "Unknown build mode specified")
+endif()
 
-###
-### Enable C++0x
-###
-set(CMAKE_CXX_FLAGS "-std=c++0x")
-
-#######################################################################
-### Build all required libraries, game code tests and whatnot
-#######################################################################
-include_directories(include)
-add_subdirectory(extra/googletest)
-add_subdirectory(libs)
+#==========================================================================
+# Pull in all the subdirectory build scripts so we can build everything
+#==========================================================================
 add_subdirectory(src)
-add_subdirectory(tests)
+add_subdirectory(libs)
 
-#######################################################################
-### Post-build steps
-#######################################################################
+IF(ENABLE_TESTS)
+    add_subdirectory(${GTEST_PATH})
+    add_subdirectory(tests)
+ENDIF()
