@@ -64,10 +64,10 @@ public:
      * This constructor expects that the passed array contains at 
      * least three values, but there is nothing to check this constraint
      */
-    explicit TVector3( const T* ptr )
-        : m_x( ptr[0] ), m_y( ptr[1] ), m_z( ptr[2] )
+    explicit TVector3( const T* p )
+        : m_x( p[0] ), m_y( p[1] ), m_z( p[2] )
     {
-        vector_assert( ptr != 0 );
+        vector_assert( p != 0 );
     }
 
     /**
@@ -85,8 +85,8 @@ public:
      * Vector x/y/z constructor. Takes the provided x/y/z values and
      * assigns it to the newly constructed vector.
      */
-    TVector3( const T& x, const T& y, const T& z )
-        : m_x(x), m_y(y), m_z(z)
+    TVector3( const T& x_, const T& y_, const T& z_ )
+        : m_x(x_), m_y(y_), m_z(z_)
     {
     }
 
@@ -227,7 +227,7 @@ public:
     /**
      * Self addition operator. Adds rhs to self, and stores the result
      */
-    TVector3<T>& operator += ( const TVector3<T>& rhs )
+    void operator += ( const TVector3<T>& rhs )
     {
         m_x += rhs.m_x;
         m_y += rhs.m_y;
@@ -237,7 +237,7 @@ public:
     /**
      * Self subtraction operator. Subtracts rhs from self
      */
-    TVector3<T>& operator -= ( const TVector3<T>& rhs )
+    void operator -= ( const TVector3<T>& rhs )
     {
         m_x -= rhs.m_x;
         m_y -= rhs.m_y;
@@ -247,7 +247,7 @@ public:
     /**
      * Self scale operation. Scales self according to rhs scale factor
      */
-    T& operator *= ( T rhs )
+    void operator *= ( T rhs )
     {
         m_x *= rhs;
         m_y *= rhs;

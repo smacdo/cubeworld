@@ -29,18 +29,18 @@ public:
     {
     }
 
-    Point( int x, int y, int z )
-        : x(x), y(y), z(z)
+    Point( int x_, int y_, int z_ )
+        : x(x_), y(y_), z(z_)
     {
     }
 
-    Point( int axis, int x, int y, int z )
+    Point( int axis, int x_, int y_, int z_ )
     {
         assert( axis >= 0 && axis < 3 );
 
-        v[PR[axis]] = x;
-        v[PC[axis]] = y;
-        v[PD[axis]] = z;
+        v[PR[axis]] = x_;
+        v[PC[axis]] = y_;
+        v[PD[axis]] = z_;
     }
 
     Point( const Point& point )

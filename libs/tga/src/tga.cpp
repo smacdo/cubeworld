@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <memory>
 #include <cassert>
+#include <cstring>
 
 #define TGA_NULL           0
 #define TGA_COLORMAP       1

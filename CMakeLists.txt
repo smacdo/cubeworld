@@ -37,7 +37,7 @@ if(MSVC)
     set(cxx_flags "${cxx_flags} -DSTRICT -DWIN32_LEAN_AND_MEAN")
 elseif(CMAKE_COMPILER_IS_GNUCXX)
     # Enable stricter warnings
-    set(cxx_flags "${cxx_flags} -Wall -Wextra -Wshadow")
+    # set(cxx_flags "${cxx_flags} -Wall -Wextra -Wshadow")
 
     # Enable SSE1 and SSE2 extensions
     set(cxx_flags "${cxx_flags} -msse2")

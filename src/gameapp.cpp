@@ -6,6 +6,7 @@
 #include <vector>
 #include <iostream>
 #include <cassert>
+#include <cstdlib>
 
 #include <time.h>
 

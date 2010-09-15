@@ -28,6 +28,11 @@ find_package(GLUT REQUIRED)
 find_package(GLU REQUIRED)
 find_package(OpenGL REQUIRED)
 
+# Make sure they were actually pulled in (it seems cmake lies)
+if(NOT GLUT_FOUND)
+    message(FATAL_ERROR "Freeglut library not found")
+endif()
+
 # Pull in required third party libraries (OpenGL, etc)
 set(APP_LIBS ${EXTRA_LIBS} 
              ${GLUT_LIBRARIES}

@@ -27,6 +27,8 @@
  * either expressed or implied, of Scott MacDonald.
  */
 #include "mathlib.h"
+#include "math/vector.h"
+#include "math/matrix.h"
 
 // matrix template instantiation
 template class TMatrix4<float>;
