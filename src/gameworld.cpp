@@ -3,7 +3,8 @@
 #include "cubeworld.h"
 #include "cubedata.h"
 
-#include <string.h>
+#include <cstring>
+#include <cstdlib>
 
 using namespace Rogue;
 
