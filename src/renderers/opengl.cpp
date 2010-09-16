@@ -2,9 +2,11 @@
 #include <GL/freeglut.h>
 
 #include <iostream>
+#include <limits>
 
 #include "appcore/logging.h"
 #include "renderers/opengl.h"
+#include "lodepng.h"
 #include "cubeworld.h"
 #include "cubedata.h"
 #include "camera.h"
@@ -24,19 +26,39 @@ const int DEFAULT_FOV = 90;
 const int KEY_ESC = 27;
 
 Camera GCamera;
+bool GWireframeRender = false;
 
 bool checkForErrors();
+
+//
+// renderer setup funcs
+//
 void initScene();
 void resizeScene( int w, int h );
 
+//
+// renderer gui funcs
+//
 void glutIdleFunc();
-void doRenderScene();
 void handleMenuItemSelection( int id );
 void handleKeyboard( unsigned char key, int x, int y );
 void handleSpecialKeys( int key, int x, int y );
 void handleMouseWheel( int button, int dir, int x, int y );
 void drawCube();
+
+//
+// render engine functions
+//
+void doRenderScene();
 float calcFPS();
+
+void addLight( int id,
+        const Vec3& pos,
+        const Vec3& ambient,
+        const Vec3& diffuse,
+        const Vec3& spec
+);
+void drawCubeChunk( const CubeChunkMesh& mesh );
 void mouseMovement( int x, int y );
 
 void startRenderer( int argc, char* argv[] )
@@ -63,6 +85,30 @@ void startRenderer( int argc, char* argv[] )
     glutMouseWheelFunc(handleMouseWheel);
     glutPassiveMotionFunc(mouseMovement);
 
+    GLenum err = glewInit();
+
+    if ( GLEW_OK != err )
+    {
+        raiseError("Failed to load GLEW");
+    }
+    else
+    {
+        DEBUG("Renderer") << "Loading GLEW library" << ENDLOG;
+    }
+
+    if (! GLEW_VERSION_2_1 )
+    {
+        if (! GLEW_VERSION_1_5 )
+        {
+            raiseError("OpenGL version 1.5 or greater required");
+        }
+        else
+        {
+            std::cerr << "WARNING - OLD VERSION OF OPENGL" << std::endl;
+        }
+    }
+
+
     //
     // Initialize the game loop, and then let OpenGL set up default init
     // settings (TODO change this to renderer, set defaults that can
@@ -87,7 +133,7 @@ float calcFPS()
     static int bestFrameTime  = -1;
     static int worstFrameTime = 0;
 
-    const  int updateInterval = 2000;
+    const  int updateInterval = 5000;
 
     // init
     int nowTime   = glutGet( GLUT_ELAPSED_TIME );
@@ -117,15 +163,13 @@ float calcFPS()
     if ( nowTime > nextTime )
     {
         float fps = (float) frames / ((float)updateInterval/1000.0f);
-        float avg = ((float)updateInterval/1000.0f) / (float) frames;
+        float avg = fps / 1000.0f;
 
-        std::cout << "Frames per second : " << fps << std::endl
-                  << "Average frame time: " << avg 
-                                            << std::endl
-                  << "Best frame time:    " << bestFrameTime
-                                            << std::endl
-                  << "Worst frame time:   " << worstFrameTime
-                                            << std::endl;
+        std::cout << fps       << " frames/sec. " 
+                  << avg       << "ms average ("
+                  << "best: "  << bestFrameTime  << "ms, "
+                  << "worst: " << worstFrameTime << "ms)" 
+                  << std::endl;
 
         // reset
         nextTime += updateInterval;
@@ -164,89 +208,15 @@ void renderScene( /*const*/ World& world )
     renderScene( world, GCamera );
 }
 
-struct CubeRenderVisitor : public Rogue::CubeVisitor
+Vec3 world2gl( const Vec3& v )
 {
-public:
-    CubeRenderVisitor( const Camera& camera )
-        : m_camera(camera)
-    {
-    }
+    return Vec3( v[0], v[2], -v[1] );
+}
 
-    void process( const WorldCube& cube )
-    {
-        Point pos = cube.position();
-
-        // determine color
-        float color[3] = { 0.0, 0.0, 0.0 };
-
-        if ( cube.hasData() )
-        {
-            switch ( cube->baseMaterial() )
-            {
-                case Materials::Grass:
-                    color[1] = 1.0;
-                    break;
-
-                case Materials::Dirt:
-                    color[0] = 0.6;
-                    color[1] = 0.3;
-                    break;
-
-                case Materials::Water:
-                    color[2] = 1.0;
-                    break;
-
-                case Materials::Rock:
-                    color[0] = 0.2; color[1] = 0.2; color[2] = 0.2;
-                    break;
-
-                case Materials::Sand:
-                    color[0] = 0.8; color[1] = 0.8; color[2] = 0.3;
-                    break;
-
-                case Materials::Wood:
-                    color[0] = 0.7;
-                    color[1] = 0.5;
-                    break;
-
-                case Materials::Liquid:
-                    color[1] = 0.45;
-                    break;
-
-                default:
-                    color[0] = 0.5; color[1] = 0.5; color[2] = 0.5;
-                    break;
-            }
-        }
-        else
-        {
-            color[0] = 1.0; color[1] = 1.0; color[2] = 1.0;
-        }
-        
-        //
-        // Colors
-        //
-        float ambient[3] = { 0.25, 0.25, 0.25 };
-
-        glColorMaterial(GL_FRONT,GL_AMBIENT_AND_DIFFUSE );
-        glMaterialfv( GL_FRONT, GL_AMBIENT, (const GLfloat*) &color );
-        glMaterialfv( GL_FRONT, GL_DIFFUSE, (const GLfloat*) &color );
-
-        //
-        // Draw a cube
-        //
-        glPushMatrix();
-        glTranslatef( pos[0], pos[2] , -pos[1] );
-
-//        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        drawCube();
-
-        glPopMatrix();
-    }
-
-private:
-    Camera m_camera;
-};
+Vec3 gl2world( const Vec3& v )
+{
+    return Vec3( v[0], -v[2], v[1] );
+}
 
 void renderScene( /*const*/ World& world, const Camera& camera )
 {
@@ -257,7 +227,19 @@ void renderScene( /*const*/ World& world, const Camera& camera )
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    // Move the camera back a little bit (so we can see the origin -Z)
+    // Render in wireframe or solid mode?
+    if ( GWireframeRender )
+    {
+        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    }
+    else
+    {
+        glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+    }
+
+    //
+    // Render from the view of the camer
+    //
     Vec3 lookAt = camera.direction() * camera.viewDistance();
     Vec3 center = camera.center();
     Vec3 up     = camera.up();
@@ -267,44 +249,52 @@ void renderScene( /*const*/ World& world, const Camera& camera )
                up[0],     up[1],     up[2] );
 
     //
-    // Lighting
+    // Lets have a light
     //
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
+    addLight( 0,
+              Vec3( 0.0, 5.0, 2.0 ),
+              Vec3( 0.75, 0.75, 0.75 ),
+              Vec3( 1.0, 1.0, 1.0 ),
+              Vec3( 1.0, 0.25, 0.25 )
+    );
 
-    GLfloat lightPos[4] = { 0.0, 5.0, 2.0, 1.0 };
-    GLfloat lightAmb[4] = { 0.75, 0.75, 0.75, 1.0 };
-    GLfloat lightDif[4] = { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat lightSpc[4] = { 1.0, 0.25, 0.25, 1.0 };
+    float diffuse[3] = { 0.75, 0.75, 0.75 };
+    float ambient[3] = { 0.25, 0.25, 0.25 };
 
-    glLightfv( GL_LIGHT0, GL_POSITION, lightPos );
-    glLightfv( GL_LIGHT0, GL_AMBIENT,  lightAmb );
-    glLightfv( GL_LIGHT0, GL_DIFFUSE,  lightDif );
-    glLightfv( GL_LIGHT0, GL_SPECULAR, lightSpc );
-
-    Vec3 cCenter = camera.center();
-    Vec3 cDir    = camera.direction();
-
-    cCenter[1]   = -1 * camera.center().at(2);
-    cCenter[2]   =      camera.center().at(1);
-
-    cDir[1] = -1 * camera.direction().at(2);
-    cDir[2] = camera.direction().at(1);
-
-    std::cout << "pos is " << cCenter[0] << ", " << cCenter[1] << ", " << cCenter[2] << std::endl;
-    std::cout << "dir is " << cDir[0] << ", " << cDir[1] << ", " << cDir[2] << std::endl;
-
-    WorldCube wc = world.firstCubeIntersecting( cCenter, cCenter + (cDir*10));// (cCenter + cDir)*50 );
-    wc->setBaseMaterial( Materials::Water );
-
-    std::cout << " nearest is: " << wc.position()[0] << ", "
-        << wc.position()[1] << ", " << wc.position()[2] << std::endl;
+    glColorMaterial(GL_FRONT,GL_AMBIENT_AND_DIFFUSE );
+    glMaterialfv( GL_FRONT, GL_AMBIENT, (const GLfloat*) &ambient );
+    glMaterialfv( GL_FRONT, GL_DIFFUSE, (const GLfloat*) &diffuse );
 
     //
     // Yay braindead renderer.
     //
-    CubeRenderVisitor visitor(camera);
-    world.visitAllCubes( visitor );
+    CubeChunkMesh * mesh = world.getCompiledMesh();
+    assert( mesh   != NULL );
+
+    drawCubeChunk( *mesh );
+
+    //
+    // Draw a cube to represent the intended construction area
+    //
+    CubeIntersection intersection = world.firstCubeIntersecting( 
+                                           gl2world(camera.center()),
+                                           gl2world(camera.direction())
+    );
+
+    if ( intersection.distance != std::numeric_limits<float>::infinity() )
+    {
+        float color[3] = { 0.2, 0.2, 0.9 };
+        Point newCubePos = intersection.cubepos + intersection.normal;
+
+        glMaterialfv( GL_FRONT, GL_DIFFUSE, (const GLfloat*) &color );
+
+        glPushMatrix();
+
+        glTranslatef( newCubePos[0], newCubePos[2], -newCubePos[1] );
+        drawCube();
+
+        glPopMatrix();
+    }
 
     // 
     // Draw a line representing the camera's view
@@ -318,19 +308,6 @@ void renderScene( /*const*/ World& world, const Camera& camera )
     glTranslatef( camCenter[0], camCenter[1], camCenter[2] );
 
     glBegin( GL_LINES );
-        // +X
-        glColor3f( 0.0, 0.50, 0.50 );
-        glVertex3f( 0.01, 0.01f, -0.1f ); glVertex3f( 1.0, 0.01, -0.01 );
-
-        // +Y
-        glColor3f( 0.0, 0.0, 0.50 );
-        glVertex3f( 0.01, 0.01f, -0.1f ); glVertex3f( 0.01, 1.0, -0.01 );
-
-        // +Z
-        glColor3f( 0.0, 0.50, 0.0 );
-        glVertex3f( 0.01, 0.01f, -0.1f ); glVertex3f( 0.01, 0.01, -1.0 );
-
-        // Line
         glColor3f( 1.0, 0.0, 0.0 );
         glVertex3f( 0.01f, 0.01f, -0.1f );
         glVertex3f( camDirection[0], camDirection[1], camDirection[2] );
@@ -338,55 +315,199 @@ void renderScene( /*const*/ World& world, const Camera& camera )
 
     glPopMatrix();
 
+    //
+    // All done, finish up the frame. Make sure there were no errors,
+    // calculate some FPS stats and then swap the back buffer
+    //
     checkForErrors();
-
     calcFPS();
-
-    // Draw it
     glutSwapBuffers();
+}
+
+void addLight(       int   id,
+               const Vec3& pos,
+               const Vec3& ambient,
+               const Vec3& diffuse,
+               const Vec3& specular )
+{
+    //
+    // Detect which light to use
+    //
+    assert( id >= 0 && id < GL_MAX_LIGHTS );
+    GLenum light = GL_LIGHT0;
+
+    switch ( id )
+    {
+        case 0: light = GL_LIGHT0; break;
+        case 1: light = GL_LIGHT1; break;
+        case 2: light = GL_LIGHT2; break;
+        case 3: light = GL_LIGHT3; break;
+        case 4: light = GL_LIGHT4; break;
+        case 5: light = GL_LIGHT5; break;
+        case 6: light = GL_LIGHT6; break;
+        case 7: light = GL_LIGHT7; break;
+        default:
+            assert( false && "bad light" );
+    }
+
+    //
+    // Enable lighting, and then fill several temporary arrays with
+    // the values opengl requies
+    //
+    glEnable( GL_LIGHTING );
+    glEnable( light );
+
+    float vpos[4] = { pos[0],      pos[1],      pos[2],      1.0f };
+    float vamb[4] = { ambient[0],  ambient[1],  ambient[2],  1.0f };
+    float vdif[4] = { diffuse[0],  diffuse[1],  diffuse[2],  1.0f };
+    float vspc[4] = { specular[0], specular[1], specular[2], 1.0f };
+
+    //
+    // Let there be light!
+    //
+    glLightfv( light, GL_POSITION, vpos );
+    glLightfv( light, GL_AMBIENT,  vamb );
+    glLightfv( light, GL_DIFFUSE,  vdif );
+    glLightfv( light, GL_SPECULAR, vspc );
+}
+
+/**
+ * Given a chube chunk mesh, this function will instruct OpenGL to render
+ * it to the screen
+ */
+void drawCubeChunk( const CubeChunkMesh& mesh )
+{
+    assert( mesh.vbid      > 0 );
+    assert( mesh.ibid      > 0 );
+    assert( mesh.faceCount > 0 );
+
+    //
+    // Bind our graphics contex to the vertex and index buffers.
+    // We're going to be using textures and normals, so make sure to
+    // enable all applicable arrays
+    //
+    glBindBuffer( GL_ARRAY_BUFFER, mesh.vbid );
+    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, mesh.ibid );
+
+    glEnableClientState( GL_VERTEX_ARRAY );
+    glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+    glEnableClientState( GL_NORMAL_ARRAY );
+
+    //
+    // Specify pos/texture/normal offset information. This tells OpenGL
+    // where specific data is located in the GL_ARRAY_BUFFER data stream
+    //
+    glVertexPointer(   3, GL_FLOAT, 32, (uint8_t*) 0 );
+    glNormalPointer(      GL_FLOAT, 32, (uint8_t*) 12 );
+    glTexCoordPointer( 2, GL_FLOAT, 32, (uint8_t*) 24 );
+
+    //
+    // Now that we've set everything up properly, actually rendering the
+    // mesh is pretty unclimatic. That's it!
+    //
+    glDrawElements( GL_TRIANGLES, mesh.faceCount, GL_UNSIGNED_INT, 0 );
+
+    //
+    // Disable everything we enabled, in the name of being and good citizen
+    // and all that. Don't want to pollute the renderer state machine,
+    // y'know...
+    //
+    glDisableClientState( GL_VERTEX_ARRAY );
+    glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+    glDisableClientState( GL_NORMAL_ARRAY );
+
+    glBindBuffer( GL_ARRAY_BUFFER, 0 );
+    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
 }
 
 void drawCube()
 {
-    glBegin(GL_QUADS);
-        glNormal3f( 0.0f, 1.0f, 0.0f );
-        glVertex3f( 1.0f, 1.0f,0.0f);			// Top Right Of The Quad (Top)
-        glVertex3f(0.0f, 1.0f,0.0f);			// Top Left Of The Quad (Top)
-        glVertex3f(0.0f, 1.0f, 1.0f);			// Bottom Left Of The Quad (Top)
-        glVertex3f( 1.0f, 1.0f, 1.0f);			// Bottom Right Of The Quad (Top)
+    //
+    // Cube vertex positions. Each set of four vertices is arranged in
+    // the following order:
+    //
+    //   A---D
+    //   | / |
+    //   B---C
+    //
+    // Also, the six sets are arrange in [+x,-x,+y,-y,+z,-z] order. This
+    // means the vertex soup is arranged like so:
+    //   1. right face
+    //      1. A0 A1 A2
+    //      2. B0 B1 B2
+    //      3. C 
+    //      4. D ...
+    //   2. left face
+    //   3. back face
+    //   4. front face
+    //   5. top face
+    //   6. bottom face
+    //
+    // All vertices are specified in OpenGL coordinates, but are ordered
+    // along the game's axis (0..6)
+    //
+    float CubePos[6][4][3] = 
+    {   /* right face */
+        { { 1.0f, 1.0f, 0.0f },
+          { 1.0f, 0.0f, 0.0f },
+          { 1.0f, 0.0f,-1.0f },
+          { 1.0f, 1.0f,-1.0f } },
+        /* left face */
+        { { 0.0f, 1.0f,-1.0f },
+          { 0.0f, 0.0f,-1.0f },
+          { 0.0f, 0.0f, 0.0f },
+          { 0.0f, 1.0f, 0.0f } },
+        /* back face */
+        { { 1.0f, 1.0f,-1.0f },
+          { 1.0f, 0.0f,-1.0f },
+          { 0.0f, 0.0f,-1.0f },
+          { 0.0f, 1.0f,-1.0f } },
+        /* front face */
+        { { 0.0f, 1.0f, 0.0f },
+          { 0.0f, 0.0f, 0.0f },
+          { 1.0f, 0.0f, 0.0f },
+          { 1.0f, 1.0f, 0.0f } },
+        /* top face */
+        { { 1.0f, 1.0f, 0.0f },
+          { 1.0f, 1.0f,-1.0f },
+          { 0.0f, 1.0f,-1.0f },
+          { 0.0f, 1.0f, 0.0f } },
+        /* bottom face */
+        { { 0.0f, 0.0f, 0.0f },
+          { 0.0f, 0.0f,-1.0f },
+          { 1.0f, 0.0f,-1.0f },
+          { 1.0f, 0.0f, 0.0f } }
+    };
 
-        glNormal3f( 0.0f, -1.0f, 0.0f );
-        glVertex3f( 1.0f,0.0f, 1.0f);			// Top Right Of The Quad (Bottom)
-        glVertex3f(0.0f,0.0f, 1.0f);			// Top Left Of The Quad (Bottom)
-        glVertex3f(0.0f,0.0f,0.0f);			// Bottom Left Of The Quad (Bottom)
-        glVertex3f( 1.0f,0.0f,0.0f);			// Bottom Right Of The Quad (Bottom)
+    /**
+     * Array holding the normal vectors for our cube. Vector details
+     * are specified in OpenGL space, but are ordered for game axis.
+     */
+    float CubeNorms[6][3] =
+    {
+        { 1.0f,  0.0f,  0.0f },
+        {-1.0f,  0.0f,  0.0f },
+        { 0.0f,  0.0f, -1.0f },
+        { 0.0f,  0.0f,  1.0f },
+        { 0.0f,  1.0f,  0.0f },
+        { 0.0f, -1.0f,  0.0f }
+    };
+
+
+    glBegin( GL_TRIANGLES );
+    for ( int k = 0; k < 6; ++k )
+    {
+        glNormal3fv( CubeNorms[k] );
         
-        glNormal3f( 0.0f, 0.0f, 1.0f );
-        glVertex3f( 1.0f, 1.0f, 1.0f);			// Top Right Of The Quad (Front)
-        glVertex3f(0.0f, 1.0f, 1.0f);			// Top Left Of The Quad (Front)
-        glVertex3f(0.0f,0.0f, 1.0f);			// Bottom Left Of The Quad (Front)
-        glVertex3f( 1.0f,0.0f, 1.0f);			// Bottom Right Of The Quad (Front)
+        glVertex3fv( CubePos[k][1] );
+        glVertex3fv( CubePos[k][3] );
+        glVertex3fv( CubePos[k][0] );
 
-        glNormal3f( 0.0, 0.0, -1.0f );
-        glVertex3f( 1.0f,0.0f,0.0f);			// Bottom Left Of The Quad (Back)
-        glVertex3f(0.0f,0.0f,0.0f);			// Bottom Right Of The Quad (Back)
-        glVertex3f(0.0f, 1.0f,0.0f);			// Top Right Of The Quad (Back)
-        glVertex3f( 1.0f, 1.0f,0.0f);			// Top Left Of The Quad (Back)
-
-        glNormal3f( 1.0, 0.0, 0.0 );
-        glVertex3f(0.0f, 1.0f, 1.0f);			// Top Right Of The Quad (Left)
-        glVertex3f(0.0f, 1.0f,0.0f);			// Top Left Of The Quad (Left)
-        glVertex3f(0.0f,0.0f,0.0f);			// Bottom Left Of The Quad (Left)
-        glVertex3f(0.0f,0.0f, 1.0f);			// Bottom Right Of The Quad (Le
-
-        glNormal3f(-1.0, 0.0, 0.0 );
-        glVertex3f( 1.0f, 1.0f,0.0f);			// Top Right Of The Quad (Right)
-        glVertex3f( 1.0f, 1.0f, 1.0f);			// Top Left Of The Quad (Right)
-        glVertex3f( 1.0f,0.0f, 1.0f);			// Bottom Left Of The Quad (Right)
-        glVertex3f( 1.0f,0.0f,0.0f);			// Bottom Right Of The Quad (Right)
+        glVertex3fv( CubePos[k][2] );
+        glVertex3fv( CubePos[k][3] );
+        glVertex3fv( CubePos[k][1] );
+    }
     glEnd();
-
-//    glutSolidCube(1.0);
 }
 
 void initScene()
@@ -396,13 +517,13 @@ void initScene()
     // Cull faces
     glEnable( GL_CULL_FACE );
     glFrontFace( GL_CCW );
-    glEnable(GL_DEPTH_TEST);
+    glEnable( GL_DEPTH_TEST );
 
     DEBUG("Renderer") << "Enabled geometry culling, counterclockwise" << ENDLOG;
 
     // Texturing
- //   glEnable( GL_TEXTURE_2D );
-//    glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );        // byte pixel row align
+    glEnable( GL_TEXTURE_2D );
+    glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );        // byte pixel row align
 
     DEBUG("Renderer") << "Enabled 2d textures" << ENDLOG;
 
@@ -419,18 +540,14 @@ void initScene()
     // Set model view matrix
     glMatrixMode(GL_MODELVIEW);
 
-    // Set up lighting
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-
-    DEBUG("Renderer") << "Enabled light 0 at 0.5, 5.0, 7.0, 1.0" << ENDLOG;
-
     checkForErrors();
 }
 
 void resizeScene(int width, int height)
 {
+    //
     // Make sure we don't divide by zero (can this actually happen?)
+    // /
     if( height == 0 )
     {
         raiseError("Window height is set to zero? How did that happen?");
@@ -448,7 +565,6 @@ void resizeScene(int width, int height)
 
     // Set correct perspective
     gluPerspective( DEFAULT_FOV, ratio, 0.1, 100.0 );
-
 
     DEBUG("Renderer") << "Window resized. "
                       << "new_size=" << width << "x" << height << ", "
@@ -480,10 +596,6 @@ bool checkForErrors()
 
 void handleKeyboard( unsigned char key, int x, int y )
 {
-    INFO("gui") << "Keyboard pressed, key "
-                << static_cast<int>(key)
-                << ENDLOG;
-
     switch ( key )
     {
         case KEY_ESC:
@@ -516,10 +628,60 @@ void handleKeyboard( unsigned char key, int x, int y )
     }
 }
 
-void doCameraSelect()
+void takeScreenshot()
 {
-    std::cout << "camera select" << std::endl;
-    return;
+    int width        = WINDOW_WIDTH;
+    int height       = WINDOW_HEIGHT;
+    int bytes        = width * height * 3;
+    uint8_t * pixels = new uint8_t[ bytes ];
+
+    glReadBuffer( GL_FRONT );
+    glReadPixels( 
+            0, 0, 
+            width, height, 
+            GL_RGB, GL_UNSIGNED_BYTE, 
+            pixels
+    );
+
+    //
+    // PNG library expects image to be top down (not bottom up, as OpenGL
+    // likes it). Since I'm feeling lazy and this is only going to be
+    // called when we want to take screenshots... well... 
+    //
+    for ( int h = 0; h < height / 2; ++h )
+    {
+        int offsetTop    = h * width * 3;
+        int offsetBottom = bytes - (h+1) * width * 3;
+
+        for ( int w = 0; w < width; ++w )
+        {
+            std::swap( pixels[ offsetTop++ ], pixels[ offsetBottom++ ] );
+            std::swap( pixels[ offsetTop++ ], pixels[ offsetBottom++ ] );
+            std::swap( pixels[ offsetTop++ ], pixels[ offsetBottom++ ] );
+        }
+    }
+
+    //
+    // Save the screenshot in PNG
+    //
+    LodePNG::Encoder encoder;
+    std::vector<uint8_t> buffer;
+
+    encoder.addText("Title",       "A Cubeworld Screenshot");
+    encoder.addText("Description", "Screenshot from Cubeworld game");
+    encoder.addText("Software",    "Cubeworld");
+    encoder.addText("Source",      "Screenshot");
+    encoder.addText("Comment",     "Screenshot taken from Cubeworld");
+
+    encoder.getSettings().zlibsettings.windowSize = 2048;
+    encoder.infoRaw.color.colorType               = 2;
+
+    // Save it
+    encoder.encode( buffer, pixels, width, height );
+    LodePNG::saveFile( buffer, "screenshot.png" );
+
+    std::cout << "saved screenshot in screenshot.png" << std::endl;
+    delete pixels;
 }
 
 void handleSpecialKeys( int key, int mx, int my )
@@ -534,22 +696,45 @@ void handleSpecialKeys( int key, int mx, int my )
             break;
 
         case GLUT_KEY_F3:
-            doCameraSelect();
+            break;
+
+        case GLUT_KEY_F4:
+            DEBUG("Camera") << "Resetting camera" << std::endl;
+            GCamera.reset();
             break;
 
         case GLUT_KEY_F5:
-            GCamera.reset();
+            if ( GWireframeRender )
+            {
+                std::cout << "Switching to solid render mode" << std::endl;
+                GWireframeRender = false;
+            }
+            else
+            {
+                std::cout << "Switching to wireframe render" << std::endl;
+                GWireframeRender = true;
+            }
+            break;
+
+        case GLUT_KEY_F6:
+            break;
+
+        case GLUT_KEY_F12:
+            takeScreenshot();
             break;
 
         case GLUT_KEY_LEFT:
             rotate_y = 25.0f;
             break;
+
         case GLUT_KEY_RIGHT:
             rotate_y = -25.0f;
             break;
+
         case GLUT_KEY_UP:
             rotate_x = 25.0f;
             break;
+
         case GLUT_KEY_DOWN:
             rotate_x -= 25.0f;
             break;

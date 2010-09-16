@@ -1,40 +1,15 @@
-/**
- * Copyright 2010 Scott MacDonald. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice,
- *  this list of conditions and the following disclaimer.
- *
- *  2. Redistributions in binary form must reproduce the above copyright notice,
- *  this list of conditions and the following disclaimer in the documentation
- *  and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY Scott MacDonald ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
- * EVENT SHALL Scott MacDonald OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * The views and conclusions contained in the software and documentation are those
- * of the authors and should not be interpreted as representing official policies,
- * either expressed or implied, of Scott MacDonald.
- */
-#ifndef SCOTT_MATHLIB_MATRIX_H
-#define SCOTT_MATHLIB_MATRIX_H
+#ifndef SCOTT_MATRIX_H
+#define SCOTT_MATRIX_H
 
+#include <algorithm>
+#include <functional>
 #include "math/mathdefs.h"
 
 #if MATH_DEBUG_MODE == 1
 #   include <cassert>
 #   define MATRIX_DEBUG_MODE 1
 #   define matrix_assert(x) assert(x)
+#   define INIT_MATRIX_TO_ZERO 1
 #else
 #   define matrix_assert(x)
 #endif
@@ -96,6 +71,9 @@ class TMatrix
          */
         TMatrix()
         {
+#ifdef INIT_MATRIX_TO_ZERO
+            std::fill( m, m + N*N, T() );
+#endif
         }
 
         /**
@@ -110,12 +88,8 @@ class TMatrix
          */
         explicit TMatrix( const T * vals )
         {
-            matrix_assert( vals != 0 );
-
-            for ( int i = 0; i < N*N; ++i )
-            {
-                m[i] = vals[i];
-            }
+            matrix_assert( NULL != vals );
+            std::copy( vals, vals + N*N, m );
         }
 
         /**
@@ -124,11 +98,42 @@ class TMatrix
          */
         TMatrix( const TMatrix<T,N>& mat )
         {
-            // Copy each of the cells
-            for ( int i = 0; i < N*N; ++i )
-            {
-                m[i] = mat.m[i];
-            }
+            std::copy( mat.m, mat.m + (N*N), m );
+        }
+
+        /**
+         * Constant pointer to matrix structure. Lets the user cast this
+         * class to const T*
+         */
+        const T* ptr() const
+        {
+            return m;
+        }
+
+        /**
+         * Pointer to matrix's underlying data store. Lets the user cast
+         * this class to T*
+         */
+        T* ptr()
+        {
+            return m;
+        }
+
+        /**
+         * Index operator - Allows user to access the matrix's underlying
+         * data array. Note that the matrix stores its value in column
+         * major order
+         */
+        const T& operator[] ( int offset ) const
+        {
+            matrix_assert( offset < N*N && "Index on matrix out of range" );
+            return m[offset];
+        }
+
+        T& operator[] ( int offset )
+        {
+            matrix_assert( offset < N*N && "Index on matrix out of range" );
+            return m[offset];
         }
 
         /**
@@ -137,11 +142,7 @@ class TMatrix
          */
         const TMatrix<T,N>& operator = ( const TMatrix<T,N>& rhs )
         {
-            for ( int i = 0; i < N*N; ++i )
-            {
-                m[i] = rhs.m[i];
-            }
-
+            std::copy( rhs.m, rhs.m + N*N, m );
             return *this;
         }
 
@@ -151,14 +152,14 @@ class TMatrix
          */
         const TMatrix<T,N> operator + ( const TMatrix<T,N>& rhs ) const
         {
-            TMatrix<T,N> mat;
+            TMatrix<T,N> r( *this );
 
-            for ( int i = 0; i < N*N; ++i )
-            {
-                mat.m[i] = m[i] + rhs.m[i];
-            }
+            std::transform( m, m + N*N, r.m,
+                            r.m,
+                            std::plus<T>()
+            );
 
-            return mat;
+            return r;
         }
 
         /**
@@ -167,10 +168,10 @@ class TMatrix
          */
         void operator += ( const TMatrix<T,N>& rhs )
         {
-            for ( int i = 0; i < N*N; ++i )
-            {
-                m[i] += rhs.m[i];
-            }
+            std::transform( m, m + N*N, rhs.m,
+                            m,
+                            std::plus<T>()
+            );
         }
 
         /**
@@ -180,14 +181,14 @@ class TMatrix
          */
         const TMatrix<T,N> operator - ( const TMatrix<T,N>& rhs ) const
         {
-            TMatrix<T,N> mat;
+            TMatrix<T,N> r( *this );
 
-            for ( int i = 0; i < N*N; ++i )
-            {
-                mat.m[i] = m[i] - rhs.m[i];
-            }
+            std::transform( m, m + N*N, r.m,
+                            r.m,
+                            std::minus<T>()
+            );
 
-            return mat;
+            return r;
         }
 
         /**
@@ -196,10 +197,45 @@ class TMatrix
          */
         const TMatrix<T,N> operator -= ( const TMatrix<T,N>& rhs )
         {
-            for ( int i = 0; i < N*N; ++i )
-            {
-                m[i] -= rhs.m[i];
-            }
+            std::transform( m, m + N*N, rhs.m,
+                            m,
+                            std::plus<T>()
+            );
+        }
+
+        /**
+         * Matrix scaling operator
+         */
+        const TMatrix<T,N> operator * ( const T& c ) const
+        {
+            TMatrix<T,N> r( *this );
+
+            std::transform( m, m + N*N,
+                            r.m,
+                            std::bind2nd( std::multiplies<T>(), c )
+            );
+
+            return r;
+        }
+
+        /**
+         * Matrix self-scaling operator
+         */
+        const TMatrix<T,N> operator *= ( const T& c ) const
+        {
+            std::transform( m, m + N*N,
+                            m,
+                            std::bind2nd( std::multiplies<T>(), c )
+            );
+        }
+
+        /**
+         * Matrix multiplication
+         */
+        const TMatrix<T,N> operator * ( const TMatrix<T,N>& rhs ) const
+        {
+            // not implemented yet
+            return TMatrix<T,N>();
         }
 
         /**
@@ -208,33 +244,31 @@ class TMatrix
          * either use a strict equality check, or a slightly more relaxed
          * fuzzy equals. (Fuzzy equals is the default).
          */
-        bool operator == ( const TMatrix<T,N>& mat ) const
+        bool operator == ( const TMatrix<T,N>& rhs ) const
         {
 #ifdef MATH_USE_FUZZY_EQUALS
-            return fuzzyEquals( mat );
+            return fuzzyEquals( rhs );
 #else
-            return strictEquals( mat );
+            return strictEquals( rhs );
 #endif
+        }
+
+       /**
+        * The inequality operator. Simply checks if two matrices
+        * are not equivilant.
+        */
+        bool operator != ( const TMatrix<T,N>& rhs ) const
+        {
+            return !( *this == rhs );
         }
 
         /**
          * Strict equality operator. This method will check if the values
          * of two matrices matches exactly.
          */
-        bool strictEquals( const TMatrix<T,N>& mat ) const
+        bool strictEquals( const TMatrix<T,N>& rhs ) const
         {
-            bool isEqual = true;
-
-            for ( int i = 0; i < N*N; ++i )
-            {
-                if ( m[i] != mat.m[i] )
-                {
-                    isEqual = false;
-                    break;
-                }
-            }
-
-            return isEqual;
+            return std::equal( m, m + N*N, rhs.m );
         }
 
         /**
@@ -261,15 +295,6 @@ class TMatrix
             }
 
             return isEqual;
-        }
-
-        /**
-         * The inequality operator. Simply checks if two matrices
-         * are not equivilant.
-         */
-        bool operator != ( const TMatrix<T,N>& mat ) const
-        {
-            return !( *this == mat );
         }
 
         /**
@@ -332,6 +357,17 @@ class TMatrix
         }
 
         /**
+         * Returns the transpose of this matrix
+         */
+        TMatrix<T,N>& transpose() const
+        {
+            TMatrix<T,N> ret;
+    
+            // not implemented yet
+            return ret;
+        }
+
+        /**
          * Swaps this matrix with another matrix of the same size of type
          */
         template<typename U, int V>
@@ -358,6 +394,10 @@ class TMatrix
          */
         T m[N*N];
 };
+
+/////////////////////////////////////////////////////////////////////////////
+// TMatrix<T,N> operators
+/////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////
 // TMatrix<T,N> utility / friend methods

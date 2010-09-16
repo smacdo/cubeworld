@@ -1,10 +1,13 @@
 #ifndef SCOTT_ROGUELIKE_CUBEWORLD_H
 #define SCOTT_ROGUELIKE_CUBEWORLD_H
 
-#include "point.h"
+#include "math/point.h"
 #include "math/vector.h"
 #include <vector>
 #include <iosfwd>
+#include "cubemeshbuilder.h"
+
+#include <limits>
 
 namespace Rogue
 {
@@ -13,6 +16,20 @@ class CubeData;
 class WorldCube;
 class WorldChunk;
 class World;
+
+struct CubeIntersection
+{
+    CubeIntersection()
+        : cubepos( -1, -1, -1 ),
+          normal( 0, 0, 0 ),
+          distance( std::numeric_limits<float>::infinity() )
+    {
+    }
+
+    Point cubepos;          // Location of the cube that intersected
+    Vec3  normal;           // Normal vector at point of intersection
+    float distance;         // Distance from ray origin to intersection
+};
 
 struct CubeVisitor
 {
@@ -126,7 +143,8 @@ public:
     WorldCube getAt( int x, int y, int z ) { return getAt(Point(x,y,z)); }
     WorldCube getAt( const Point& position );
 
-    WorldCube firstCubeIntersecting( const Vec3& origin, const Vec3& dir );
+    CubeIntersection firstCubeIntersecting( const Vec3& origin,
+                                            const Vec3& dir );
 
     bool isEmptyAt( int x, int y, int z ) { return isEmptyAt(Point(x,y,z)); }
     bool isEmptyAt( const Point& position ) const;
@@ -139,6 +157,8 @@ public:
     int cols() const  { return m_cols; }
     int depth() const { return m_depth; }
     int cubeCount() const;
+
+    CubeChunkMesh* getCompiledMesh();
 
 protected:
     WorldChunk* getChunk( int chunk_r, int chunk_c, int chunk_d );
@@ -166,12 +186,15 @@ public:
 
     bool isEmptyAt( const Point& position ) const;
 
-    WorldCube firstCubeIntersecting( const Vec3& origin, const Vec3& dir );
+    CubeIntersection firstCubeIntersecting( const Vec3& origin,
+                                            const Vec3& dir );
 
     std::vector<WorldCube> getAllCubes() const;
 
     void visitAllCubes( CubeVisitor& visitor ) const;
     int cubeCount() const;
+
+    CubeChunkMesh createCompiledMesh() const;
 
 private:
 

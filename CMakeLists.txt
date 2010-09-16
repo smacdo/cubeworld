@@ -63,10 +63,11 @@ endif()
 #==========================================================================
 # Pull in all the subdirectory build scripts so we can build everything
 #==========================================================================
+add_subdirectory(thirdparty)
 add_subdirectory(src)
 add_subdirectory(libs)
 
 IF(ENABLE_TESTS)
     add_subdirectory(${GTEST_PATH})
-    add_subdirectory(tests)
+    #    add_subdirectory(tests)
 ENDIF()

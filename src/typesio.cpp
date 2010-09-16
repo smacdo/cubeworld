@@ -1,12 +1,16 @@
 #include "cubeworld.h"
 #include "cubedata.h"
-#include "point.h"
 
 #include <ostream>
 
+std::ostream& operator << ( std::ostream& stream, const Point& p )
+{
+    stream << "<" << p.x << ", " << p.y << ", " << p.z << ">";
+    return stream;
+}
+
 namespace Rogue
 {
-
 std::ostream& operator << ( std::ostream& stream, const WorldCube& w )
 {
     if ( w.m_data )
@@ -29,13 +33,4 @@ std::ostream& operator << ( std::ostream& stream, const WorldCube& w )
     return stream;
 }
 
-}
-
-
-std::ostream& operator << ( std::ostream& stream, const Point& p )
-{
-    return stream << "["  << p.x
-                  << ", " << p.y
-                  << ", " << p.z
-                  << "]";
 }

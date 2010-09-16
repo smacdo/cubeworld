@@ -1,33 +1,5 @@
-/**
- * Copyright 2010 Scott MacDonald. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice,
- *  this list of conditions and the following disclaimer.
- *
- *  2. Redistributions in binary form must reproduce the above copyright notice,
- *  this list of conditions and the following disclaimer in the documentation
- *  and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY Scott MacDonald ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
- * EVENT SHALL Scott MacDonald OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * The views and conclusions contained in the software and documentation are those
- * of the authors and should not be interpreted as representing official policies,
- * either expressed or implied, of Scott MacDonald.
- */
-#ifndef SCOTT_MATHLIB_VECTOR_H
-#define SCOTT_MATHLIB_VECTOR_H
+#ifndef SCOTT_VECTOR_H
+#define SCOTT_VECTOR_H
 
 #include "math/mathdefs.h"
 #include <cmath>
@@ -64,10 +36,10 @@ public:
      * This constructor expects that the passed array contains at 
      * least three values, but there is nothing to check this constraint
      */
-    explicit TVector3( const T* p )
-        : m_x( p[0] ), m_y( p[1] ), m_z( p[2] )
+    explicit TVector3( const T* ptr )
+        : m_x( ptr[0] ), m_y( ptr[1] ), m_z( ptr[2] )
     {
-        vector_assert( p != 0 );
+        vector_assert( ptr != 0 );
     }
 
     /**
@@ -85,8 +57,8 @@ public:
      * Vector x/y/z constructor. Takes the provided x/y/z values and
      * assigns it to the newly constructed vector.
      */
-    TVector3( const T& x_, const T& y_, const T& z_ )
-        : m_x(x_), m_y(y_), m_z(z_)
+    TVector3( const T& x, const T& y, const T& z )
+        : m_x(x), m_y(y), m_z(z)
     {
     }
 
@@ -138,10 +110,6 @@ public:
 
     /** 
      * Returns a pointer to the vector's internal data
-     *
-     * WARNING: This method can be used to modify the vectors internal
-     * data! The vector class is built to assume that once constructed
-     * it is read only.
      */
     const T* ptr() const
     {
@@ -227,7 +195,7 @@ public:
     /**
      * Self addition operator. Adds rhs to self, and stores the result
      */
-    void operator += ( const TVector3<T>& rhs )
+    TVector3<T>& operator += ( const TVector3<T>& rhs )
     {
         m_x += rhs.m_x;
         m_y += rhs.m_y;
@@ -237,7 +205,7 @@ public:
     /**
      * Self subtraction operator. Subtracts rhs from self
      */
-    void operator -= ( const TVector3<T>& rhs )
+    TVector3<T>& operator -= ( const TVector3<T>& rhs )
     {
         m_x -= rhs.m_x;
         m_y -= rhs.m_y;
@@ -247,7 +215,7 @@ public:
     /**
      * Self scale operation. Scales self according to rhs scale factor
      */
-    void operator *= ( T rhs )
+    T& operator *= ( T rhs )
     {
         m_x *= rhs;
         m_y *= rhs;
@@ -275,6 +243,13 @@ public:
     friend U angleBetween( const TVector3<U>& lhs, const TVector3<U>& rhs );
 
     /**
+     * Get the distance between two vectors
+     */
+    template<typename U>
+    friend U distance( const TVector3<U>& lhs, const TVector3<U>& rhs );
+
+
+    /**
      * Returns the length (vector magnitude) of this vector.
      *
      * TODO specalize this method so we make appropriate sqrt* calls
@@ -296,7 +271,7 @@ public:
      * makes it significantly faster. Use this method when you simply want
      * to compare absolute lengths.
      */
-    T squaredLength() const
+    T lengthSquared() const
     {
         return m_x * m_x + m_y * m_y + m_z * m_z;
     }
@@ -337,7 +312,7 @@ public:
             case 'z':
                 return getRotatedAroundZAxis( angle );
             default:
-                vector_assert( false && 
+                vector_assert( false &&
                            "Vec::getRotatedAround should be 'x','y','z'" );
                 return ZeroVector();
         }
@@ -425,7 +400,7 @@ public:
     /**
      * Return the X component of the vector
      */
-    T x() const
+    inline T x() const
     {
         return m_x;
     }
@@ -433,7 +408,7 @@ public:
     /**
      * Return the Y component of the vector
      */
-    T y() const
+    inline T y() const
     {
         return m_y;
     }
@@ -441,7 +416,7 @@ public:
     /**
      * Return the Z component of the vector
      */
-    T z() const
+    inline T z() const
     {
         return m_z;
     }
@@ -488,6 +463,14 @@ T angleBetween( const TVector3<T>& lhs, const TVector3<T>& rhs )
     return val * 180 / PI;
 }
 
+template<typename T>
+T distance( const TVector3<T>& lhs, const TVector3<T>& rhs )
+{
+    static_cast<T>( sqrt(( lhs.m_x - rhs.m_x ) * ( lhs.m_x - rhs.m_x ) +
+                         ( lhs.m_y - rhs.m_y ) * ( lhs.m_y - rhs.m_y ) +
+                         ( lhs.m_z - rhs.m_z ) * ( lhs.m_z - rhs.m_z )) );
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // Vector compression
 /////////////////////////////////////////////////////////////////////////////
@@ -507,5 +490,11 @@ extern template class TVector3<char>;
 
 extern template Vec3  cross<float>( const Vec3&, const Vec3& );
 extern template IVec3 cross<int>( const IVec3&, const IVec3& );
+
+extern template float dot<float>( const Vec3&, const Vec3& );
+extern template int   dot<int>( const IVec3&, const IVec3& );
+
+extern template float distance<float>( const Vec3&, const Vec3& );
+extern template int   distance<int>( const IVec3&, const IVec3& );
 
 #endif

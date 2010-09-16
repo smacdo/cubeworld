@@ -2,11 +2,13 @@
 #include <vector>
 #include <limits>
 
+#include "math/point.h"
+
 using namespace Rogue;
 
-const int WChunkRows  = 64;
-const int WChunkCols  = 64;
-const int WChunkDepth = 64;
+const int WChunkRows  = 32;
+const int WChunkCols  = 32;
+const int WChunkDepth = 32;
 
 ///////////////////////////////////////////////////////////////////////////
 // World handling
@@ -105,7 +107,8 @@ int World::cubeCount() const
     }
 }
 
-WorldCube World::firstCubeIntersecting( const Vec3& origin, const Vec3& dir )
+CubeIntersection World::firstCubeIntersecting( const Vec3& origin,
+                                               const Vec3& dir )
 {
     WorldChunk * chunk = getChunk( 0, 0, 0 );
     
@@ -117,6 +120,20 @@ WorldCube World::firstCubeIntersecting( const Vec3& origin, const Vec3& dir )
     {
         assert( false );
     }
+}
+
+CubeChunkMesh* World::getCompiledMesh()
+{
+    static CubeChunkMesh* mesh = NULL;
+    WorldChunk * chunk         = getChunk( 0, 0, 0 );
+
+    if ( mesh == NULL && chunk != NULL )
+    {
+        mesh  = new CubeChunkMesh( -1, -1, 0 );
+        *mesh = chunk->createCompiledMesh();
+    }
+    
+    return mesh;   
 }
 
 void World::makeRelativeToChunk( int& row, int& col, int& depth ) const
@@ -221,101 +238,307 @@ void WorldChunk::visitAllCubes( CubeVisitor& visitor ) const
     }
 }
 
-bool intersects( const Point& boxMin, const Vec3& origin, const Vec3& dest )
+float intersects( const Vec3& min,
+                  const Vec3& max,
+                  const Vec3& rayOrigin,
+                  const Vec3& rayDir,
+                        Vec3& surfaceNormal )
 {
-    float mx = boxMin[0]; float tx = mx + 1.0f;
-    float my = boxMin[1]; float ty = my + 1.0f;
-    float mz = boxMin[2]; float tz = mz + 1.0f;
+    // Surface normals lookup
+    static Vec3 axes[3] = { Vec3( 1.0f, 0.0f, 0.0f ),
+                            Vec3( 0.0f, 1.0f, 0.0f ),
+                            Vec3( 0.0f, 0.0f, 1.0f ) };
 
-    float ddx = 1.0 / ( origin[0] - dest[0] );
-    float ddy = 1.0 / ( origin[1] - dest[1] );
+    float tmin = std::numeric_limits<float>::min();
+    float tmax = std::numeric_limits<float>::max();
+    float t1, t2;
 
-    float txmin = 0;
-    float txmax = 0;
-    float tymin = 0;
-    float tymax = 0;
+    char maxNormSet = 0, minNormSet = 0;
 
-    if ( ddx >= 0 )
+    Vec3 maxNormal, minNormal;
+
+    // Intersect ray with x/y/z slabs
+    for ( int k = 0; k < 3; ++k )
     {
-        txmin = ( mx - origin[0] ) * ddx;
-        txmax = ( tx - origin[0]) * ddx;
+        // check the ray against planes xk = -dx_k, xk = dx_k
+        if ( rayDir[k] != 0.0f )
+        {
+            t1 = ( min[k] - rayOrigin[k] ) / rayDir[k];
+            t2 = ( max[k] - rayOrigin[k] ) / rayDir[k];
+
+            tmin = std::max( tmin, std::min( t1, t2 ) );
+            tmax = std::min( tmax, std::max( t1, t2 ) );
+
+            if ( t1 > ZERO_DELTA && tmin == t1 )  // -face
+            {
+                minNormal  = -axes[k];
+                minNormSet = 1;
+            }
+            else if ( t2 > ZERO_DELTA && tmin == t2 ) // +face
+            {
+                minNormal  = axes[k];
+                minNormSet = 1;
+            }
+            else if ( t1 > ZERO_DELTA && tmax == t1 ) // -face
+            {
+                maxNormal  = -axes[k];
+                maxNormSet = 1;
+            }
+            else if ( t2 > ZERO_DELTA && tmax == t2 ) // +face
+            {
+                maxNormal  = -axes[k];
+                maxNormSet = 1;
+            }
+        }
+        else
+        {
+            if (( rayOrigin[k] < min[k] ) || ( rayOrigin[k] > max[k] ))
+            {
+                // not sure what happened here?
+                //   out of bounds
+                return std::numeric_limits<float>::infinity();
+            }
+        }
+    }   // end for (axes...)
+
+    // tmin..tmax now define the intersectino with parallelpiped
+    if ( tmin >= tmax )
+    {
+        // intersection point is empty or a point
+        //   (looks like the ray didn't even hit us)
+        return std::numeric_limits<float>::infinity();
+    }
+    else if ( tmin > ZERO_DELTA )
+    {
+        if ( minNormSet != 1 )
+        {
+            std::cout << "tmin=" << tmin << ", tmax=" << tmax << std::endl;
+            std::cout << "rd[0]=" << rayDir[0] << ", rd[1]=" << rayDir[1]
+                      << ", rd[2]=" << rayDir[2] << std::endl;
+            std::cout << "minNormSet=" << (int) minNormSet 
+                      << ", maxNormSet=" << (int) maxNormSet << std::endl;
+        }
+        assert( minNormSet );
+        surfaceNormal = minNormal;
+
+        return tmin;
+    }
+    else if ( tmax > ZERO_DELTA )
+    {
+        assert( maxNormSet == 1 );
+        surfaceNormal = maxNormal;
+
+        return tmax;
     }
     else
     {
-        txmin = ( tx - origin[0] ) * ddx;
-        txmax = ( mx - origin[0] ) * ddx;
-    }
-
-    if ( ddy >= 0 )
-    {
-        tymin = ( my - origin[1] ) * ddy;
-        tymax = ( ty - origin[1] ) * ddy;
-    }
-    else
-    {
-        tymin = ( ty - origin[1] ) * ddy;
-        tymax = ( my - origin[1] ) * ddy;
-    }
-
-    if ( (txmin > tymax) || (tymin > txmax) ) { return false; }
-
-    if ( tymin > txmin ) { txmin = tymin; }
-    if ( tymax < txmax ) { txmax = tymax; }
-
-    float tzmin = 0.0f, tzmax = 0.0f;
-    float ddz  = 1.0 / ( origin[2] - dest[2] );
-
-    if ( ddz >= 0 )
-    {
-        tzmin = ( mz - origin[2] ) * ddz;
-        tzmax = ( tz - origin[2] ) * ddz;
-    }
-    else
-    {
-        tzmin = ( tz - origin[2] ) * ddz;
-        tzmax = ( mz - origin[2] ) * ddz;
-    }
-
-    if ( txmin > tzmax || tzmin > txmax ) { return false; }
-    else
-    {
-        return true;
+        // no hit
+        return std::numeric_limits<float>::infinity();
     }
 }
 
-WorldCube WorldChunk::firstCubeIntersecting( const Vec3& origin, const Vec3& dest )
+CubeIntersection WorldChunk::firstCubeIntersecting( const Vec3& origin,
+                                                    const Vec3& dir     )
 {
-    int offset = findCubeOffsetByPosition( Point( 0, 0, 0 ) );
     std::vector<WorldCube>::const_iterator itr;
 
-    WorldCube best = m_cubes[offset];
+    //
+    // Keep track of information about the intersection
+    //
     float minDist  = std::numeric_limits<float>::max();
+    CubeIntersection intersection;
+
+    //
+    // Search through all cubes to find any cube that might intersect
+    // this ray
+    //   (TODO: Look up how to partition space so we don't actually
+    //          have to examine each cube)
+    //
+    Vec3 normal;
+    float infinity = std::numeric_limits<float>::infinity();
+    float dist     = 0.0f;
 
     for ( itr = m_cubes.begin(); itr != m_cubes.end(); ++itr )
     {
         Point p = itr->position();
 
-        // Find a cube that intersects
-        if (! intersects( p, origin, dest ) )
+        //
+        // Test if this cube intersects the ray
+        //
+        dist = intersects( Vec3( p[0], p[1], p[2] ),
+                           Vec3( p[0] + 1.0, p[1] + 1.0, p[2] + 1.0 ),
+                           origin,
+                           dir,
+                           normal
+        );
+          
+        if ( dist == infinity )
         {
+            // Nope, didn't intersect...
             continue;
         }
 
-        // Is it the closest one so far?
-        float dist = ( p[0] - origin[0] + 0.5 ) * ( p[0] - origin[0] + 0.5 ) +
-                     ( p[1] - origin[1] + 0.5 ) * ( p[1] - origin[1] + 0.5 ) +
-                     ( p[2] - origin[2] + 0.5 ) * ( p[2] - origin[2] + 0.5 );
-
-        dist = sqrt(dist);
-
+        //
+        // Is this the closest one so far?
+        //
         if ( dist < minDist )
         {
             minDist = dist;
-            best    = *itr;
+
+            // Keep track of best hit
+            intersection.cubepos  = p;
+            intersection.normal   = normal;
+            intersection.distance = dist;
         }
     }
 
-    return best;
+    return intersection;
+}
+
+// TODO remove this from worldchunk, use a visitAllCubes()
+// visitor pattern to build the mesh
+CubeChunkMesh WorldChunk::createCompiledMesh() const
+{
+    CubeMeshBuilder builder;
+
+    //
+    // Cube positions
+    //   TODO: rearrange these to fit correct builder pattern
+    //      (ABCD, not ADCB)
+    // [AB        
+    //  DC]    -->  ADCB    
+    //
+    //   xyz
+    //   1. right
+    //   2. left
+    //   3. back
+    //   4. front
+    //   5. top
+    //   6. bottom
+    Vec3 CubePos[6][4] = 
+    {
+        {   /* right */
+            Vec3( 1.0f, 1.0f, 0.0f ),
+            Vec3( 1.0f, 0.0f, 0.0f ),
+            Vec3( 1.0f, 0.0f,-1.0f ),
+            Vec3( 1.0f, 1.0f,-1.0f )
+        },
+        {   /* left */
+            Vec3( 0.0f, 1.0f,-1.0f ),
+            Vec3( 0.0f, 0.0f,-1.0f ),
+            Vec3( 0.0f, 0.0f, 0.0f ),
+            Vec3( 0.0f, 1.0f, 0.0f )
+        },
+        {   /* back */
+            Vec3( 1.0f, 1.0f,-1.0f ),
+            Vec3( 1.0f, 0.0f,-1.0f ),
+            Vec3( 0.0f, 0.0f,-1.0f ),
+            Vec3( 0.0f, 1.0f,-1.0f )
+        },
+        {   /* front */
+            Vec3( 0.0f, 1.0f, 0.0f ),
+            Vec3( 0.0f, 0.0f, 0.0f ),
+            Vec3( 1.0f, 0.0f, 0.0f ),
+            Vec3( 1.0f, 1.0f, 0.0f )
+        },
+        {   /* top */
+            Vec3( 1.0f, 1.0f, 0.0f ),
+            Vec3( 1.0f, 1.0f,-1.0f ),
+            Vec3( 0.0f, 1.0f,-1.0f ),
+            Vec3( 0.0f, 1.0f, 0.0f )
+        },
+        {   /* bottom */
+            Vec3( 0.0f, 0.0f, 0.0f ),
+            Vec3( 0.0f, 0.0f,-1.0f ),
+            Vec3( 1.0f, 0.0f,-1.0f ),
+            Vec3( 1.0f, 0.0f, 0.0f )
+        }
+    };
+
+    Vec3 CubeNormals[6] =
+    {
+        Vec3( 1.0f,  0.0f,  0.0f ),
+        Vec3(-1.0f,  0.0f,  0.0f ),
+        Vec3( 0.0f,  0.0f, -1.0f ),
+        Vec3( 0.0f,  0.0f,  1.0f ),
+        Vec3( 0.0f,  1.0f,  0.0f ),
+        Vec3( 0.0f, -1.0f,  0.0f )
+    };
+
+    //
+    // Directional mapper
+    //   (in game space)
+    //  1. +x   -->   right
+    //  2. -x   -->   left
+    //  3. +y   -->   back
+    //  4. -y   -->   front
+    //  5. +z   -->   top
+    //  6. -z   -->   bottom
+    //
+    Vec3 axes[6] = { Vec3( 1.0f, 0.0f, 0.0f ),
+                     Vec3(-1.0f, 0.0f, 0.0f ),
+                     Vec3( 0.0f, 1.0f, 0.0f ),
+                     Vec3( 0.0f,-1.0f, 0.0f ),
+                     Vec3( 0.0f, 0.0f, 1.0f ),
+                     Vec3( 0.0f, 0.0f,-1.0f ) };
+
+    //
+    // Okay, walk through each cube
+    //
+    std::vector<WorldCube>::const_iterator itr;
+    int hiddenCubes = 0;
+    int hiddenFaces = 0;
+    int totalFaces  = 0;
+
+    std::cout << "Starting compile" << std::endl;
+
+    for ( itr = m_cubes.begin(); itr != m_cubes.end(); ++itr )
+    {
+        Point p = itr->position();
+
+        //
+        // Check each side of the cube to see if it has a neighbor
+        //
+        int hidden = 0;
+
+        for ( int k = 0; k < 6; ++k )
+        {
+            totalFaces++;
+
+            Point n = Point( p[0] + axes[k][0],
+                             p[1] + axes[k][1],
+                             p[2] + axes[k][2] );
+            Vec3  b = Vec3( p[0], p[2], -p[1] );
+
+            if ( isEmptyAt( n ) )
+            {
+                // ADCB
+                builder.addFace( b + CubePos[k][0], CubeNormals[k],
+                                 b + CubePos[k][1], CubeNormals[k],
+                                 b + CubePos[k][2], CubeNormals[k],
+                                 b + CubePos[k][3], CubeNormals[k] );
+
+                // Update faces optimized out
+                hidden++;
+            }
+        }
+
+        // Was the cube fully optimized out?
+        if ( hidden == 6 ) { hiddenCubes++; }
+        
+        hiddenFaces += hidden;
+    }
+
+    std::cout << " ----- Chunk Statistics ---------------" << std::endl;
+    std::cout << "  Cubes: "   << m_cubes.size() << " ("
+              << hiddenCubes   << " hidden)"     << std::endl;
+    std::cout << "  Sides: "   << totalFaces     << " ("
+              << hiddenFaces   << " hidden, " << ( totalFaces-hiddenFaces )
+              << " total)"     << std::endl;
+    std::cout << "  Verts: "   << builder.numVerts()
+              << ", Indices: " << builder.numIndices() << std::endl;
+
+    return builder.createMesh();
 }
 
 int WorldChunk::cubeCount() const

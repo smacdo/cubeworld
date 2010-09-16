@@ -1,9 +1,14 @@
 #ifndef SCOTT_ROGUELIKE_WORLD_H
 #define SCOTT_ROGUELIKE_WORLD_H
 
-#include "coredefs.h"
-#include "zone.h"
+namespace Rogue
+{
+    class World;
+}
 
-Zone getWorldZone();
+void makeWorld( const char * type, Rogue::World& world );
+void makeStressfulWorld( Rogue::World& world );
+void makeSimpleWorld( Rogue::World& world );
+void makeFlatWorld( Rogue::World& world );
 
 #endif

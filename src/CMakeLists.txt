@@ -27,25 +27,32 @@ set(ENGINE_LIBS appcore tga math)
 find_package(GLUT REQUIRED)
 find_package(GLU REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(GLEW REQUIRED)
 
 # Make sure they were actually pulled in (it seems cmake lies)
 if(NOT GLUT_FOUND)
     message(FATAL_ERROR "Freeglut library not found")
 endif()
 
+if(NOT GLEW_FOUND)
+    message(FATAL_ERROR "GLEW library not found")
+endif()
+
 # Pull in required third party libraries (OpenGL, etc)
 set(APP_LIBS ${EXTRA_LIBS} 
              ${GLUT_LIBRARIES}
              ${OpenGL_LIBRARIES}
-             ${GLU_LIBRARY})
-set(APP_LIB_INCLUDE_DIRS )
+             ${GLEW_LIBRARY}
+             ${GLU_LIBRARY}
+             lodepng)
+set(APP_LIB_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/thirdparty/lodepng/include)
 
 #========================================================================
 # Application compiling and linking
 #========================================================================
 # Set up include directories
 include_directories( ${CMAKE_SOURCE_DIR}/include
-                     ${CMAKE_APP_LIB_INCLUDE_DIRS}
+                     ${APP_LIB_INCLUDE_DIRS}
                      ${ENGINE_INCLUDE_DIRS} )
 
 # Create the actual library (of code under test), and executable that

@@ -1,7 +1,7 @@
 #ifndef SCOTT_ROGUELIKE_CUBEDATA_H
 #define SCOTT_ROGUELIKE_CUBEDATA_H
 
-#include "point.h"
+#include "math/point.h"
 
 namespace Rogue
 {
