@@ -25,11 +25,14 @@ set(ENGINE_LIBS appcore tga math)
 # External required libraries
 #========================================================================
 find_package(GLUT REQUIRED)
-find_package(GLU REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
 # Make sure they were actually pulled in (it seems cmake lies)
+if(NOT OPENGL_FOUND)
+	message(FATAL_ERROR "OpenGL development libs not found")
+endif()
+
 if(NOT GLUT_FOUND)
     message(FATAL_ERROR "Freeglut library not found")
 endif()

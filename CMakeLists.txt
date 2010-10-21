@@ -18,6 +18,8 @@ set(APP_BIN_NAME "forgeclient")
 set(GTEST_PATH "${PROJECT_SOURCE_DIR}/thirdparty/googletest")
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/thirdparty/cmake")
 
+set(GLUT_ROOT_PATH "$ENV{API_DIR}/freeglut")
+
 #==========================================================================
 # Build options
 #==========================================================================
