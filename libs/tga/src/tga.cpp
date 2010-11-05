@@ -47,7 +47,12 @@
 
 using namespace TGA;
 
+#ifdef _WIN32
+#pragma pack(1)
+struct TGAHeader
+#else
 struct __attribute__((packed, aligned(1))) TGAHeader 
+#endif
 {
     uint8_t  id_length;
     uint8_t  maptype;
@@ -265,6 +270,7 @@ bool TGA::saveTGA( const char * filename, const TgaImage& img )
 
     // All done
     fclose( file );
+    return true;
 }
 
 bool decompressRleStream( FILE * file, uint8_t * pixels, int length, int size )

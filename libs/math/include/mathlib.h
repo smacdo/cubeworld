@@ -89,6 +89,7 @@ T snap( const T& val, const T& grid )
 // Template instantiations - Declare the following common templates extern,
 // so the compiler will only expand the templates once
 /////////////////////////////////////////////////////////////////////////////
+#ifdef MATHLIB_EXTERN_TEMPLATES
 extern template float  min<float>(  const float&,  const float&  );
 extern template double min<double>( const double&, const double& );
 extern template long   min<long>(   const long&,   const long& );
@@ -132,4 +133,5 @@ extern template unsigned short max<unsigned short>( const unsigned short&,
                                              const unsigned short& );
 extern template unsigned char  max<unsigned char>(  const unsigned char&,
                                            const unsigned char& );
+#endif
 #endif

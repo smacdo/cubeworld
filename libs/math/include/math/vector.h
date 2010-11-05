@@ -200,6 +200,8 @@ public:
         m_x += rhs.m_x;
         m_y += rhs.m_y;
         m_z += rhs.m_z;
+
+        return *this;
     }
 
     /**
@@ -210,6 +212,8 @@ public:
         m_x -= rhs.m_x;
         m_y -= rhs.m_y;
         m_z -= rhs.m_z;
+
+        return *this;
     }
 
     /**
@@ -220,6 +224,8 @@ public:
         m_x *= rhs;
         m_y *= rhs;
         m_z *= rhs;
+
+        return *this;
     }
 
     /**
@@ -430,11 +436,14 @@ public:
     }
 
 private:
+#pragma warning(push, 3)
+#pragma warning(disable: 4201)  // disable warning non-standard anon struct
     union
 	{
 		struct { T m_x, m_y, m_z; };
 		struct { T v[3]; };
 	};
+#pragma warning(pop)
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -482,6 +491,7 @@ T distance( const TVector3<T>& lhs, const TVector3<T>& rhs )
 typedef TVector3<float>  Vec3;
 typedef TVector3<int>   IVec3;
 
+#ifdef MATHLIB_EXTERN_TEMPLATES
 // Prevent the compiler from constantly instantiating vector templates
 extern template class TVector3<float>;
 extern template class TVector3<double>;
@@ -496,5 +506,6 @@ extern template int   dot<int>( const IVec3&, const IVec3& );
 
 extern template float distance<float>( const Vec3&, const Vec3& );
 extern template int   distance<int>( const IVec3&, const IVec3& );
+#endif
 
 #endif

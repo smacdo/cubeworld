@@ -1,6 +1,7 @@
 #include "mathlib.h"
 
 // matrix template instantiation
+#ifdef MATHLIB_EXTERN_TEMPLATES
 template class TMatrix4<float>;
 template class TMatrix4<double>;
 template class TMatrix4<int>;
@@ -75,3 +76,4 @@ template unsigned short max<unsigned short>( const unsigned short&,
                                              const unsigned short& );
 template unsigned char  max<unsigned char>(  const unsigned char&,
                                            const unsigned char& );
+#endif

@@ -614,6 +614,7 @@ typedef TMatrix4<float> Mat4;
 // Prevent the compiler from instantiating common templates
 //  Matrix 4x4
 /////////////////////////////////////////////////////////////////////////////
+#ifdef MATHLIB_EXTERN_TEMPLATES
 extern template class TMatrix4<float>;
 extern template class TMatrix4<double>;
 extern template class TMatrix4<int>;
@@ -635,5 +636,6 @@ extern template void swap( TMatrix<int,2>&    lhs, TMatrix<int,2>&    rhs );
 extern template class TMatrix<float, 3>;
 extern template class TMatrix<double, 3>;
 extern template class TMatrix<int, 3>;
+#endif
 
 #endif
