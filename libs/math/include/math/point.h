@@ -3,6 +3,7 @@
 
 #include <iostream>     // remove
 #include <cassert>
+#include "math/mathdefs.h"
 #include "math/vector.h"
 
 /**
@@ -42,20 +43,26 @@ public:
     {
     }
 
-    Point( int axis, int x, int y, int z )
+    Point( size_t axis, int x, int y, int z )
     {
-        assert( axis >= 0 && axis < 3 );
+        math_assert( axis < 3 );
 
         v[PR[axis]] = x;
         v[PC[axis]] = y;
         v[PD[axis]] = z;
     }
 
+    /**
+     * Copy constructor
+     */
     Point( const Point& point )
         : x(point.x), y(point.y), z(point.z)
     {
     }
 
+    /**
+     * Assignment operator
+     */
     const Point& operator = ( const Point& rhs )
     {
         x = rhs.x;
@@ -64,16 +71,26 @@ public:
         return *this;
     }
 
+    /**
+     * Equality operator. Since point is integer based, we do not need
+     * to compensate for potential floating point equality.
+     */
     bool operator == ( const Point& rhs ) const
     {
         return ( x == rhs.x && y == rhs.y && z == rhs.z );
     }
 
+    /**
+     * Inequality operator
+     */
     bool operator != ( const Point& rhs ) const
     {
         return ( x != rhs.x || y != rhs.y || z != rhs.z );
     }
 
+    /**
+     * Addition operator
+     */
     Point operator + ( const Point& rhs ) const
     {
         return Point( x + rhs.x,
@@ -81,23 +98,37 @@ public:
                       z + rhs.z );
     }
 
-    int& operator[] ( int index )
+    /**
+     * Subscript operator. Allows access to the points three (x/y/z)
+     * components.
+     */
+    int& operator[] ( size_t index )
     {
-        assert( index >= 0 && index < 3 );
+        math_assert( index < 3 );
         return v[index];
     }
 
-    int  operator[] ( int index ) const
+    /**
+     * Subscript operator. Allows access to the points three (x/y/z)
+     * components.
+     */
+    int operator[] ( size_t index ) const
     {
-        assert( index >= 0 && index < 3 );
+        math_assert( index < 3 );
         return v[index];
     }
 
+    /**
+     * Checks if all components of the point are equal to zero.
+     */
     bool isZero() const
     {
         return ( x == 0 && y == 0 && z == 0 );
     }
 
+    /**
+     * Output stream operator
+     */
     friend std::ostream& operator << ( std::ostream& s, const Point& p );
 
 protected:

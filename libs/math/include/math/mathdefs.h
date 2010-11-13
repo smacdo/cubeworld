@@ -15,6 +15,12 @@ typedef float Scalar;
 #define MATH_USE_FUZZY_EQUALS 1
 #define MATHLIB_TEMPLATE_CODEGEN
 
+//#if defined(NDEBUG) or defined(_DEBUG) or defined(DEBUG)
+#define math_assert(x) assert(x)
+//#else
+//#define math_assert(x)
+//#endif
+
 ///////////////////////////////////////////////////////////////////////////
 // Constants
 ///////////////////////////////////////////////////////////////////////////
