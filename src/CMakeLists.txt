@@ -4,22 +4,30 @@
 ###    a static library, and then link the entire project binary      ###
 ###    together along with any required libraries and settings        ###
 #########################################################################
-# List of application's source code files that will be placed under test
-SET(applib_srcs gameworld.cpp
-                typesio.cpp
-                camera.cpp
-                cubeworld.cpp
-                gameapp.cpp)
+# Core source code files that comprise cube world's game engine. This is
+# all non-client presentation code
+SET(engine_srcs
+        gameworld.cpp
+        typesio.cpp
+        cubeworld.cpp)
+		
+# Client code. All testable code that makes the client goes in here.
+SET(client_srcs
+		camera.cpp
+		gameapp.cpp)
 
-# The rest of the application's code (anything not under test)
-SET(appcore_srcs rogue.cpp renderers/opengl.cpp)
+# Client code that is not under test
+SET(client_notest_srcs
+        rogue.cpp
+        cubeworldbuilder.cpp
+        renderers/opengl.cpp)
 
 #========================================================================
 # Internal engine libraries
 #========================================================================
 set(ENGINE_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/libs/appcore/include"
                         "${CMAKE_SOURCE_DIR}/libs/math/include")
-set(ENGINE_LIBS appcore tga math)
+set(ENGINE_LIBS shared_corelib shared_tga shared_math)
 
 #========================================================================
 # External required libraries
@@ -28,7 +36,7 @@ find_package(GLUT REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
-# Make sure they were actually pulled in (it seems cmake lies)
+# Make sure they were actually pulled in (it seems cmake ignores REQUIRED)
 if(NOT OPENGL_FOUND)
 	message(FATAL_ERROR "OpenGL development libs not found")
 endif()
@@ -48,6 +56,7 @@ set(APP_LIBS ${EXTRA_LIBS}
              ${GLEW_LIBRARY}
              ${GLU_LIBRARY}
              lodepng)
+			 
 set(APP_LIB_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/thirdparty/lodepng/include)
 
 #========================================================================
@@ -58,29 +67,38 @@ include_directories( ${CMAKE_SOURCE_DIR}/include
                      ${APP_LIB_INCLUDE_DIRS}
                      ${ENGINE_INCLUDE_DIRS} )
 
-# Create the actual library (of code under test), and executable that
-# contains all code
-add_library(applib STATIC ${applib_srcs})
-add_executable(${APP_BIN_NAME} ${appcore_srcs})
+add_definitions("-DFREEGLUT_STATIC -DGLEW_STATIC")
+					 
+#
+# Create a static library for the cubeworld game engine code. This will 
+# seperate the client from the actual game logic.
+#
+add_library(cubeworld_engine STATIC ${engine_srcs})
+
+set_target_properties(cubeworld_engine PROPERTIES COMPILE_FLAGS "${cxx_flags}")
+
+#
+# Create the executable that will run the game client
+#
+add_executable(${APP_BIN_NAME} ${client_srcs} ${client_notest_srcs})
+
+set_target_properties(${APP_BIN_NAME} PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 
 # Link any needed libraries
-target_link_libraries(${APP_BIN_NAME} applib ${ENGINE_LIBS} ${APP_LIBS})
-
-# Apply flags as needed
-set_target_properties(applib PROPERTIES
-                      COMPILE_FLAGS "${cxx_flags}")
-set_target_properties(${APP_BIN_NAME} PROPERTIES
-                      COMPILE_FLAGS "${cxx_flags}")
+target_link_libraries(${APP_BIN_NAME}
+                      cubeworld_engine ${ENGINE_LIBS} ${APP_LIBS})
 
 #==========================================================================
 # Run the target
 #==========================================================================
-add_custom_target(run ${APP_BIN_NAME} DEPENDS ${APP_BIN_NAME}
-                  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-                  COMMENT "Runs the application")
+if(NOT MSVC)
+    add_custom_target(run ${APP_BIN_NAME} DEPENDS ${APP_BIN_NAME}
+                      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                      COMMENT "Runs the cube world client")
 
-add_custom_target(debug 
-                  gdb `pwd`/${APP_BIN_NAME} -d ${PROJECT_SOURCE_DIR}/src -cd
-                  ${PROJECT_SOURCE_DIR}
-                  DEPENDS ${APP_BIN_NAME}
-                  COMMENT "Run application with GDB support")
+    add_custom_target(debug 
+                     gdb `pwd`/${APP_BIN_NAME} -d ${PROJECT_SOURCE_DIR}/src -cd
+                     ${PROJECT_SOURCE_DIR}
+                     DEPENDS ${APP_BIN_NAME}
+                     COMMENT "Run cubeworld client with GDB support")
+endif()

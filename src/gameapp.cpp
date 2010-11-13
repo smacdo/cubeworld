@@ -4,6 +4,8 @@
 #include "cubeworld.h"
 #include "cubedata.h"
 
+#include <gl/freeglut.h>
+
 #include <vector>
 #include <iostream>
 #include <cassert>
@@ -16,7 +18,7 @@ World * GWorld;
 
 void runGame()
 {
-    srand(time(NULL));
+    srand( static_cast<unsigned int>(time(NULL)) );
     GWorld = new World( 32, 32, 32 );
 
     std::cout << "Creating game world " 
@@ -32,16 +34,24 @@ void runGame()
     std::cout << "Game is starting..." << std::endl;
 }
 
-void doGameTick( float deltaTime, float gameTime )
+void doGameTick( float , float  )
 {
     assert( GWorld != NULL );
     renderScene( *GWorld );
 }
 
+void appExit( const std::string& message,
+              const char * file,
+              const char * func,
+                    size_t line )
+{
+	appExit( message.c_str(), file, func, line );
+}
+
 void appExit( const char * message,
               const char * file,
               const char * func,
-                    int    line )
+                    size_t line )
 {
     std::cerr << std::endl;
     std::cerr << "============================== APPLICATION ERROR "

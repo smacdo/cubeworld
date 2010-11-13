@@ -31,9 +31,9 @@ add_executable(test-${APP_BIN_NAME}
                ${GTEST_PATH}/googletestrunner.cpp )
 
 target_link_libraries(test-${APP_BIN_NAME} applib ${test_libs} gtest)
-set_target_properties(test-${APP_BIN_NAME}
-                      PROPERTIES
-                      LINK_FLAGS ${CMAKE_THREAD_LIBS_INIT})
+#set_target_properties(test-${APP_BIN_NAME}
+#                      PROPERTIES
+#                      LINK_FLAGS ${CMAKE_THREAD_LIBS_INIT})
 
 add_custom_target(tests ALL test-${APP_BIN_NAME}
                   DEPENDS test-${APP_BIN_NAME}

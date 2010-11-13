@@ -21,7 +21,7 @@ if( WIN32 )
    endif( MSVC71 )
    FIND_PATH( GLEW_INCLUDE_DIR GL/glew.h GL/wglew.h
               PATHS $ENV{API_DIR}/glew/include ${COMPILER_PATH}/PlatformSDK/Include )
-   SET( GLEW_NAMES glew32 )
+   SET( GLEW_NAMES glew32s )
    FIND_LIBRARY( GLEW_LIBRARY
                  NAMES ${GLEW_NAMES}
                  PATHS $ENV{API_DIR}/glew/libs ${COMPILER_PATH}/PlatformSDK/Lib )

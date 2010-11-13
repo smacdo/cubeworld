@@ -28,7 +28,7 @@ const int KEY_ESC = 27;
 Camera GCamera;
 bool GWireframeRender = false;
 
-bool checkForErrors();
+void checkForErrors();
 
 //
 // renderer setup funcs
@@ -50,7 +50,7 @@ void drawCube();
 // render engine functions
 //
 void doRenderScene();
-float calcFPS();
+void calcFPS();
 
 void addLight( int id,
         const Vec3& pos,
@@ -124,7 +124,7 @@ void startRenderer( int argc, char* argv[] )
     checkForErrors();
 }
 
-float calcFPS()
+void calcFPS()
 {
     static int lastTime    = 0;
     static int nextTime    = 0;
@@ -143,7 +143,7 @@ float calcFPS()
     {
         lastTime  = nowTime;
         nextTime += nowTime + updateInterval;
-        return 0.0f;
+        return;
     }
 
     // update stats
@@ -177,7 +177,6 @@ float calcFPS()
         worstFrameTime = 0;
         frames    = 0;
     }
-
 
     lastTime = nowTime;
 }
@@ -283,14 +282,16 @@ void renderScene( /*const*/ World& world, const Camera& camera )
 
     if ( intersection.distance != std::numeric_limits<float>::infinity() )
     {
-        float color[3] = { 0.2, 0.2, 0.9 };
+        float color[3] = { 0.2f, 0.2f, 0.9f };
         Point newCubePos = intersection.cubepos + intersection.normal;
 
         glMaterialfv( GL_FRONT, GL_DIFFUSE, (const GLfloat*) &color );
 
         glPushMatrix();
 
-        glTranslatef( newCubePos[0], newCubePos[2], -newCubePos[1] );
+        glTranslatef( static_cast<float>(newCubePos[0]),
+			          static_cast<float>(newCubePos[2]),
+					  static_cast<float>(-newCubePos[1]) );
         drawCube();
 
         glPopMatrix();
@@ -580,21 +581,21 @@ void resizeScene(int width, int height)
     checkForErrors();
 }
 
-bool checkForErrors()
+void checkForErrors()
 {
-    GLenum error = glGetError();
+    GLenum error   = glGetError();
+	bool bHasError = ( error != GL_NO_ERROR );
 
-    if( error != GL_NO_ERROR )
+    if( bHasError )
     {
-        std::cout << "OpenGL Error: "
-                  << (char*) gluErrorString( error )
-                  << std::endl;
-    }
+        std::string msg = std::string("OpenGL Error: ")                       +
+			              reinterpret_cast<const char*>(gluErrorString(error));
 
-    assert( error == 0 );
+		raiseError( msg );
+    }
 }
 
-void handleKeyboard( unsigned char key, int x, int y )
+void handleKeyboard( unsigned char key, int, int )
 {
     switch ( key )
     {
@@ -684,10 +685,9 @@ void takeScreenshot()
     delete pixels;
 }
 
-void handleSpecialKeys( int key, int mx, int my )
+void handleSpecialKeys( int key, int, int )
 {
     float rotate_y = 0.0f, rotate_x = 0.0f;
-    bool displayCameraInfo = false;
 
     switch ( key ) 
     {
@@ -749,21 +749,28 @@ void handleSpecialKeys( int key, int mx, int my )
 
 void mouseMovement( int x, int y )
 {
-    static int lastX = -1;
-    static int lastY = -1;
+    static float lastX = -1.0;
+    static float lastY = -1.0;
+	static bool initOnce = false;
 
-    if ( lastX == -1 && lastY == -1 ) { lastX = x; lastY = y; return; }
+    if ( initOnce )
+	{
+		lastX    = static_cast<float>(x);
+		lastY    = static_cast<float>(y);
+		initOnce = true;
+		return;
+	}
 
-    int deltaX = x - lastX;
-    int deltaY = y - lastY;
+    float deltaX = x - lastX;
+    float deltaY = y - lastY;
 
-    lastX      = x;
-    lastY      = y;
+    lastX      = static_cast<float>(x);
+    lastY      = static_cast<float>(y);
 
     GCamera.addMouseLookDelta( deltaY, -deltaX ); //deltaY/10 );
 }
 
-void handleMouseWheel( int button, int dir, int x, int y )
+void handleMouseWheel( int, int dir, int, int )
 {
     if ( dir > 0 )
     {

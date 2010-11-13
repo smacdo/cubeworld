@@ -21,15 +21,30 @@ CubeWorld has the following requirements prior to installation
     - Recommended that you have at least 256MB of video RAM
 4. Profit!
 
-Installation
+Building / Running
 =========================================================================
 (Please make sure you are currently in the project's root directory)
 
+Linux
+--------------
 1. mkdir build
 2. cd build
 3. cmake ../
 4. make
 5. make install
+
+Windows
+---------------
+1. Download API.7z, extract to C:\APIs
+2. Follow instructions in C:\APIs\readme.txt
+3. Start CMake-GUI
+	- Specify source code dir as this directory
+	- Specify build dir as this directory\build
+	- Click "configure"
+	- Click "Generate"
+4. Start Visual Studio, open build\cubeworld.sln
+5. Right click "cubeworldclient", click "set as start up project"
+6. Click run, you're good to go!
 
 Running
 =========================================================================

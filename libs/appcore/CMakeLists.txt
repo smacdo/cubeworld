@@ -1,1 +1,2 @@
-add_library(appcore STATIC src/appcore.cpp)
+project(SharedCoreLib)
+add_library(shared_corelib STATIC src/appcore.cpp)

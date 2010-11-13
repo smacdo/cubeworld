@@ -110,16 +110,19 @@ int World::cubeCount() const
 CubeIntersection World::firstCubeIntersecting( const Vec3& origin,
                                                const Vec3& dir )
 {
+	CubeIntersection ret;
     WorldChunk * chunk = getChunk( 0, 0, 0 );
     
     if ( chunk )
     {
-        return chunk->firstCubeIntersecting( origin, dir );
+        ret = chunk->firstCubeIntersecting( origin, dir );
     }
     else
     {
         assert( false );
     }
+
+	return ret;
 }
 
 CubeChunkMesh* World::getCompiledMesh()
@@ -129,7 +132,7 @@ CubeChunkMesh* World::getCompiledMesh()
 
     if ( mesh == NULL && chunk != NULL )
     {
-        mesh  = new CubeChunkMesh( -1, -1, 0 );
+        mesh  = new CubeChunkMesh( 0, 0, 0 );
         *mesh = chunk->createCompiledMesh();
     }
     
@@ -365,8 +368,10 @@ CubeIntersection WorldChunk::firstCubeIntersecting( const Vec3& origin,
         //
         // Test if this cube intersects the ray
         //
-        dist = intersects( Vec3( p[0], p[1], p[2] ),
-                           Vec3( p[0] + 1.0, p[1] + 1.0, p[2] + 1.0 ),
+        dist = intersects( Vec3( static_cast<float>(p[0]),
+			                     static_cast<float>(p[1]),
+								 static_cast<float>(p[2]) ),
+                           Vec3( p[0] + 1.0f, p[1] + 1.0f, p[2] + 1.0f ),
                            origin,
                            dir,
                            normal
@@ -505,10 +510,12 @@ CubeChunkMesh WorldChunk::createCompiledMesh() const
         {
             totalFaces++;
 
-            Point n = Point( p[0] + axes[k][0],
-                             p[1] + axes[k][1],
-                             p[2] + axes[k][2] );
-            Vec3  b = Vec3( p[0], p[2], -p[1] );
+            Point n = Point( static_cast<int>(p[0] + axes[k][0]),
+                             static_cast<int>(p[1] + axes[k][1]),
+                             static_cast<int>(p[2] + axes[k][2]) );
+            Vec3  b = Vec3(  static_cast<float>(p[0]),
+				             static_cast<float>(p[2]),
+							 static_cast<float>(-p[1]) );
 
             if ( isEmptyAt( n ) )
             {

@@ -10,8 +10,8 @@ using namespace Rogue;
 
 int rand( int min, int max )
 {
-    float base = rand() / ( RAND_MAX + 1.0 );
-    int v = min + ( (max+1) * base  );
+    float base = static_cast<float>(rand() / ( RAND_MAX + 1.0 ));
+    int v      = static_cast<int>( min + ( (max+1) * base  ) );
 
     return v;
 }

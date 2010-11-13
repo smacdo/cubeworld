@@ -5,12 +5,12 @@
 # Build system script                                                     #
 ###########################################################################
 cmake_minimum_required(VERSION 2.6)
-project(ScottsRoguelike)
+project(CubeWorldGame)
 
 #==========================================================================
 # Build settings and configurations
 #==========================================================================
-set(APP_BIN_NAME "forgeclient")
+set(APP_BIN_NAME "cubeworld_client")
 
 #==========================================================================
 # Build setup and paths
@@ -25,24 +25,45 @@ set(GLUT_ROOT_PATH "$ENV{API_DIR}/freeglut")
 #==========================================================================
 option(BUILD_RELEASE "Build application with all optimizations enabled" OFF)
 option(BUILD_DEBUG   "Build application with debugging symbols"          ON)
+option(STRICT_WARNS  "Enable strict warnings"                            ON)
 option(ENABLE_TESTS  "Enable building of unit tests"                     ON)
 
 #==========================================================================
 # Build configuration
 #==========================================================================
-# 
-# Set standard C++ compiler flags
-#
 if(MSVC)
-    set(cxx_flags "${cxx_flags} -GS -W4 -WX")
-    set(cxx_flags "${cxx_flags} -wd4127 -wd4251 -wd4275 -nologo -J -Zi")
-    set(cxx_flags "${cxx_flags} -DSTRICT -DWIN32_LEAN_AND_MEAN")
+	# Enable security checks
+	set(cxx_flags "${cxx_flags} /Gs")
+	
+	# Set strictest warning settings and treat them as errors
+	if(STRICT_WARNS)
+		set(cxx_flags "${cxx_flags} /W4")
+	endif()
+	
+	# Disable several level 4 warnings about ansi compliance
+	#  (-wNNN)
+	#   - Not using Microsoft's 'secure' file functions
+	#   - Dead functions generated from glut
+	#   - Non-existant PDB files (we should probably fix this)
+	set(cxx_flags "${cxx_flags} /wd4996 /wd4505 /wd4099")
+	
+	# Misc options
+	#   J: Make visual studio treat chars as unsigned rather than signed
+	#  Zi: Generate PDB for debugging
+	#  Wx: Warnings are errors (temporarily removed)
+	set(cxx_flags "${cxx_flags} /arch:SSE2 /nologo /J /Zi")
+	
+	# Defines specific for windows platform
+    set(cxx_flags "${cxx_flags} /DWIN32_LEAN_AND_MEAN")
+	
 elseif(CMAKE_COMPILER_IS_GNUCXX)
     # Enable stricter warnings
-    # set(cxx_flags "${cxx_flags} -Wall -Wextra -Wshadow")
+	if(STRICT_WARNS)
+		set(cxx_flags "${cxx_flags} -Wall -Wextra")
+	endif()
 
-    # Enable SSE1 and SSE2 extensions
-    set(cxx_flags "${cxx_flags} -msse2")
+    # Misc. settings
+    set(cxx_flags "${cxx_flags} -msse2 -Werror")
 endif()
 
 #
@@ -51,13 +72,22 @@ endif()
 #
 if(BUILD_RELEASE)
     message(STATUS "Building in release mode")
-    set(cxx_flags "${cxx_flags} -O2 -fomit-frame-pointer")
+	
+	if(CMAKE_COMPILER_IS_GNUCXX)
+		set(cxx_flags "${cxx_flags} -O2 -fomit-frame-pointer")
+	endif()
 elseif(BUILD_RELEASE AND BUILD_DEBUG)
     message(STATUS "Building in release mode with debug symbols enabled")
-    set(cxx_flags "${cxx_flags} -O2 -ggdb")
+	
+	if(CMAKE_COMPILER_IS_GNUCXX)
+		set(cxx_flags "${cxx_flags} -O2 -ggdb")
+	endif()
 elseif(BUILD_DEBUG)
     message(STATUS "Building in debug mode")
-    set(cxx_flags "${cxx_flags} -ggdb")
+	
+	if(CMAKE_COMPILER_IS_GNUCXX)
+		set(cxx_flags "${cxx_flags} -ggdb")
+	endif()
 else()
     message(FATAL_ERROR "Unknown build mode specified")
 endif()
@@ -71,5 +101,5 @@ add_subdirectory(libs)
 
 IF(ENABLE_TESTS)
     add_subdirectory(${GTEST_PATH})
-    #    add_subdirectory(tests)
+    add_subdirectory(tests)
 ENDIF()
