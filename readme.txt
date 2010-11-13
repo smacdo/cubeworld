@@ -36,7 +36,17 @@ Linux
 Windows
 ---------------
 1. Download API.7z, extract to C:\APIs
-2. Follow instructions in C:\APIs\readme.txt
+	- Go to http://github.com/smacdo/cubeworld
+	- Click on "Downloads"
+	- APIs.7z
+2. Set up API directory
+	- Create environemnt variable "API_DIR", set to "C:\APIs"
+	- Locate your Platform SDK directory
+		- XP:    C:\Program Files\Microsoft SDKs\Windows\v7.0A
+		- Vista: C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A
+	- Copy freeglut/include to SDK/include
+	- COpy glew/include to SDK/include
+	- After this your 
 3. Start CMake-GUI
 	- Specify source code dir as this directory
 	- Specify build dir as this directory\build
