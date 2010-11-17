@@ -436,14 +436,11 @@ public:
     }
 
 private:
-#pragma warning(push, 3)
-#pragma warning(disable: 4201)  // disable warning non-standard anon struct
     union
 	{
 		struct { T m_x, m_y, m_z; };
 		struct { T v[3]; };
 	};
-#pragma warning(pop)
 };
 
 /////////////////////////////////////////////////////////////////////////////

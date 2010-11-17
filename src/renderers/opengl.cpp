@@ -4,7 +4,7 @@
 #include <iostream>
 #include <limits>
 
-#include "appcore/logging.h"
+#include "core/logging.h"
 #include "renderers/opengl.h"
 #include "lodepng.h"
 #include "cubeworld.h"

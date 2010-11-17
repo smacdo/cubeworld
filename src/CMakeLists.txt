@@ -25,9 +25,9 @@ SET(client_notest_srcs
 #========================================================================
 # Internal engine libraries
 #========================================================================
-set(ENGINE_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/libs/appcore/include"
-                        "${CMAKE_SOURCE_DIR}/libs/math/include")
-set(ENGINE_LIBS shared_corelib shared_tga shared_math)
+set(ENGINE_INCLUDE_DIRS "${LIBS_ROOT}/corelib/include"
+                        "${LIBS_ROOT}/math/include")
+set(ENGINE_LIBS shared_corelib shared_math)
 
 #========================================================================
 # External required libraries
@@ -57,7 +57,7 @@ set(APP_LIBS ${EXTRA_LIBS}
              ${GLU_LIBRARY}
              lodepng)
 			 
-set(APP_LIB_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/thirdparty/lodepng/include)
+set(APP_LIB_INCLUDE_DIRS ${XLIBS_ROOT}/lodepng/include)
 
 #========================================================================
 # Application compiling and linking
@@ -67,26 +67,28 @@ include_directories( ${CMAKE_SOURCE_DIR}/include
                      ${APP_LIB_INCLUDE_DIRS}
                      ${ENGINE_INCLUDE_DIRS} )
 
-add_definitions("-DFREEGLUT_STATIC -DGLEW_STATIC")
+if(MSVC)
+    # Temporary hack to force static libs. Will want to switch to DLLs
+    add_definitions("-DFREEGLUT_STATIC -DGLEW_STATIC")
+endif()
 					 
-#
 # Create a static library for the cubeworld game engine code. This will 
 # seperate the client from the actual game logic.
-#
 add_library(cubeworld_engine STATIC ${engine_srcs})
-
 set_target_properties(cubeworld_engine PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 
 #
 # Create the executable that will run the game client
 #
 add_executable(${APP_BIN_NAME} ${client_srcs} ${client_notest_srcs})
-
 set_target_properties(${APP_BIN_NAME} PROPERTIES COMPILE_FLAGS "${cxx_flags}")
+target_link_libraries(${APP_BIN_NAME} cubeworld_engine ${ENGINE_LIBS} ${APP_LIBS})
 
-# Link any needed libraries
-target_link_libraries(${APP_BIN_NAME}
-                      cubeworld_engine ${ENGINE_LIBS} ${APP_LIBS})
+#==========================================================================
+# Copy and configure needed files
+#==========================================================================
+configure_file(${PROJECT_SOURCE_DIR}/Doxyfile.in
+               ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 
 #==========================================================================
 # Run the target
@@ -101,4 +103,9 @@ if(NOT MSVC)
                      ${PROJECT_SOURCE_DIR}
                      DEPENDS ${APP_BIN_NAME}
                      COMMENT "Run cubeworld client with GDB support")
+
+    add_custom_target(doxygen
+                      doxygen ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+                      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                      COMMENT "Generates doxygen documentation")
 endif()

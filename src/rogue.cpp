@@ -1,6 +1,3 @@
-#include "rogue.h"
-#include "coredefs.h"
-
 #include "renderers/opengl.h"
 #include "gameapp.h"
 

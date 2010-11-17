@@ -4,7 +4,7 @@
 #include "cubeworld.h"
 #include "cubedata.h"
 
-#include <gl/freeglut.h>
+#include <GL/freeglut.h>
 
 #include <vector>
 #include <iostream>

@@ -5,14 +5,14 @@
 ###    simple command line binary that runs the tests.                  ###
 ###########################################################################
 set(test_srcs test_alwaystrue.cpp
-              test_octreeworld.cpp
-              test_point.cpp)
+              test_octreeworld.cpp)
 
 #==========================================================================
 # Extra code libraries config
 #==========================================================================
-set(test_include_dirs ${CMAKE_SOURCE_DIR}/libs/math/include )
-set(test_libs math)
+set(test_include_dirs ${LIBS_ROOT}/libs/corelib/include
+                      ${LIBS_ROOT}/libs/math/include )
+set(test_libs shared_math) 
 
 #==========================================================================
 # Compile and link tests
@@ -20,7 +20,7 @@ set(test_libs math)
 # Required #include paths
 include_directories( ${PROJECT_SOURCE_DIR}/include
                      ${test_include_dirs}
-                     ${GTEST_PATH}/include )
+                     ${GTEST_ROOT}/include )
 
 # Google test requires a pthreads library
 find_package(Threads REQUIRED)
@@ -30,7 +30,7 @@ add_executable(test-${APP_BIN_NAME}
                ${test_srcs}
                ${GTEST_PATH}/googletestrunner.cpp )
 
-target_link_libraries(test-${APP_BIN_NAME} applib ${test_libs} gtest)
+target_link_libraries(test-${APP_BIN_NAME} ${test_libs} cubeworld_engine gtest)
 #set_target_properties(test-${APP_BIN_NAME}
 #                      PROPERTIES
 #                      LINK_FLAGS ${CMAKE_THREAD_LIBS_INIT})

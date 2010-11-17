@@ -1,5 +1,5 @@
 ###########################################################################
-# Project Forge                                                           #
+# CubeWorld                                                               #
 # (c) 2010 Scott MacDonald                                                #
 #                                                                         #
 # Build system script                                                     #
@@ -15,9 +15,12 @@ set(APP_BIN_NAME "cubeworld_client")
 #==========================================================================
 # Build setup and paths
 #==========================================================================
-set(GTEST_PATH "${PROJECT_SOURCE_DIR}/thirdparty/googletest")
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/thirdparty/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/extra/cmake")
+include(${CMAKE_SOURCE_DIR}/extra/cmake/shared.cmake)
 
+set(GTEST_ROOT     "${PROJECT_SOURCE_DIR}/extra/googletest")
+set(LIBS_ROOT      "${PROJECT_SOURCE_DIR}/libs")
+set(XLIBS_ROOT     "${PROJECT_SOURCE_DIR}/extra")
 set(GLUT_ROOT_PATH "$ENV{API_DIR}/freeglut")
 
 #==========================================================================
@@ -95,11 +98,12 @@ endif()
 #==========================================================================
 # Pull in all the subdirectory build scripts so we can build everything
 #==========================================================================
-add_subdirectory(thirdparty)
+add_subdirectory(${XLIBS_ROOT})
+add_subdirectory(${LIBS_ROOT})
 add_subdirectory(src)
-add_subdirectory(libs)
 
 IF(ENABLE_TESTS)
-    add_subdirectory(${GTEST_PATH})
-    add_subdirectory(tests)
+    # Tests disabled under refactor finished
+    #    add_subdirectory(${GTEST_PATH})
+    #    add_subdirectory(tests)
 ENDIF()

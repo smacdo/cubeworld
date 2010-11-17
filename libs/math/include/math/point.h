@@ -132,14 +132,11 @@ public:
     friend std::ostream& operator << ( std::ostream& s, const Point& p );
 
 protected:
-#pragma warning(push, 3)
-#pragma warning(disable: 4201)  // disable warning non-standard anon struct
     union 
     {
         struct { int x; int y; int z; };
         int v[3];
     };
-#pragma warning(pop)
 };
 
 #endif
