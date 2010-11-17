@@ -1,0 +1,22 @@
+CubeWorld
+---------------------------------------------------------------------------
+A big thank you to everyone who has helped contribute to the future
+success of CubeWorld! If you'd like to get involved, we would love to have
+you on board! Don't feel intimidated! Shoot an e-mail to one of us and
+ask how you can get started.
+
+Project Contributions and Credits
+=================================
+Scott MacDonald
+    - Founder of project
+
+
+Additional Thanks and Contributions
+===================================
+lodepng
+    * Copyright (c) 2005-2010 Lode Vandevenne
+    * Microlibrary for reading and writing PNG files
+
+Google Test
+    * Copyright 2008, Google Inc.
+    * Unit testing library
