@@ -32,22 +32,10 @@ set(ENGINE_LIBS shared_corelib shared_math)
 #========================================================================
 # External required libraries
 #========================================================================
-find_package(GLUT REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)
-
-# Make sure they were actually pulled in (it seems cmake ignores REQUIRED)
-if(NOT OPENGL_FOUND)
-	message(FATAL_ERROR "OpenGL development libs not found")
-endif()
-
-if(NOT GLUT_FOUND)
-    message(FATAL_ERROR "Freeglut library not found")
-endif()
-
-if(NOT GLEW_FOUND)
-    message(FATAL_ERROR "GLEW library not found")
-endif()
+find_package(GLU REQUIRED)
 
 # Pull in required third party libraries (OpenGL, etc)
 set(APP_LIBS ${EXTRA_LIBS} 
@@ -56,7 +44,7 @@ set(APP_LIBS ${EXTRA_LIBS}
              ${GLEW_LIBRARY}
              ${GLU_LIBRARY}
              lodepng)
-			 
+	
 set(APP_LIB_INCLUDE_DIRS ${XLIBS_ROOT}/lodepng/include)
 
 #========================================================================

@@ -2,6 +2,7 @@
 #define SCOTT_ROGUELIKE_CUBEMESHBUILDER_H
 
 #include <stdint.h>
+#include <cstddef>
 #include <vector>
 
 #include "math/vector.h"
