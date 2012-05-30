@@ -4,36 +4,31 @@
 ###    tests, link them into the google test runner and produce a       ###
 ###    simple command line binary that runs the tests.                  ###
 ###########################################################################
-set(test_srcs test_alwaystrue.cpp
-              test_octreeworld.cpp)
+set(test_srcs
+    test_alwaystrue.cpp
+    test_worldchunk.cpp
+    test_world.cpp
+)
 
-#==========================================================================
-# Extra code libraries config
-#==========================================================================
-set(test_include_dirs ${LIBS_ROOT}/libs/corelib/include
-                      ${LIBS_ROOT}/libs/math/include )
-set(test_libs shared_math) 
+set_source_files_properties(
+    ${test_srcs}
+    ${PROJECT_SOURCE_DIR}/thirdparty/googletest/testrunner.cpp
+    PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 
 #==========================================================================
 # Compile and link tests
 #==========================================================================
-# Required #include paths
-include_directories( ${PROJECT_SOURCE_DIR}/include
-                     ${test_include_dirs}
-                     ${GTEST_ROOT}/include )
+include_directories( ${PROJECT_SOURCE_DIR}/src
+                     ${PROJECT_SOURCE_DIR}/libcommon
+                     ${PROJECT_SOURCE_DIR}/thirdparty/googletest/include)
 
-# Google test requires a pthreads library
-find_package(Threads REQUIRED)
+add_executable(
+    test-${APP_BIN_NAME}
+    ${test_srcs}   
+    ${PROJECT_SOURCE_DIR}/thirdparty/googletest/testrunner.cpp )
 
-# Link the executable
-add_executable(test-${APP_BIN_NAME}
-               ${test_srcs}
-               ${GTEST_PATH}/googletestrunner.cpp )
-
-target_link_libraries(test-${APP_BIN_NAME} ${test_libs} cubeworld_engine gtest)
-#set_target_properties(test-${APP_BIN_NAME}
-#                      PROPERTIES
-#                      LINK_FLAGS ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries( test-${APP_BIN_NAME}
+                       cubeworld_engine googletest common )
 
 add_custom_target(tests ALL test-${APP_BIN_NAME}
                   DEPENDS test-${APP_BIN_NAME}

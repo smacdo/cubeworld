@@ -1,4 +1,4 @@
-#include "gtest.h"
+#include <googletest/googletest.h>
 
 TEST(alwaystrue,sample)
 {

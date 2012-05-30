@@ -1,4 +1,4 @@
-#include "renderers/opengl.h"
+#include "graphics/opengl/renderer.h"
 #include "gameapp.h"
 
 int main( int argc, char* argv[] )

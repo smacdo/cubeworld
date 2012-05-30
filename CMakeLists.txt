@@ -4,32 +4,36 @@
 #                                                                         #
 # Build system script                                                     #
 ###########################################################################
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 project(CubeWorldGame)
 
 #==========================================================================
 # Build settings and configurations
 #==========================================================================
-set(APP_BIN_NAME "cubeworld_client")
+set(APP_BIN_NAME "cubeworld")
 
 #==========================================================================
 # Build setup and paths
 #==========================================================================
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/extra/cmake")
-include(${CMAKE_SOURCE_DIR}/extra/cmake/shared.cmake)
-
-set(GTEST_ROOT     "${PROJECT_SOURCE_DIR}/extra/googletest")
-set(LIBS_ROOT      "${PROJECT_SOURCE_DIR}/libs")
-set(XLIBS_ROOT     "${PROJECT_SOURCE_DIR}/extra")
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/thirdparty/cmake")
 set(GLUT_ROOT_PATH "$ENV{API_DIR}/freeglut")
+
+#==========================================================================
+# Options
+#==========================================================================
+option(build_libcommon_tests    "Build libcommon unit tests" on)
+option(libcommon_cpp0x          "Build libcommon with C++0x support" on)
+option(libcommon_assert         "Build libcommon with custom asserts" on)
+option(libcommon_debug          "Build libcommon with debugging support" on)
+option(libcommon_warnings       "Build libcommon with warnings" on)
+option(libcommon_more_warnings  "Build libcommon with lots of warnings" off)
+option(libcommon_extra_warnings "Build libcommon with all the warnings" off)
+option(libcommon_performance    "Build libcommon with performance flags" on)
 
 #==========================================================================
 # Build options
 #==========================================================================
-option(BUILD_RELEASE "Build application with all optimizations enabled" OFF)
-option(BUILD_DEBUG   "Build application with debugging symbols"          ON)
-option(STRICT_WARNS  "Enable strict warnings"                            ON)
-option(ENABLE_TESTS  "Enable building of unit tests"                     ON)
+option(STRICT_WARNS  "Enable strict warnings"                        ON)
 
 #==========================================================================
 # Build configuration
@@ -60,50 +64,14 @@ if(MSVC)
     set(cxx_flags "${cxx_flags} /DWIN32_LEAN_AND_MEAN")
 	
 elseif(CMAKE_COMPILER_IS_GNUCXX)
-    # Enable stricter warnings
-	if(STRICT_WARNS)
-		set(cxx_flags "${cxx_flags} -Wall -Wextra")
-	endif()
+    set(cxx_flags "${cxx_flags} -DNDEBUG=1 -D_DEBUG=1")
+    set(cxx_flags "${cxx_flags} -std=c++0x -Wall -Wextra -Werror")
 
     # Misc. settings
     set(cxx_flags "${cxx_flags} -msse2 -Werror")
 endif()
 
-#
-# Linking configuration - are we creating a release, release w/ deb info,
-# or a debug build?
-#
-if(BUILD_RELEASE)
-    message(STATUS "Building in release mode")
-	
-	if(CMAKE_COMPILER_IS_GNUCXX)
-		set(cxx_flags "${cxx_flags} -O2 -fomit-frame-pointer")
-	endif()
-elseif(BUILD_RELEASE AND BUILD_DEBUG)
-    message(STATUS "Building in release mode with debug symbols enabled")
-	
-	if(CMAKE_COMPILER_IS_GNUCXX)
-		set(cxx_flags "${cxx_flags} -O2 -ggdb")
-	endif()
-elseif(BUILD_DEBUG)
-    message(STATUS "Building in debug mode")
-	
-	if(CMAKE_COMPILER_IS_GNUCXX)
-		set(cxx_flags "${cxx_flags} -ggdb")
-	endif()
-else()
-    message(FATAL_ERROR "Unknown build mode specified")
-endif()
-
-#==========================================================================
-# Pull in all the subdirectory build scripts so we can build everything
-#==========================================================================
-add_subdirectory(${XLIBS_ROOT})
-add_subdirectory(${LIBS_ROOT})
+add_subdirectory(thirdparty)
+add_subdirectory(libcommon)
 add_subdirectory(src)
-
-IF(ENABLE_TESTS)
-    # Tests disabled under refactor finished
-    #    add_subdirectory(${GTEST_PATH})
-    #    add_subdirectory(tests)
-ENDIF()
+add_subdirectory(tests)

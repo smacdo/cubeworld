@@ -1,8 +1,7 @@
 #include "gameapp.h"
-#include "renderers/opengl.h"
-#include "gameworld.h"
-#include "cubeworld.h"
-#include "cubedata.h"
+#include "graphics/opengl/renderer.h"
+#include "engine/world.h"
+#include "world/worldgenerator.h"
 
 #include <GL/freeglut.h>
 
@@ -13,7 +12,6 @@
 
 #include <time.h>
 
-using namespace Rogue;
 World * GWorld;
 
 void runGame()
