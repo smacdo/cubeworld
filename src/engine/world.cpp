@@ -2,7 +2,7 @@
 #include "engine/worldchunk.h"
 #include "engine/constants.h"
 #include "engine/point.h"
-#include "graphics/worldview.h"
+#include "graphics/iworldview.h"
 #include <vector>
 #include <limits>
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2012 Scott MacDonald
+ * Copyright 2011 Scott MacDonald
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SCOTT_LIBCOMMON_CONFIG_H
-#define SCOTT_LIBCOMMON_CONFIG_H
+#ifndef HAILSTORM_COMMON_GAMETIME_H
+#define HAILSTORM_COMMON_GAMETIME_H
 
-const unsigned int LIBCOMMON_VERSION = 1;
+typedef float TimeT;
 
 #endif

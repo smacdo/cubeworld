@@ -16,26 +16,76 @@ SET(engine_srcs
         engine/point.cpp
         engine/worldchunk.cpp
         engine/world.cpp
-        graphics/worldview.cpp
         world/worldgenerator.cpp
+)
+
+set(engine/includes
+	engine/camera.h
+	engine/constants.h
+	engine/cubedata.h
+	engine/cubeintersection.h
+	engine/gametime.h
+	engine/material.h
+	engine/point.h
+	engine/world.h
+	engine/worldchunk.h
+	engine/worldcube.h
 )
 
 # Application code that is not under unit test... this is generally the
 # platform specific graphics code and whatnot
 set(game_srcs
-	rogue.cpp
+	cubeworld.cpp
+	gameclient.cpp
 )
+
+set(game_incs
+	cubeworld.h
+	gameclient.h
+)
+
+set(graphics_srcs
+	graphics/worldchunkbuilder.cpp
+	graphics/iwindow.cpp
+)
+
+set(graphics_incs
+	graphics/cubevertex.h
+	graphics/iworldview.h
+	graphics/iwindow.h
+	graphics/irenderer.h
+	graphics/worldchunkbuilder.h
+)
+
+set(platform_srcs "")
+set(platform_incs "")
 
 #========================================================================
 # Platform specific game code
 #========================================================================
 if(MSVC)
-	SET(game_srcs
-		${game_srcs}
+	set(winplatform_srcs
+		winmain.cpp
 	)
+
+	set(renderer_srcs
+		graphics/directx/dxaboutbox.cpp
+		graphics/directx/dxrenderer.cpp
+		graphics/directx/dxwindow.cpp
+		graphics/directx/dxworldview.cpp
+	)
+	
+	set(renderer_incs
+		graphics/directx/dxaboutbox.h
+		graphics/directx/dxrenderer.h
+		graphics/directx/dxwindow.h
+		graphics/directx/dxworldview.h
+	)
+	
+	set(platform_srcs ${winplatform_srcs} ${renderer_srcs})
+	set(platform_incs ${renderer_incs})
 elseif()
-	SET(game_srcs
-		${game_srcs}
+	SET(platform_srcs
 		graphics/opengl/renderer.cpp
 	)
 endif()
@@ -83,17 +133,21 @@ include_directories(
 					 
 # Create a static library for the cubeworld game engine code. This will 
 # seperate the client from the actual game logic.
-add_library(cubeworld_engine STATIC ${engine_srcs})
+add_library(cubeworld_engine STATIC ${engine_srcs} ${engine_incs})
 set_target_properties(cubeworld_engine PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-target_link_libraries(cubeworld_engine ${Boost_LIBRARIES})
+target_link_libraries(cubeworld_engine common ${Boost_LIBRARIES})
 
 #========================================================================
 # Game client executable
 #  (This is actual runnable game)
 #========================================================================
-add_executable(cubeworld_client ${game_srcs})
+add_executable(cubeworld_client
+	${game_srcs} ${game_incs}
+	${graphics_srcs} ${graphics_incs}
+	${platform_srcs} ${platform_incs}
+)
 set_target_properties(cubeworld_client PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-target_link_libraries(cubeworld_client cubeworld_engine ${APP_LIBS})
+target_link_libraries(cubeworld_client common cubeworld_engine ${APP_LIBS}  ${Boost_LIBRARIES})
 
 #==========================================================================
 # Copy and configure needed files

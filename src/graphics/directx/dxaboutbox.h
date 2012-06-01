@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2012 Scott MacDonald
+ * Copyright 2011 Scott MacDonald
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SCOTT_LIBCOMMON_CONFIG_H
-#define SCOTT_LIBCOMMON_CONFIG_H
+#ifndef SCOTT_ABOUT_BOX_H
+#define SCOTT_ABOUT_BOX_H
 
-const unsigned int LIBCOMMON_VERSION = 1;
+#include <boost/utility.hpp>
+#include <Windows.h>
+
+class Window;
+
+/**
+ * Its an about box! What more could you possibly want?
+ */
+class AboutBox : boost::noncopyable
+{
+public:
+    AboutBox( HINSTANCE hInstance, HWND hWnd );
+    ~AboutBox();
+
+    void show();
+
+private:
+    HINSTANCE mAppInstance;
+    HWND mParentWindow;
+};
 
 #endif

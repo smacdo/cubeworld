@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2012 Scott MacDonald
+ * Copyright 2012 Scott MacDonald
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SCOTT_LIBCOMMON_CONFIG_H
-#define SCOTT_LIBCOMMON_CONFIG_H
+#include "cubeworld.h"
+#include "graphics/iwindow.h"
+#include "graphics/irenderer.h"
 
-const unsigned int LIBCOMMON_VERSION = 1;
+#include <common/assert.h>
+#include <common/delete.h>
 
-#endif
+CubeWorldClient::CubeWorldClient( IWindow * pWindow,
+                                  IRenderer * pRenderer )
+    : GameClient( pWindow, pRenderer )
+{
+}
+
+CubeWorldClient::~CubeWorldClient()
+{
+}
+
+int CubeWorldClient::run()
+{
+    return 0;
+}

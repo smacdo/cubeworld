@@ -6,10 +6,11 @@
 #include <vector>
 
 #include "math/vector.h"
+#include "graphics/cubevertex.h"
 
-struct CubeChunkMesh
+struct WorldChunkMesh
 {
-    CubeChunkMesh( unsigned int vbo_id, unsigned int ibo_id, size_t faceCount )
+    WorldChunkMesh( unsigned int vbo_id, unsigned int ibo_id, size_t faceCount )
         : vbid( vbo_id ),
           ibid( ibo_id ),
           faceCount( faceCount )
@@ -21,14 +22,14 @@ struct CubeChunkMesh
     size_t faceCount;
 };
 
-class CubeMeshBuilder
+class WorldChunkBuilder
 {
 public:
-    CubeMeshBuilder();
+    WorldChunkBuilder();
 
     void addCube( const Vec3& );
 
-    CubeChunkMesh createMesh();
+    WorldChunkMesh createMesh() const;
 
     void addFace( const Vec3& pA, const Vec3& nA,
                   const Vec3& pB, const Vec3& nB,
@@ -40,8 +41,8 @@ public:
     size_t numVerts()   const;
 
 private:
-    std::vector<int>      faces;
-    std::vector<GlVertex> vertices;
+    std::vector<int>        faces;
+    std::vector<CubeVertex> vertices;
     int m_offset;
 };
 

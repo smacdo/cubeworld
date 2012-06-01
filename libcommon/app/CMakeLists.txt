@@ -24,15 +24,15 @@ set(sources
 )
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    SET(app_srcs ${sources} ${CMAKE_CURRENT_SOURCE_DIR}/platform_darwin.mm)
+    SET(sources ${sources} ${CMAKE_CURRENT_SOURCE_DIR}/platform_darwin.mm)
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    SET(app_srcs ${sources} ${CMAKE_CURRENT_SOURCE_DIR}/platform_xp.cpp)
+    SET(sources ${sources} ${CMAKE_CURRENT_SOURCE_DIR}/platform_xp.cpp)
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    SET(app_srcs ${sources} ${CMAKE_CURRENT_SOURCE_DIR}/platform_unix.cpp)
+    SET(sources ${sources} ${CMAKE_CURRENT_SOURCE_DIR}/platform_unix.cpp)
 endif()
 
 set(tests

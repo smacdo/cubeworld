@@ -1,13 +1,10 @@
-#include "cubemeshbuilder.h"
+#include "graphics/worldchunkbuilder.h"
 #include "math/vector.h"
 
 #include <stdint.h>
 #include <vector>
 
-#include <GL/glew.h>
-#include <GL/freeglut.h>
-
-CubeMeshBuilder::CubeMeshBuilder()
+WorldChunkBuilder::WorldChunkBuilder()
     : m_offset(0)
 {
     faces.reserve( 150000 );
@@ -17,10 +14,10 @@ CubeMeshBuilder::CubeMeshBuilder()
 
 // TODO remove this from worldchunk, use a visitAllCubes()
 // visitor pattern to build the mesh
-CubeChunkMesh WorldChunk::createCompiledMesh() const
+/*
+WorldChunkMesh WorldChunkBuilder::createMesh() const
 {
-    CubeMeshBuilder builder;
-
+    
     //
     // Cube positions
     //   TODO: rearrange these to fit correct builder pattern
@@ -37,37 +34,37 @@ CubeChunkMesh WorldChunk::createCompiledMesh() const
     //   6. bottom
     Vec3 CubePos[6][4] = 
     {
-        {   /* right */
+        {   // right
             Vec3( 1.0f, 1.0f, 0.0f ),
             Vec3( 1.0f, 0.0f, 0.0f ),
             Vec3( 1.0f, 0.0f,-1.0f ),
             Vec3( 1.0f, 1.0f,-1.0f )
         },
-        {   /* left */
+        {   // left
             Vec3( 0.0f, 1.0f,-1.0f ),
             Vec3( 0.0f, 0.0f,-1.0f ),
             Vec3( 0.0f, 0.0f, 0.0f ),
             Vec3( 0.0f, 1.0f, 0.0f )
         },
-        {   /* back */
+        {   // back
             Vec3( 1.0f, 1.0f,-1.0f ),
             Vec3( 1.0f, 0.0f,-1.0f ),
             Vec3( 0.0f, 0.0f,-1.0f ),
             Vec3( 0.0f, 1.0f,-1.0f )
         },
-        {   /* front */
+        {   // front
             Vec3( 0.0f, 1.0f, 0.0f ),
             Vec3( 0.0f, 0.0f, 0.0f ),
             Vec3( 1.0f, 0.0f, 0.0f ),
             Vec3( 1.0f, 1.0f, 0.0f )
         },
-        {   /* top */
+        {   // top
             Vec3( 1.0f, 1.0f, 0.0f ),
             Vec3( 1.0f, 1.0f,-1.0f ),
             Vec3( 0.0f, 1.0f,-1.0f ),
             Vec3( 0.0f, 1.0f, 0.0f )
         },
-        {   /* bottom */
+        {   // bottom
             Vec3( 0.0f, 0.0f, 0.0f ),
             Vec3( 0.0f, 0.0f,-1.0f ),
             Vec3( 1.0f, 0.0f,-1.0f ),
@@ -162,13 +159,14 @@ CubeChunkMesh WorldChunk::createCompiledMesh() const
 
     return builder.createMesh();
 }
+*/
 
-void CubeMeshBuilder::addCube( const Vec3& )
+void WorldChunkBuilder::addCube( const Vec3& )
 {
 
 }
 
-CubeChunkMesh CubeMeshBuilder::createMesh()
+WorldChunkMesh WorldChunkBuilder::createMesh() const
 {
     //
     // Create a vertex and index buffer to store geometry
@@ -180,7 +178,7 @@ CubeChunkMesh CubeMeshBuilder::createMesh()
     int ibsize = indexElementSize  * faces.size();
 
     uint32_t vbid = 0, ibid = 0;
-
+/*
     // Get a buffer id
     glGenBuffers( 1, &vbid );
     glGenBuffers( 1, &ibid );
@@ -195,8 +193,9 @@ CubeChunkMesh CubeMeshBuilder::createMesh()
     // Set the index buffer to be active
     glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibid );
     glBufferData( GL_ELEMENT_ARRAY_BUFFER, ibsize, &faces[0], GL_STATIC_DRAW );
+    */
 
-    return CubeChunkMesh( vbid, ibid, faces.size() );
+    return WorldChunkMesh( vbid, ibid, faces.size() );
 }
 
 /**
@@ -207,7 +206,7 @@ CubeChunkMesh CubeMeshBuilder::createMesh()
  * [BDA]
  * [BDC]
  */
-void CubeMeshBuilder::addFace( const Vec3& pA, const Vec3& nA,
+void WorldChunkBuilder::addFace( const Vec3& pA, const Vec3& nA,
                 const Vec3& pB, const Vec3& nB,
                 const Vec3& pC, const Vec3& nC,
                 const Vec3& pD, const Vec3& nD )
@@ -230,6 +229,6 @@ void CubeMeshBuilder::addFace( const Vec3& pA, const Vec3& nA,
     m_offset += 4;
 }
 
-size_t CubeMeshBuilder::numIndices() const { return faces.size(); }
-size_t CubeMeshBuilder::numFaces()   const { return faces.size() / 3; }
-size_t CubeMeshBuilder::numVerts()   const { return faces.size(); }
+size_t WorldChunkBuilder::numIndices() const { return faces.size(); }
+size_t WorldChunkBuilder::numFaces()   const { return faces.size() / 3; }
+size_t WorldChunkBuilder::numVerts()   const { return faces.size(); }

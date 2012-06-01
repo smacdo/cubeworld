@@ -35,7 +35,7 @@ option(STRICT_WARNS  "Enable strict warnings"                        ON)
 #==========================================================================
 if(MSVC)
 	# Libcommon flags and other global flags
-	set(cxx_flags "${cxx_flags} /DNDEBUG=1=1 /D_DEBUG=1")
+	set(cxx_flags "${cxx_flags} /DNDEBUG=1=1 /D_DEBUG=1 /DUNICODE /D_UNICODE")
 
 	# Enable security checks
 	set(cxx_flags "${cxx_flags} /Gs")

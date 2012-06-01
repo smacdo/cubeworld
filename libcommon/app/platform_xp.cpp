@@ -16,10 +16,10 @@
 #define UNICODE
 #define _UNICODE
 
-#include "common/platform.h"
-#include "common/logging.h"
-#include "common/utils.h"
-#include "config.h"
+#include <app/platform.h>
+#include <app/logging.h>
+#include <common/delete.h>
+#include <libcommon.h>
 #include <string>
 #include <sstream>
 

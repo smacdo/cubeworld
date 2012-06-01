@@ -6,7 +6,7 @@
 #include "engine/cubeintersection.h"
 #include <vector>
 
-class WorldView;
+class IWorldView;
 class CubeData;
 class WorldChunk;
 
@@ -57,7 +57,7 @@ protected:
     inline unsigned int getIndexForChunk( const Point& pos ) const;
 
 protected:
-    WorldView * mpView;
+    IWorldView * mpView;
     std::vector<WorldChunk*> mChunks;
     unsigned int mCols;     // x
     unsigned int mRows;     // y
