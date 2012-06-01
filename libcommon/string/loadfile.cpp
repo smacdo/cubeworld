@@ -28,13 +28,13 @@ std::string loadfile( const std::string& filename, bool * pStatus )
     {
         // Get the size of the file, so we know how large of a buffer to
         // allocate. Then read the contents of that file into this buffer
-        std::streampos size = file.tellg();
+        size_t size = static_cast<size_t>( file.tellg() );
         boost::scoped_array<char> pBuffer( new char[ size ] );
 
         file.read( pBuffer.get(), size );
 
         // Copy the file buffer into an STL string for returning
-        output.append( pBuffer.get(), static_cast<size_t>( size ) );
+        output.append( pBuffer.get(), size );
 
         // Let the caller know that we succeeded in loading the file
         if ( pStatus != NULL )

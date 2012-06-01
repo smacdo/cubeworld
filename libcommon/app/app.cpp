@@ -26,8 +26,3 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Scott MacDonald.
  */
-#include <app/app.h>
-
-#include <iostream>
-#include <cstdlib>
-

@@ -21,6 +21,16 @@
 #include <fstream>
 #include <string>
 
+const char* LOG_LEVEL_NAMES[ELogLevel_Count] =
+{
+    "TRACE",
+    "DEBUG",
+    "INFO",
+    "NOTICE",
+    "WARN",
+    "ERROR"
+};
+
 /**
  * Writes a trace entry to the program's log, and a stream that can be
  * used to append additional information to the entry

@@ -45,16 +45,7 @@ enum ELogLevel
 #define LOG_WARN(x)   GlobalLog::getInstance().warn(x)
 #define LOG_ERROR(x)  GlobalLog::getInstance().error(x)
 
-const char* LOG_LEVEL_NAMES[ELogLevel_Count] =
-{
-    "TRACE",
-    "DEBUG",
-    "INFO",
-    "NOTICE",
-    "WARN",
-    "ERROR"
-};
-
+extern const char* LOG_LEVEL_NAMES[ELogLevel_Count];
 
 /**
  * The "magic" of the logging system. An instance of this class is returned

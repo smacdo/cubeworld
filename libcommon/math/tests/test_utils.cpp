@@ -15,7 +15,7 @@ TEST(Math,Utils_EqualsClose_Basic)
     EXPECT_TRUE( equalsClose( 42.0f, 42.0f ) );
 
     // double
-    EXPECT_TRUE( equalsClose( 42.0, 42.0 ) );
+    EXPECT_TRUE( equalsClose( 42.0f, 42.0f ) );
 
     // int
     EXPECT_TRUE( equalsClose( 42, 42 ) );
@@ -27,7 +27,7 @@ TEST(Math,Utils_EqualsClose_NotEquals)
     EXPECT_FALSE( equalsClose( 42.0f, -42.0f ) );
 
     // double
-    EXPECT_FALSE( equalsClose( 42.0, -42.0 ) );
+    EXPECT_FALSE( equalsClose( 42.0f, -42.0f ) );
 
     // int
     EXPECT_FALSE( equalsClose( 42, -42 ) );
@@ -47,9 +47,9 @@ TEST(Math,Utils_EqualsClose_ZeroEdges)
     EXPECT_TRUE( equalsClose( 0.0f,-0.0f      ) );
 
     // float64
-    EXPECT_TRUE( equalsClose( 0.0, 0.0000000001 ) );
-    EXPECT_TRUE( equalsClose( 0.0,-0.0000000001 ) );
-    EXPECT_TRUE( equalsClose( 0.0,-0.0000000000  ) );
+    EXPECT_TRUE( equalsClose( 0.0f, 0.0000000001f ) );
+    EXPECT_TRUE( equalsClose( 0.0f,-0.0000000001f ) );
+    EXPECT_TRUE( equalsClose( 0.0f,-0.0000000000f  ) );
 }
 
 //===========================================================================
@@ -71,24 +71,24 @@ TEST(Math,Utils_IsZero_Zero_BasicTypes)
 
 TEST(Math,Utils_IsZero_Zero)
 {
-    EXPECT_TRUE( isZero( 0.00 ) );
+    EXPECT_TRUE( isZero( 0.00f ) );
 }
 
 TEST(Math,Utils_IsZero_NotZero)
 {
-    EXPECT_FALSE( isZero( 0.1 ) );
+    EXPECT_FALSE( isZero( 0.1f ) );
 }
 
 TEST(Math,Utils_IsZero_WithinBounds)
 {
-    EXPECT_TRUE( isZero( 0.0000000009 ) );
-    EXPECT_TRUE( isZero(-0.0000000009 ) );
+    EXPECT_TRUE( isZero( 0.0000000009f ) );
+    EXPECT_TRUE( isZero(-0.0000000009f ) );
 }
 
 TEST(Math,Utils_IsZero_OutsideBounds)
 {
-    EXPECT_FALSE( isZero( 0.000000002 ) );
-    EXPECT_FALSE( isZero(-0.000000002 ) );
+    EXPECT_FALSE( isZero( 0.000000002f ) );
+    EXPECT_FALSE( isZero(-0.000000002f ) );
 }
 
 //===========================================================================
@@ -97,7 +97,7 @@ TEST(Math,Utils_IsZero_OutsideBounds)
 TEST(Math,Utils_NotZero_True)
 {
     EXPECT_TRUE(Math::notZero( 1 ));
-    EXPECT_TRUE(Math::notZero( (double) 1.0  ));
+    EXPECT_TRUE(Math::notZero( (double) 1.0f  ));
     EXPECT_TRUE(Math::notZero( (float)  1.0f ));
     EXPECT_TRUE(Math::notZero( (bool) true ));
 }
@@ -105,7 +105,7 @@ TEST(Math,Utils_NotZero_True)
 TEST(Math,Utils_NotZero_False)
 {
     EXPECT_FALSE(Math::notZero( 0 ));
-    EXPECT_FALSE(Math::notZero( (double) 0.0  ));
+    EXPECT_FALSE(Math::notZero( (double) 0.0f  ));
     EXPECT_FALSE(Math::notZero( (float)  0.0f ));
     EXPECT_FALSE(Math::notZero( (bool) false ));
 }
@@ -227,12 +227,12 @@ TEST(Math,Utils_ClampAngle_FloatValues)
 
 TEST(Math,Utils_ClampAngle_DoubleValues)
 {
-    EXPECT_FLOAT_EQ( 270.0, clampAngle( -90.0 ) );
-    EXPECT_FLOAT_EQ( 0.0,   clampAngle( 0.0 ) );
-    EXPECT_FLOAT_EQ( 180.0, clampAngle( 180.0 ) );
-    EXPECT_FLOAT_EQ( 0.0,   clampAngle( 360.0 ) );
-    EXPECT_FLOAT_EQ( 60.0,  clampAngle( 420.0 ) );
-    EXPECT_FLOAT_EQ( 0.0,   clampAngle( 720.0 ) );
+    EXPECT_FLOAT_EQ( 270.0f, clampAngle( -90.0f ) );
+    EXPECT_FLOAT_EQ( 0.0f,   clampAngle( 0.0f ) );
+    EXPECT_FLOAT_EQ( 180.0f, clampAngle( 180.0f ) );
+    EXPECT_FLOAT_EQ( 0.0f,   clampAngle( 360.0f ) );
+    EXPECT_FLOAT_EQ( 60.0f,  clampAngle( 420.0f ) );
+    EXPECT_FLOAT_EQ( 0.0f,   clampAngle( 720.0f ) );
 }
 
 TEST(Math,Utils_NextPowerOfTwo_Values)

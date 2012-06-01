@@ -4,8 +4,9 @@
 ###    a static library, and then link the entire project binary      ###
 ###    together along with any required libraries and settings        ###
 #########################################################################
-# Core source code files that comprise cube world's game engine. This is
-# all non-client presentation code
+#========================================================================
+# Game engine and gameplay code
+#========================================================================
 SET(engine_srcs
         engine/camera.cpp
         engine/constants.cpp
@@ -18,52 +19,81 @@ SET(engine_srcs
         graphics/worldview.cpp
         world/worldgenerator.cpp
 )
-		
-# Client code that is not under test
-SET(game_srcs
-        graphics/worldchunkbuilder.cpp
-        graphics/opengl/renderer.cpp
-        rogue.cpp
+
+# Application code that is not under unit test... this is generally the
+# platform specific graphics code and whatnot
+set(game_srcs
+	rogue.cpp
 )
 
 #========================================================================
-# External required libraries
+# Platform specific game code
 #========================================================================
-find_package(OpenGL REQUIRED)
-find_package(GLUT REQUIRED)
-find_package(GLEW REQUIRED)
-find_package(GLU REQUIRED)
+if(MSVC)
+	SET(game_srcs
+		${game_srcs}
+	)
+elseif()
+	SET(game_srcs
+		${game_srcs}
+		graphics/opengl/renderer.cpp
+	)
+endif()
 
-# Pull in required third party libraries (OpenGL, etc)
-set(APP_LIBS ${EXTRA_LIBS} 
-             ${GLUT_LIBRARIES}
-             ${OpenGL_LIBRARIES}
-             ${GLEW_LIBRARY}
-             ${GLU_LIBRARY}
-             common
-             lodepng)
-	
 #========================================================================
-# Application compiling and linking
+# External libraries
 #========================================================================
-# Set up include directories
-include_directories( ${CMAKE_SOURCE_DIR}/src
-                     ${CMAKE_SOURCE_DIR}/libcommon )
+set(Boost_USE_STATIC_LIBS true)
+find_package(Boost COMPONENTS system filesystem program_options REQUIRED)
 
 if(MSVC)
-    # Temporary hack to force static libs. Will want to switch to DLLs
-    add_definitions("-DFREEGLUT_STATIC -DGLEW_STATIC")
+	# Locate platform specific libraries
+	find_package(DirectX REQUIRED)
+	
+	# DirectX 11 is REQUIRED
+	if ( NOT DirectX_D3D11_FOUND )
+		message( "DirectX SDK located" )
+		message( SEND_ERROR "DirectX 11 SDK is required" )
+	endif()
+	
+	# Build the library and include directories list
+	set( APP_INCS ${DirectX_D3D11_INCLUDE_DIR} )
+	set( APP_LIBS ${DirectX_D3D11_LIBRARIES} )
+else()
+	# Locate platform specific libraries
+	find_package(OpenGL REQUIRED)
+	find_package(GLUT REQUIRED)
+	find_package(GLEW REQUIRED)
+	find_package(GLU REQUIRED)
+	
+	# Build the library and include directories list
+	set( APP_LIBS ${GLUT_LIBRARIES} ${OpenGL_LIBRARIES} ${GLEW_LIBRARY} ${GLU_LIBRARY} )
 endif()
+	
+#========================================================================
+# Shared engine library
+#  (This is all the non-platform specific code that we can unit test)
+#========================================================================
+# Set up include directories
+include_directories(
+	${CMAKE_SOURCE_DIR}/src
+	${CMAKE_SOURCE_DIR}/libcommon
+	${Boost_INCLUDE_DIRS}
+)
 					 
 # Create a static library for the cubeworld game engine code. This will 
 # seperate the client from the actual game logic.
 add_library(cubeworld_engine STATIC ${engine_srcs})
 set_target_properties(cubeworld_engine PROPERTIES COMPILE_FLAGS "${cxx_flags}")
+target_link_libraries(cubeworld_engine ${Boost_LIBRARIES})
 
-# Create the executable that will run the game client
-#add_executable(${APP_BIN_NAME} ${game_srcs})
-#set_target_properties(${APP_BIN_NAME} PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-#target_link_libraries(${APP_BIN_NAME} cubeworld_engine ${ENGINE_LIBS} ${APP_LIBS})
+#========================================================================
+# Game client executable
+#  (This is actual runnable game)
+#========================================================================
+add_executable(cubeworld_client ${game_srcs})
+set_target_properties(cubeworld_client PROPERTIES COMPILE_FLAGS "${cxx_flags}")
+target_link_libraries(cubeworld_client cubeworld_engine ${APP_LIBS})
 
 #==========================================================================
 # Copy and configure needed files
@@ -75,14 +105,14 @@ configure_file(${PROJECT_SOURCE_DIR}/Doxyfile.in
 # Run the target
 #==========================================================================
 if(NOT MSVC)
-    add_custom_target(run ${APP_BIN_NAME} DEPENDS ${APP_BIN_NAME}
+    add_custom_target(run cubeworld_client DEPENDS cubeworld_client
                       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                       COMMENT "Runs the cube world client")
 
     add_custom_target(debug 
-                     gdb `pwd`/${APP_BIN_NAME} -d ${PROJECT_SOURCE_DIR}/src -cd
+                     gdb `pwd`/cubeworld_client -d ${PROJECT_SOURCE_DIR}/src -cd
                      ${PROJECT_SOURCE_DIR}
-                     DEPENDS ${APP_BIN_NAME}
+                     DEPENDS cubeworld_client
                      COMMENT "Run cubeworld client with GDB support")
 
     add_custom_target(doxygen

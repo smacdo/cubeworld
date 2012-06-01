@@ -8,11 +8,6 @@ cmake_minimum_required(VERSION 2.8)
 project(CubeWorldGame)
 
 #==========================================================================
-# Build settings and configurations
-#==========================================================================
-set(APP_BIN_NAME "cubeworld")
-
-#==========================================================================
 # Build setup and paths
 #==========================================================================
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/thirdparty/cmake")
@@ -39,12 +34,17 @@ option(STRICT_WARNS  "Enable strict warnings"                        ON)
 # Build configuration
 #==========================================================================
 if(MSVC)
+	# Libcommon flags and other global flags
+	set(cxx_flags "${cxx_flags} /DNDEBUG=1=1 /D_DEBUG=1")
+
 	# Enable security checks
 	set(cxx_flags "${cxx_flags} /Gs")
 	
 	# Set strictest warning settings and treat them as errors
 	if(STRICT_WARNS)
 		set(cxx_flags "${cxx_flags} /W4")
+	else()
+		set(cxx_flags "${cxx_flags} /W3 /Wx")
 	endif()
 	
 	# Disable several level 4 warnings about ansi compliance
@@ -52,12 +52,14 @@ if(MSVC)
 	#   - Not using Microsoft's 'secure' file functions
 	#   - Dead functions generated from glut
 	#   - Non-existant PDB files (we should probably fix this)
-	set(cxx_flags "${cxx_flags} /wd4996 /wd4505 /wd4099")
+	#	- Warning about nameless struct/union
+	#	- conditional expression is constant ( assert( x && "..." ) )
+	#	- unknown pragma
+	set(cxx_flags "${cxx_flags} /wd4996 /wd4505 /wd4099 /wd4201 /wd4127 /wd4068")
 	
 	# Misc options
 	#   J: Make visual studio treat chars as unsigned rather than signed
 	#  Zi: Generate PDB for debugging
-	#  Wx: Warnings are errors (temporarily removed)
 	set(cxx_flags "${cxx_flags} /arch:SSE2 /nologo /J /Zi")
 	
 	# Defines specific for windows platform

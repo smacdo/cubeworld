@@ -13,7 +13,7 @@ TEST(Math, Vector2_DefaultContructor)
 
 TEST(Math, Vector2_SizeTest)
 {
-    const Vec2 v( 1.0, 2.0 );
+    const Vec2 v( 1.0f, 2.0f );
     EXPECT_EQ( sizeof(float) * 2, sizeof(v) );
 }
 
@@ -22,113 +22,113 @@ TEST(Math, Vector2_MemoryArrayTest)
     // Makes sure that a vector is laid out linearly in memory
     Vec2 v[3];
 
-    v[0] = Vec2( 1.0, 2.0 );
-    v[1] = Vec2( 3.0, 4.0 );
-    v[2] = Vec2( 5.0, 6.0 );
+    v[0] = Vec2( 1.0f, 2.0f );
+    v[1] = Vec2( 3.0f, 4.0f );
+    v[2] = Vec2( 5.0f, 6.0f );
 
     const float * pVals = v[0].const_ptr();
 
-    EXPECT_EQ( 1.0, *(pVals + 0) );
-    EXPECT_EQ( 2.0, *(pVals + 1) );
-    EXPECT_EQ( 3.0, *(pVals + 2) );
-    EXPECT_EQ( 4.0, *(pVals + 3) );
-    EXPECT_EQ( 5.0, *(pVals + 4) );
-    EXPECT_EQ( 6.0, *(pVals + 5) );
+    EXPECT_EQ( 1.0f, *(pVals + 0) );
+    EXPECT_EQ( 2.0f, *(pVals + 1) );
+    EXPECT_EQ( 3.0f, *(pVals + 2) );
+    EXPECT_EQ( 4.0f, *(pVals + 3) );
+    EXPECT_EQ( 5.0f, *(pVals + 4) );
+    EXPECT_EQ( 6.0f, *(pVals + 5) );
 }
 
 TEST(Math, Vector2_PointerConstructor)
 {
-    float values[5] = { 3.0, 2.0, 5.0, -3.0, 6.0 };
+    float values[5] = { 3.0f, 2.0f, 5.0f, -3.0f, 6.0f };
     Vec2 v( &values[1] );
 
-    EXPECT_FLOAT_EQ(  2.0, v[0] );
-    EXPECT_FLOAT_EQ(  5.0, v[1] );
+    EXPECT_FLOAT_EQ(  2.0f, v[0] );
+    EXPECT_FLOAT_EQ(  5.0f, v[1] );
 }
 
 TEST(Math, Vector2_ValueConstructor)
 {
-    const Vec2 v( 1.0, -2.0 );
+    const Vec2 v( 1.0f, -2.0f );
 
-    EXPECT_FLOAT_EQ(  1.0, v[0] );
-    EXPECT_FLOAT_EQ( -2.0, v[1] );
+    EXPECT_FLOAT_EQ(  1.0f, v[0] );
+    EXPECT_FLOAT_EQ( -2.0f, v[1] );
 }
 
 TEST(Math, Vector2_CopyConstructor)
 {
-    const Vec2 a( 1.0, -2.0 );
+    const Vec2 a( 1.0f, -2.0f );
     const Vec2 b( a );
 
-    EXPECT_FLOAT_EQ(  1.0, b[0] );
-    EXPECT_FLOAT_EQ( -2.0, b[1] );
+    EXPECT_FLOAT_EQ(  1.0f, b[0] );
+    EXPECT_FLOAT_EQ( -2.0f, b[1] );
 }
 
 TEST(Math, Vector2_ConstIndexOperatorRead)
 {
-    const Vec2 v( 1.0, -2.0 );
+    const Vec2 v( 1.0f, -2.0f );
 
-    EXPECT_FLOAT_EQ(  1.0, v[0] );
-    EXPECT_FLOAT_EQ( -2.0, v[1] );
+    EXPECT_FLOAT_EQ(  1.0f, v[0] );
+    EXPECT_FLOAT_EQ( -2.0f, v[1] );
 }
 
 TEST(Math, Vector2_IndexOperatorWrite)
 {
-    Vec2 v( 1.0, -2.0 );
+    Vec2 v( 1.0f, -2.0f );
 
-    v[0] = 2.0;
-    v[1] = 0.2;
+    v[0] = 2.0f;
+    v[1] = 0.2f;
 
-    EXPECT_EQ( Vec2( 2.0, 0.2 ), v );
+    EXPECT_EQ( Vec2( 2.0f, 0.2f ), v );
 }
 
 TEST(Math, Vector2_ConstPointerAccess)
 {
-    Vec2 v( 1.0, 2.0 );
+    Vec2 v( 1.0f, 2.0f );
     const float * ptr = v.ptr();
 
-    EXPECT_FLOAT_EQ( 1.0, ptr[0] );
-    EXPECT_FLOAT_EQ( 2.0, ptr[1] );
+    EXPECT_FLOAT_EQ( 1.0f, ptr[0] );
+    EXPECT_FLOAT_EQ( 2.0f, ptr[1] );
 }
 
 TEST(Math, Vector2_ConstConstPointerAccess)
 {
-    Vec2 v( 1.0, 2.0 );
+    Vec2 v( 1.0f, 2.0f );
     const float * ptr = v.const_ptr();
 
-    EXPECT_FLOAT_EQ( 1.0, ptr[0] );
-    EXPECT_FLOAT_EQ( 2.0, ptr[1] );
+    EXPECT_FLOAT_EQ( 1.0f, ptr[0] );
+    EXPECT_FLOAT_EQ( 2.0f, ptr[1] );
 }
 
 TEST(Math, Vector2_NonConstPointerReadAndWrite)
 {
-    Vec2 v( 1.0, 2.0 );
+    Vec2 v( 1.0f, 2.0f );
     float * ptr = v.ptr();
 
-    EXPECT_EQ( Vec2( 1.0, 2.0 ), v );
+    EXPECT_EQ( Vec2( 1.0f, 2.0f ), v );
 
-    ptr[0] = 5.0;
-    ptr[1] = 6.0;
+    ptr[0] = 5.0f;
+    ptr[1] = 6.0f;
 
-    EXPECT_EQ( Vec2( 5.0, 6.0 ), v );
+    EXPECT_EQ( Vec2( 5.0f, 6.0f ), v );
 }
 
 TEST(Math, Vector2_Assignment)
 {
-    Vec2 a( 1.0, 2.0 );
-    const Vec2 b( 3.0, 4.0 );
+    Vec2 a( 1.0f, 2.0f );
+    const Vec2 b( 3.0f, 4.0f );
     
     a = b;
 
-    EXPECT_NE( Vec2( 1.0, 2.0 ), a );
-    EXPECT_EQ( Vec2( 3.0, 4.0 ), a );
+    EXPECT_NE( Vec2( 1.0f, 2.0f ), a );
+    EXPECT_EQ( Vec2( 3.0f, 4.0f ), a );
 }
 
 TEST(Math, Vector2_EqualityOperator)
 {
-    const Vec2 a( 1.5, -0.2 );
-    const Vec2 b( 1.5,  0.2 );
-    const Vec2 c( 0.5, -0.2 );
-    const Vec2 e( 0.0,  0.5 );
-    const Vec2 f( 1.5, -0.2 );
+    const Vec2 a( 1.5f, -0.2f );
+    const Vec2 b( 1.5f,  0.2f );
+    const Vec2 c( 0.5f, -0.2f );
+    const Vec2 e( 0.0f,  0.5f );
+    const Vec2 f( 1.5f, -0.2f );
 
     EXPECT_EQ( a, f );
     EXPECT_EQ( a, a );
@@ -141,19 +141,19 @@ TEST(Math, Vector2_EqualityOperator)
 
 TEST(Math, Vector2_EqualityOperatorPrecision)
 {
-    const Vec2 a( 2.2, -0.333 );
-    const Vec2 b( 4.4/2.0, -0.999/3.0 );
+    const Vec2 a( 2.2f, -0.333f );
+    const Vec2 b( 4.4f/2.0f, -0.999f/3.0f );
 
     EXPECT_EQ( a, b );
 }
 
 TEST(Math, Vector2_InequalityOperator)
 {
-    const Vec2 a( 1.5, -0.2 );
-    const Vec2 b( 1.5,  0.2 );
-    const Vec2 c( 0.5, -0.2 );
-    const Vec2 e( 0.0,  0.5 );
-    const Vec2 f( 1.5, -0.2 );
+    const Vec2 a( 1.5f, -0.2f );
+    const Vec2 b( 1.5f,  0.2f );
+    const Vec2 c( 0.5f, -0.2f );
+    const Vec2 e( 0.0f,  0.5f );
+    const Vec2 f( 1.5f, -0.2f );
 
     EXPECT_TRUE( a != b );
     EXPECT_TRUE( a != c );
@@ -165,112 +165,112 @@ TEST(Math, Vector2_InequalityOperator)
 
 TEST(Math, Vector2_Negation)
 {
-    Vec2 a( 2.0, 0.0 );
+    Vec2 a( 2.0f, 0.0f );
     a = -a;
 
-    EXPECT_EQ( Vec2( -2.0, -0.0 ), a );
-    EXPECT_EQ( Vec2( -2.0,  0.0 ), a );    // close
+    EXPECT_EQ( Vec2( -2.0f, -0.0f ), a );
+    EXPECT_EQ( Vec2( -2.0f,  0.0f ), a );    // close
 }
 
 TEST(Math, Vector2_AdditionOperator)
 {
-    const Vec2 a( 3.0, 5.0 );
-    const Vec2 b(-4.0, 6.0 );
+    const Vec2 a( 3.0f, 5.0f );
+    const Vec2 b(-4.0f, 6.0f );
 
-    EXPECT_EQ( Vec2( -1.0, 11.0 ), a + b );
+    EXPECT_EQ( Vec2( -1.0f, 11.0f ), a + b );
 }
 
 TEST(Math, Vector2_SelfAdditionOperator)
 {
-          Vec2 a( 3.0, 5.0 );
-    const Vec2 b(-4.0, 6.0 );
+          Vec2 a( 3.0f, 5.0f );
+    const Vec2 b(-4.0f, 6.0f );
 
     a += b;
 
-    EXPECT_EQ( Vec2( -1.0, 11.0 ), a );
+    EXPECT_EQ( Vec2( -1.0f, 11.0f ), a );
 }
 
 TEST(Math, Vector2_SubtractionOperator)
 {
-    const Vec2 a( 5.0, 2.0 );
-    const Vec2 b(-1.0, 3.0 );
+    const Vec2 a( 5.0f, 2.0f );
+    const Vec2 b(-1.0f, 3.0f );
     const Vec2 c = a - b;
     
-    EXPECT_EQ(   6.0, c[0] );
-    EXPECT_EQ(  -1.0, c[1] );
+    EXPECT_EQ(   6.0f, c[0] );
+    EXPECT_EQ(  -1.0f, c[1] );
 }
 
 TEST(Math, Vector2_SelfSubtractionOperator)
 {
-    Vec2       a( 5.0, 2.0 );
-    const Vec2 b(-1.0, 3.0 );
+    Vec2       a( 5.0f, 2.0f );
+    const Vec2 b(-1.0f, 3.0f );
     a -= b;
     
-    EXPECT_EQ(   6.0, a[0] );
-    EXPECT_EQ(  -1.0, a[1] );
+    EXPECT_EQ(   6.0f, a[0] );
+    EXPECT_EQ(  -1.0f, a[1] );
 }
 
 TEST(Math, Vector2_MultiplyOperator)
 {
-    const Vec2 a( 3.0, 5.0 );
-    const Vec2 b = a * 2.0;
+    const Vec2 a( 3.0f, 5.0f );
+    const Vec2 b = a * 2.0f;
 
-    EXPECT_EQ( Vec2( 6.0, 10.0 ), b );
+    EXPECT_EQ( Vec2( 6.0f, 10.0f ), b );
 }
 
 TEST(Math, Vector2_SelfMultiplyOperator)
 {
-    Vec2 a( 3.0, 5.0 );
-    a *= 2.0;
+    Vec2 a( 3.0f, 5.0f );
+    a *= 2.0f;
 
-    EXPECT_EQ( Vec2( 6.0, 10.0 ), a );
+    EXPECT_EQ( Vec2( 6.0f, 10.0f ), a );
 }
 
 TEST(Math, Vector2_DivisionOperator)
 {
-    const Vec2 a( 3.0, 5.0 );
-    const Vec2 b = a / 2.0;
+    const Vec2 a( 3.0f, 5.0f );
+    const Vec2 b = a / 2.0f;
 
-    EXPECT_EQ( Vec2( 1.5, 2.5 ), b );
+    EXPECT_EQ( Vec2( 1.5f, 2.5f ), b );
 }
 
 TEST(Math, Vector2_SelfDivisionOperator)
 {
-    Vec2 a( 3.0, 5.0 );
-    a /= 2.0;
+    Vec2 a( 3.0f, 5.0f );
+    a /= 2.0f;
 
-    EXPECT_EQ( Vec2( 1.5, 2.5 ), a );
+    EXPECT_EQ( Vec2( 1.5f, 2.5f ), a );
 }
 
 TEST(Math, Vector2_XAccessor)
 {
-    Vec2 a( 1.0, 2.0 );
-    Vec2 b( 6.0, 5.0 );
+    Vec2 a( 1.0f, 2.0f );
+    Vec2 b( 6.0f, 5.0f );
 
-    EXPECT_EQ( 1.0, a.x() );
-    EXPECT_EQ( 6.0, b.x() );
+    EXPECT_EQ( 1.0f, a.x() );
+    EXPECT_EQ( 6.0f, b.x() );
 }
 
 TEST(Math, Vector2_YAccessor)
 {
-    Vec2 a( 1.0, 2.0 );
-    Vec2 b( 6.0, 5.0 );
+    Vec2 a( 1.0f, 2.0f );
+    Vec2 b( 6.0f, 5.0f );
 
-    EXPECT_EQ( 2.0, a.y() );
-    EXPECT_EQ( 5.0, b.y() );
+    EXPECT_EQ( 2.0f, a.y() );
+    EXPECT_EQ( 5.0f, b.y() );
 }
 
 TEST(Math, Vector2_ZeroVector)
 {
     const Vec2 a = Vec2::ZERO;
 
-    EXPECT_EQ( a[0], 0.0 );
-    EXPECT_EQ( a[1], 0.0 );
+    EXPECT_EQ( a[0], 0.0f );
+    EXPECT_EQ( a[1], 0.0f );
 }
 
 TEST(Math, Vector2_ZeroVectorIsZeroValueConstructed)
 {
-    const Vec2 a( 0.0, 0.0 );
+    const Vec2 a( 0.0f, 0.0f );
     const Vec2 z = Vec2::ZERO;
 
     EXPECT_EQ( a, z );
@@ -278,8 +278,8 @@ TEST(Math, Vector2_ZeroVectorIsZeroValueConstructed)
 
 TEST(Math, Vector2_Length)
 {
-    const Vec2 a( 1.0, 2.0 );
-    EXPECT_FLOAT_EQ( 2.23606798, length( a ) );
+    const Vec2 a( 1.0f, 2.0f );
+    EXPECT_FLOAT_EQ( 2.23606798f, length( a ) );
 }
 
 TEST(Math, Vector2_LengthZero)
@@ -289,8 +289,8 @@ TEST(Math, Vector2_LengthZero)
 
 TEST(Math, Vector2_SquaredLength)
 {
-    const Vec2 a( 1.0, 2.0 );
-    EXPECT_EQ( 5.0, lengthSquared( a ) );
+    const Vec2 a( 1.0f, 2.0f );
+    EXPECT_EQ( 5.0f, lengthSquared( a ) );
 }
 
 TEST(Math, Vector2_SquareLengthZero)
@@ -300,8 +300,8 @@ TEST(Math, Vector2_SquareLengthZero)
 
 TEST(Math, Vector2_Normalization)
 {
-    const Vec2 a( 3.0, 1.0 );
+    const Vec2 a( 3.0f, 1.0f );
     const Vec2 n = normalized( a );
 
-    EXPECT_EQ( Vec2( 0.948683298, 0.316227766 ), n );
+    EXPECT_EQ( Vec2( 0.948683298f, 0.316227766f ), n );
 }

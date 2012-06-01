@@ -23,14 +23,16 @@ include_directories( ${PROJECT_SOURCE_DIR}/src
                      ${PROJECT_SOURCE_DIR}/thirdparty/googletest/include)
 
 add_executable(
-    test-${APP_BIN_NAME}
+    cubeworld-engine-test
     ${test_srcs}   
     ${PROJECT_SOURCE_DIR}/thirdparty/googletest/testrunner.cpp )
 
-target_link_libraries( test-${APP_BIN_NAME}
+target_link_libraries( cubeworld-engine-test
                        cubeworld_engine googletest common )
 
-add_custom_target(tests ALL test-${APP_BIN_NAME}
-                  DEPENDS test-${APP_BIN_NAME}
-                  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-                  COMMENT Runs application unit tests)
+if ( NOT MSVC )
+	add_custom_target(tests ALL cubeworld-engine-test
+					  DEPENDS cubeworld-engine-test
+					  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+					  COMMENT Runs application unit tests)
+endif()
