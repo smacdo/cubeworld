@@ -19,6 +19,7 @@
 
 #include <common/assert.h>
 #include <common/delete.h>
+#include <common/time.h>
 
 CubeWorldClient::CubeWorldClient( IWindow * pWindow,
                                   IRenderer * pRenderer )
@@ -30,7 +31,27 @@ CubeWorldClient::~CubeWorldClient()
 {
 }
 
-int CubeWorldClient::run()
+bool CubeWorldClient::initialize()
 {
-    return 0;
+    return true;
+}
+
+bool CubeWorldClient::loadContent()
+{
+    return false;
+}
+
+void CubeWorldClient::unloadContent()
+{
+
+}
+
+void CubeWorldClient::update( Time /*simTime*/, Time /*deltaTime*/ )
+{
+
+}
+
+void CubeWorldClient::draw( Time /*simTime*/, float /*interpolation*/ )
+{
+
 }

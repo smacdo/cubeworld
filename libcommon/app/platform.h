@@ -19,6 +19,7 @@
 // Common includes
 #include "common/macros.h"
 #include "common/assert.h"
+#include "common/time.h"
 #include "app/debug.h"
 
 // System includes
@@ -49,19 +50,31 @@ namespace App
 
     // Performs any needed platform specific work before starting the game
     void startup();
+
+    // Quit the application
     void quit( EProgramStatus quitStatus, const std::string& message = "" );
 
+    // Get the current system time
+    Time currentTime();
+
+    // Wait a certain amount of time
+    void sleep( Time time );
+
+    // Raise an error
     void raiseError( const std::string& message,
                      const std::string& details = "" );
 
+    // Raise a fatal error
     void raiseFatalError( const std::string& message,
                           const std::string& details = "" );
 
+    // Report a code assertion
     Debug::EAssertionStatus reportAssertion( const char *pMessage,
                                              const char *pExpression,
                                              const char* pFilename,
                                              unsigned int line );
 
+    // Platform specific error reporting
     void reportSoftwareError( const std::string& message,
                               const std::string& details,
                               EErrorType type,

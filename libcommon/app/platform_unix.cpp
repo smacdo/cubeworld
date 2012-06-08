@@ -22,6 +22,16 @@
 
 namespace App {
 
+void sleep( Time t )
+{
+
+}
+
+Time currentTime()
+{
+    return Time( 0.0 );
+}
+
 /**
  * Generates a assertion reporting dialog (or console output) to show to the
  * player, before exiting the application

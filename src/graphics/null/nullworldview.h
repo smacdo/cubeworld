@@ -13,27 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SCOTT_CUBEWORLD_CUBE_WORLD_APP_H
-#define SCOTT_CUBEWORLD_CUBE_WORLD_APP_H
+#ifndef SCOTT_CUBEWORLD_NULL_WORLD_VIEW_H
+#define SCOTT_CUBEWORLD_NULL_WORLD_VIEW_H
 
 #include <boost/noncopyable.hpp>
-#include "gameclient.h"
+#include "graphics/iworldview.h"
 
-class IWindow;
-class IRenderer;
+class WorldChunk;
 
-class CubeWorldClient : public GameClient
+class NullWorldView : public IWorldView
 {
 public:
-    CubeWorldClient( IWindow * pRenderWindow, IRenderer *pRenderer );
-    ~CubeWorldClient();
-
-    virtual bool initialize();
-    virtual bool loadContent();
-    virtual void unloadContent();
-    virtual void update( Time simTime, Time deltaTime );
-    virtual void draw( Time simTime, float interpolation );
-private:
+    void chunkUpdated( const WorldChunk * pChunk );
 };
 
 #endif

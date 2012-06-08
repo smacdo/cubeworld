@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//#include "stdafx.h"
 #include "gameclient.h"
 #include <common/assert.h>
 #include <common/delete.h>
+#include <common/time.h>
 #include <app/logging.h>
 #include <app/platform.h>
 #include "engine/gametime.h"
 #include "graphics/iwindow.h"
 #include "graphics/irenderer.h"
-
-#include <Windows.h>
 
 /**
  * Inspiration and help for the game loop came from the following sources:
@@ -45,12 +43,12 @@
 /**
  * Game client constructor
  */
-GameClient::GameClient( IWindow *pMainWindow, IRenderer *pRenderer )
+GameClient::GameClient( IWindow *pMainWindow,
+                        IRenderer *pRenderer )
     : mpMainWindow( pMainWindow ),
       mpRenderer( NULL ),
       mIsGameRunning( false ),
       mIsRunningSlowly( false ),
-      mTimerFrequency( 0.0f ),
       mUpdateFrequency( 1.0f / 50.0f ), // 20ms, 50 times per second
       mMaximumSleepSkew( 0.01f )        // 10ms
 {
@@ -74,8 +72,7 @@ void GameClient::setUpdateFrequency( int numUpdatesPerSecond )
 
     // Calculate the new update frequency and verify that it isn't zero
     // for some ungodly reason
-    mUpdateFrequency = 1 / static_cast<TimeT>( numUpdatesPerSecond );
-    assert( mUpdateFrequency > 0 );
+    mUpdateFrequency = Time( 1.0 / static_cast<double>(numUpdatesPerSecond) );
 
     // Logging
     LOG_TRACE("GameClient") << "Setting the update frequency to " << mUpdateFrequency;
@@ -118,14 +115,12 @@ int GameClient::run()
 int GameClient::runMainGameLoop()
 {
     LOG_INFO("GameClient") << "Entering the main game loop";
-
-    assert( mTimerFrequency > 0.0f );
     mIsGameRunning = true;
 
     // Start simulation time tracking
-    TimeT simulationTime = 0.0f;   // t
-    TimeT systemTime     = getCurrentTime();   // currentTime
-    TimeT accumulatedTime = 0.0f;
+    Time simulationTime  = Time( 0.0 );   // t
+    Time accumulatedTime = Time( 0.0 );
+    Time systemTime      = App::currentTime();   // currentTime
 
     // This is where it all starts
     while ( mIsGameRunning && (!mpMainWindow->didUserQuit()) )
@@ -137,8 +132,8 @@ int GameClient::runMainGameLoop()
         // Get the current system time, and then calculate how much time
         // has elapsed since the last graphics update (which we will call
         // frameTime)
-        TimeT newTime   = getCurrentTime();
-        TimeT frameTime = newTime - systemTime;
+        Time newTime   = App::currentTime();
+        Time frameTime = newTime - systemTime;
 
         systemTime = newTime;
 
@@ -146,9 +141,9 @@ int GameClient::runMainGameLoop()
         // iteration. If the value exceeds a threshold, assume that we are in
         // danger of hitting the "spiral of death" from a slow simulator. To
         // avoid this, limit the maximum frame time to a more reasonable value
-        if ( frameTime > 0.25f )
+        if ( frameTime > Time(0.25) )
         {
-            frameTime = 0.25f;
+            frameTime = Time(0.25);
         }
 
         // Update the simulation. If the simulation is running too far behind
@@ -176,7 +171,8 @@ int GameClient::runMainGameLoop()
         // Calculate the amount of interpolation that will our renderer will
         // need to account for when rendering between the last simulation update
         // and the next upcoming update
-        float interpolation = 1.0f - ( accumulatedTime / mUpdateFrequency );
+        float interpolation =
+            1.0f - ( accumulatedTime.toDouble() / mUpdateFrequency.toDouble() );
 
         // Now draw the next frame
         draw( simulationTime, interpolation );
@@ -187,7 +183,7 @@ int GameClient::runMainGameLoop()
         // allow windows some breathing room. (This can be tweaked or disabled)
         if ( accumulatedTime + mMaximumSleepSkew < mUpdateFrequency )
         {
-            Sleep( 2 );
+            App::sleep( Time( 2.0 ) );
         }
     }
 
@@ -204,10 +200,7 @@ int GameClient::runMainGameLoop()
 bool GameClient::initializeClient()
 {
     LOG_DEBUG("GameClient") << "Initializing the game client";
-
-    // We need to find the internal tick rate before using time
-    calculateSystemTimerFrequency();
-    return false;
+    return true;
 }
 
 /**
@@ -248,7 +241,7 @@ void GameClient::unloadContent()
  * \param  deltaTime        Amount of time that has elapsed since the last call
  *                          to this method (Always the same amount)
  */
-void GameClient::update( TimeT /*simulationTime*/, TimeT /*deltaTime*/ )
+void GameClient::update( Time /*simulationTime*/, Time /*deltaTime*/ )
 {
     // empty for now
 }
@@ -262,58 +255,7 @@ void GameClient::update( TimeT /*simulationTime*/, TimeT /*deltaTime*/ )
  * \param  deltaTime       Amount of time since the last simulation
  * \param  interpolation   Amount to interpolate between (1.0 use the simT)
  */
-void GameClient::draw( TimeT /*simulationTime*/, float /*interpolation*/ )
+void GameClient::draw( Time /*simulationTime*/, float /*interpolation*/ )
 {
     // empty for now
-}
-
-/**
- * Queries the Windows API to find out this computer's update frequency, which
- * is the number of times the CPU ticks per second. The Hailstorm engine uses this
- * value to convert system tick count into seconds.
- */
-void GameClient::calculateSystemTimerFrequency()
-{
-    // Query windows for the internal high precision timer frequency. We
-    // need to know this value in order to correctly convert timer values
-    // into floating point seconds
-    //      (look into possible skew with speed step or CPUTHRM)
-    LARGE_INTEGER procFreq;
-    BOOL result = ::QueryPerformanceFrequency( &procFreq );
-
-    if (! result )
-    {
-        App::raiseFatalError( "Unable to query performance timer frequency" );
-        App::quit( App::EPROGRAM_FATAL_ERROR, "Unable to query performance timer frequency" );
-    }
-
-    assert( procFreq.QuadPart > 0 );
-    mTimerFrequency = static_cast<TimeT>( procFreq.QuadPart );
-
-    assert( mTimerFrequency > 0.0f );
-}
-
-/**
- * Returns the current system time in seconds
- */
-TimeT GameClient::getCurrentTime() const
-{
-    // Get the current system time. We need to lock down the thread affinity
-    // because it is possible on MP machines that cores have slightly different
-    // clock skews (yay)
-    LARGE_INTEGER now;
-    DWORD_PTR oldmask = ::SetThreadAffinityMask( ::GetCurrentThread(), 0 );
-
-    if (! ::QueryPerformanceCounter( &now ) )
-    {
-        App::raiseFatalError( "Failed to query performance counter for time" );
-        App::quit( App::EPROGRAM_FATAL_ERROR,
-                   "Failed to query performance counter for time" );
-    }
-
-    ::SetThreadAffinityMask( ::GetCurrentThread(), oldmask );
-
-    // Take the current time and the timer frequency to obtain a floating
-    // point representation of the system time
-    return static_cast<TimeT>( now.QuadPart ) / mTimerFrequency;
 }

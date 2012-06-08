@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Scott MacDonald
+ * Copyright 2011 Scott MacDonald
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SCOTT_CUBEWORLD_CUBE_WORLD_APP_H
-#define SCOTT_CUBEWORLD_CUBE_WORLD_APP_H
+#ifndef SCOTT_CUBEWORLD_NULL_RENDERER_H
+#define SCOTT_CUBEWORLD_NULL_RENDERER_H
 
-#include <boost/noncopyable.hpp>
-#include "gameclient.h"
+#include "graphics/irenderer.h"
 
-class IWindow;
-class IRenderer;
-
-class CubeWorldClient : public GameClient
+class NullRenderer : public IRenderer
 {
 public:
-    CubeWorldClient( IWindow * pRenderWindow, IRenderer *pRenderer );
-    ~CubeWorldClient();
+    NullRenderer();
+    ~NullRenderer();
 
-    virtual bool initialize();
-    virtual bool loadContent();
-    virtual void unloadContent();
-    virtual void update( Time simTime, Time deltaTime );
-    virtual void draw( Time simTime, float interpolation );
+    virtual void tick();
+
 private:
 };
 

@@ -8,19 +8,7 @@
 #include "math/vector.h"
 #include "graphics/cubevertex.h"
 
-struct WorldChunkMesh
-{
-    WorldChunkMesh( unsigned int vbo_id, unsigned int ibo_id, size_t faceCount )
-        : vbid( vbo_id ),
-          ibid( ibo_id ),
-          faceCount( faceCount )
-    {
-    }
-
-    unsigned int vbid;
-    unsigned int ibid;
-    size_t faceCount;
-};
+class WorldChunkMesh;
 
 class WorldChunkBuilder
 {
@@ -29,7 +17,7 @@ public:
 
     void addCube( const Vec3& );
 
-    WorldChunkMesh createMesh() const;
+    WorldChunkMesh* generateMesh() const;
 
     void addFace( const Vec3& pA, const Vec3& nA,
                   const Vec3& pB, const Vec3& nB,

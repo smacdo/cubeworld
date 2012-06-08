@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Scott MacDonald
+ * Copyright 2011 Scott MacDonald
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "graphics/opengl/renderer.h"
-#include "gameapp.h"
+#include "graphics/null/nullrenderer.h"
 
-int main( int argc, char* argv[] )
+NullRenderer::NullRenderer()
 {
-    runGame();
-    startRenderer( argc, argv );
 
-    stopRenderer();
-    return 0;
+}
+
+NullRenderer::~NullRenderer()
+{
+
+}
+
+void NullRenderer::tick()
+{
+
 }

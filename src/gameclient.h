@@ -17,10 +17,12 @@
 #define SCOTT_GAME_CLIENT_H
 
 #include "engine/gametime.h"
+#include <common/time.h>
 #include <boost/noncopyable.hpp>
 
 class IWindow;
 class IRenderer;
+class IWorldView;
 
 /**
  * This is the foundation class for a hailstorm game client. A custom game
@@ -36,11 +38,11 @@ public:
     void setUpdateFrequency( int numUpdatesPerSecond );
 
 protected:
-    virtual bool initialize();
-    virtual bool loadContent();
-    virtual void unloadContent();
-    virtual void update( TimeT simulationTime, TimeT deltaTime );
-    virtual void draw( TimeT simulationTime, float interpolation );
+    virtual bool initialize() = 0;
+    virtual bool loadContent() = 0;
+    virtual void unloadContent() = 0;
+    virtual void update( Time simulationTime, Time deltaTime ) = 0;
+    virtual void draw( Time simulationTime, float interpolation ) = 0;
 
 private:
     int runMainGameLoop();
@@ -48,7 +50,7 @@ private:
     void calculateSystemTimerFrequency();
     bool initializeClient();
 
-private:
+protected:
     /// Pointer to the main rendering window
     IWindow * mpMainWindow;
 
@@ -61,14 +63,11 @@ private:
     /// Flag if the game is running slowly (needing multiple updates to catch up)
     bool mIsRunningSlowly;
 
-    /// Windows timer frequency (number of ticks per second)
-    TimeT mTimerFrequency;
-
     /// Number of times to run the update method per second
-    TimeT mUpdateFrequency;
+    Time mUpdateFrequency;
 
     /// Estimated maximum skew for the internal windows sleep command
-    TimeT mMaximumSleepSkew;
+    Time mMaximumSleepSkew;
 };
 
 #endif

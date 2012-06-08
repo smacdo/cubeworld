@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Scott MacDonald
+ * Copyright 2011 Scott MacDonald
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,32 +13,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "app/logging.h"
-#include "app/logging_debugstreambuf.h"
-#include "app/logging_stream.h"
-#include <iostream>
-#include <ostream>
-#include <fstream>
-#include <string>
-
-Log GlobalLog::mLog;
+#include "graphics/null/nullwindow.h"
 
 /**
- * Initializes the global log
+ * Constructor
  */
-void GlobalLog::start()
+NullWindow::NullWindow()
+    : IWindow( "Null Window", 1, 1 )
 {
-    // Attach the windows console to the log stream (We've already started a
-    // console window before this)
-    mLog.setConsoleStream( &std::cout );
-
-    // Generate a new date time string to use as the log's name
 }
 
 /**
- * Return a reference to the global log
+ * Destructor
  */
-Log& GlobalLog::getInstance()
+NullWindow::~NullWindow()
 {
-    return mLog;
+
+}
+
+/**
+ * Sets up the window description and have windows create it for us.
+ */
+void NullWindow::create()
+{
+}
+
+/**
+ * Show the window
+ */
+void NullWindow::show()
+{
+}
+
+/**
+ * Starts the application exit process
+ */
+void NullWindow::exit()
+{
+}
+
+/**
+ * Process any incoming window messages
+ */
+bool NullWindow::processMessages()
+{
+    return true;
 }

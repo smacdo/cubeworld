@@ -166,18 +166,18 @@ void WorldChunkBuilder::addCube( const Vec3& )
 
 }
 
-WorldChunkMesh WorldChunkBuilder::createMesh() const
+WorldChunkMesh* WorldChunkBuilder::generateMesh() const
 {
     //
     // Create a vertex and index buffer to store geometry
     //
-    const int vertexElementSize = 3*4 + 3*4 + 2*4; // f3f3f2 --> 32 bytes
-    const int indexElementSize  = 3*4;             // i3     --> 12 bytes
+//    const int vertexElementSize = 3*4 + 3*4 + 2*4; // f3f3f2 --> 32 bytes
+//    const int indexElementSize  = 3*4;             // i3     --> 12 bytes
 
-    int vbsize = vertexElementSize * vertices.size();
-    int ibsize = indexElementSize  * faces.size();
+//    int vbsize = vertexElementSize * vertices.size();
+//    int ibsize = indexElementSize  * faces.size();
 
-    uint32_t vbid = 0, ibid = 0;
+//    uint32_t vbid = 0, ibid = 0;
 /*
     // Get a buffer id
     glGenBuffers( 1, &vbid );
@@ -195,7 +195,8 @@ WorldChunkMesh WorldChunkBuilder::createMesh() const
     glBufferData( GL_ELEMENT_ARRAY_BUFFER, ibsize, &faces[0], GL_STATIC_DRAW );
     */
 
-    return WorldChunkMesh( vbid, ibid, faces.size() );
+//    return WorldChunkMesh( vbid, ibid, faces.size() );
+    return NULL;
 }
 
 /**

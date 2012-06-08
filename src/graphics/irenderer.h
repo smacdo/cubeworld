@@ -21,8 +21,8 @@
 class IRenderer : boost::noncopyable
 {
 public:
-    IRenderer();
-    virtual ~IRenderer();
+    IRenderer() { };
+    virtual ~IRenderer() { } ;
     virtual void tick() = 0;
 private:
 };

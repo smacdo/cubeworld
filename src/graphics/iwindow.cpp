@@ -16,7 +16,6 @@
 //#include "stdafx.h"
 #include "graphics/iwindow.h"
 #include "app/logging.h"
-#include "resource.h"
 
 #include <string>
 #include <cassert>

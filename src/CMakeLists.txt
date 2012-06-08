@@ -84,9 +84,12 @@ if(MSVC)
 	
 	set(platform_srcs ${winplatform_srcs} ${renderer_srcs})
 	set(platform_incs ${renderer_incs})
-elseif()
+else()
 	SET(platform_srcs
-		graphics/opengl/renderer.cpp
+        linuxmain.cpp
+        graphics/null/nullrenderer.cpp
+        graphics/null/nullwindow.cpp
+        graphics/null/nullworldview.cpp
 	)
 endif()
 
@@ -147,7 +150,10 @@ add_executable(cubeworld_client
 	${platform_srcs} ${platform_incs}
 )
 set_target_properties(cubeworld_client PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-target_link_libraries(cubeworld_client common cubeworld_engine ${APP_LIBS}  ${Boost_LIBRARIES})
+target_link_libraries(cubeworld_client
+                        common cubeworld_engine googletest
+                        ${APP_LIBS}
+                        ${Boost_LIBRARIES})
 
 #==========================================================================
 # Copy and configure needed files

@@ -16,20 +16,27 @@
 #include "app/logging.h"
 #include "app/logging_debugstreambuf.h"
 #include "app/logging_stream.h"
+#include "common/delete.h"
 #include <iostream>
 #include <ostream>
 #include <fstream>
 #include <string>
 
-const char* LOG_LEVEL_NAMES[ELogLevel_Count] =
+/**
+ * Log constructor
+ */
+Log::Log()
+    : mDebugStream( new LogStream( NULL, NULL ) )
 {
-    "TRACE",
-    "DEBUG",
-    "INFO",
-    "NOTICE",
-    "WARN",
-    "ERROR"
-};
+}
+
+/**
+ * Log destructor
+ */
+Log::~Log()
+{
+    Delete( mDebugStream );
+}
 
 /**
  * Writes a trace entry to the program's log, and a stream that can be

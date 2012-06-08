@@ -17,6 +17,7 @@
 #define SCOTT_COMMON_TIME
 
 #include <string>
+#include <iosfwd>
 
 /**
  * Class used to measure and keep track of arbitrary amounts of time.
@@ -31,16 +32,20 @@ class Time
 public:
     Time();
     Time( const Time& t );
-    explicit Time( int seconds );
+    explicit Time( unsigned int seconds );
     explicit Time( float seconds );
     explicit Time( double seconds );
 
-    static Time fromNanoSeconds( unsigned int time );
     static Time fromMilliSeconds( unsigned int time );
     static Time fromMicroSeconds( unsigned int time );
 
+    double toDouble() const;
+
+    unsigned int hours() const;
     unsigned int minutes() const;
     unsigned int seconds() const;
+    unsigned long long milliseconds() const;
+    unsigned long long microseconds() const;
     std::string toString() const;
 
     Time& operator = ( const Time& rhs );
@@ -50,6 +55,7 @@ public:
     bool operator <  ( const Time& rhs ) const;
     bool operator <= ( const Time& rhs ) const;
     bool operator >  ( const Time& rhs ) const;
+    bool operator >= ( const Time& rhs ) const;
 
     Time  operator +  ( const Time& rhs ) const;
     Time& operator += ( const Time& rhs );
@@ -61,5 +67,7 @@ public:
 private:
     double mSeconds;
 };
+
+std::ostream& operator << ( std::ostream& os, const Time& t );
 
 #endif

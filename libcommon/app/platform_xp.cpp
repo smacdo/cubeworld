@@ -16,10 +16,10 @@
 #define UNICODE
 #define _UNICODE
 
-#include <app/platform.h>
-#include <app/logging.h>
-#include <common/delete.h>
-#include <libcommon.h>
+#include "common/platform.h"
+#include "common/logging.h"
+#include "common/utils.h"
+#include "config.h"
 #include <string>
 #include <sstream>
 
@@ -31,6 +31,9 @@
 #pragma comment(linker, "\"/manifestdependency:type='Win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 namespace {
+// Global variables
+Time GTimerFrequency;
+
 /**
  * Converts an STL string into a WindowsNT wchar* wrapped inside of a
  * pretty wstring
@@ -67,6 +70,54 @@ std::wstring WinNTStringToWideString( const std::string& str )
 }
 
 namespace App {
+/**
+ * Performs any platform specific start up activities
+ */
+void startup()
+{
+    // Query windows for the internal high precision timer frequency. We
+    // need to know this value in order to correctly convert timer values
+    // into floating point seconds
+    //      (look into possible skew with speed step or CPUTHRM)
+    LARGE_INTEGER procFreq;
+    BOOL result = ::QueryPerformanceFrequency( &procFreq );
+
+    if (! result )
+    {
+        App::raiseFatalError( "Unable to query performance timer frequency" );
+        App::quit( App::EPROGRAM_FATAL_ERROR, "Unable to query performance timer frequency" );
+    }
+
+    assert( procFreq.QuadPart > 0 );
+    GTimerFrequency = static_cast<Time>( procFreq.QuadPart );
+
+    assert( GTimerFrequency > 0.0f );
+}
+
+/**
+ * Gets the current system time
+ */
+Time currentTime()
+{
+    // Get the current system time. We need to lock down the thread affinity
+    // because it is possible on MP machines that cores have slightly different
+    // clock skews (yay)
+    LARGE_INTEGER now;
+    DWORD_PTR oldmask = ::SetThreadAffinityMask( ::GetCurrentThread(), 0 );
+
+    if (! ::QueryPerformanceCounter( &now ) )
+    {
+        App::raiseFatalError( "Failed to query performance counter for time" );
+        App::quit( App::EPROGRAM_FATAL_ERROR,
+                   "Failed to query performance counter for time" );
+    }
+
+    ::SetThreadAffinityMask( ::GetCurrentThread(), oldmask );
+
+    // Take the current time and the timer frequency to obtain a floating
+    // point representation of the system time
+    return static_cast<Time>( now.QuadPart / GTimerFrequency );
+}
 
 /**
  * Generates a assertion reporting dialog (or console output) to show to the
