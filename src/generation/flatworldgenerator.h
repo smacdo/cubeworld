@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SCOTT_CUBEWORLD_NULL_WORLD_VIEW_H
-#define SCOTT_CUBEWORLD_NULL_WORLD_VIEW_H
+#ifndef SCOTT_CUBEWORLD_FLAT_WORLD_GENERATION_H
+#define SCOTT_CUBEWORLD_FLAT_WORLD_GENERATION_H
 
-#include <boost/noncopyable.hpp>
-#include "graphics/iworldview.h"
+#include "generation/iworldgenerator.h"
+class World;
 
-class WorldChunk;
-
-class NullWorldView : public IWorldView
+class IFlatWorldGenerator : public IWorldGenerator
 {
 public:
-    void chunkUpdated( const WorldChunk * pChunk );
+    IFlatWorldGenerator();
+    ~IFlatWorldGenerator();
+
+    virtual World* generate();
+private:
 };
 
 #endif

@@ -11,7 +11,8 @@ const unsigned int WorldChunk::TOTAL_DEPTH = Constants::CHUNK_DEPTH;
 const unsigned int WorldChunk::TOTAL_CUBES = Constants::CHUNK_CUBES;
 
 WorldChunk::WorldChunk()
-    : mCubes( TOTAL_CUBES )
+    : mCubes( TOTAL_CUBES ),
+      mIsRebuildingView( false )
 {
 }
 
@@ -135,7 +136,24 @@ unsigned int WorldChunk::findCubeOffset( const Point& pos ) const
     unsigned int z = pos.z % TOTAL_DEPTH;
 
     unsigned int i = ( z * TOTAL_COLS * TOTAL_ROWS ) + 
-                       ( y * TOTAL_COLS + x );
+                     ( y * TOTAL_COLS + x );
 
     return i;
+}
+
+/**
+ * Checks if the view dirty flag is set. If this is true, then the chunk needs
+ * to have it's view updated in the renderer. Otherwise it can be ignored
+ */
+bool WorldChunk::isRebuildingView() const
+{
+    return mIsRebuildingView;
+}
+
+/**
+ * Sets the view dirty flag or unsets it
+ */
+void WorldChunk::setIsRebuildingView( bool isDirty )
+{
+    mIsRebuildingView = isDirty;
 }

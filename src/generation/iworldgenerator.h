@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SCOTT_CUBEWORLD_DIRECTX_WORLD_VIEW_H
-#define SCOTT_CUBEWORLD_DIRECTX_WORLD_VIEW_H
+#ifndef SCOTT_CUBEWORLD_IWORLD_GENERATION_H
+#define SCOTT_CUBEWORLD_IWORLD_GENERATION_H
 
 #include <boost/noncopyable.hpp>
-#include "graphics/iworldview.h"
+class World;
 
-class WorldChunk;
-
-class DxWorldView : public IWorldView
+class IWorldGenerator : boost::noncopyable
 {
 public:
-    void chunkUpdated( const WorldChunk * pChunk );
+    WorldGenerator();
+    virtual ~WorldGenerator();
+
+    virtual World* generate();
+private:
 };
 
 #endif

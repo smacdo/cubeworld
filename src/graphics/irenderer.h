@@ -1,29 +1,34 @@
-/*
- * Copyright 2011 Scott MacDonald
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-#ifndef SCOTT_CUBEWORLD_ABSTRACT_RENDERER_H
-#define SCOTT_CUBEWORLD_ABSTRACT_RENDERER_H
+#ifndef SCOTT_CUBEWORLD_GRAPHICS_RENDERER_H
+#define SCOTT_CUBEWORLD_GRAPHICS_RENDERER_H
 
 #include <boost/noncopyable.hpp>
+#include <vector>
 
+#include "graphics/renderprimitives.h"
+
+class WorldChunk;
+
+/**
+ * Vendor neutral rendering interface
+ */
 class IRenderer : boost::noncopyable
 {
 public:
-    IRenderer() { };
-    virtual ~IRenderer() { } ;
-    virtual void tick() = 0;
+    virtual ~IRenderer() {}
+
+    // Clears the viewport
+    virtual void clear() = 0;
+
+    // Draws the scene onto the front buffer
+    virtual void present() = 0;
+
+    // Draw a list of chunks as the world's background
+    virtual void renderChunks(
+            const std::vector<ChunkRenderId>& chunks ) = 0;
+
+    // Upload a world chunk
+    virtual ChunkRenderId uploadChunk( const WorldChunk& pChunk ) = 0;
+
 private:
 };
 

@@ -38,6 +38,12 @@ public:
     // Return number of cubes that are populated
     unsigned int cubeCount() const;
 
+    // Return if the cube's view data needs to be regenerated
+    bool isRebuildingView() const;
+
+    // Change the view dirty flag
+    void setIsRebuildingView( bool isDirty );
+
 public:
     const static unsigned int TOTAL_COLS;
     const static unsigned int TOTAL_ROWS;
@@ -51,6 +57,9 @@ private:
 private:
     // Contains all of the vector's cubes
     std::vector<CubeData> mCubes;
+
+    // Flag specifying if the chunk's view needs to be updated
+    bool mIsRebuildingView;
 };
 
 #endif

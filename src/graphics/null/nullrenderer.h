@@ -17,6 +17,10 @@
 #define SCOTT_CUBEWORLD_NULL_RENDERER_H
 
 #include "graphics/irenderer.h"
+#include "graphics/renderprimitives.h"
+#include <vector>
+
+class WorldChunk;
 
 class NullRenderer : public IRenderer
 {
@@ -24,7 +28,10 @@ public:
     NullRenderer();
     ~NullRenderer();
 
-    virtual void tick();
+    virtual void clear();
+    virtual void present();
+    virtual void renderChunks( const std::vector<ChunkRenderId>& );
+    ChunkRenderId uploadChunk( const WorldChunk& );
 
 private:
 };

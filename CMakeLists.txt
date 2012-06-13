@@ -66,7 +66,7 @@ if(MSVC)
     set(cxx_flags "${cxx_flags} /DWIN32_LEAN_AND_MEAN")
 	
 elseif(CMAKE_COMPILER_IS_GNUCXX)
-    set(cxx_flags "${cxx_flags} -DNDEBUG=1 -D_DEBUG=1")
+    set(cxx_flags "${cxx_flags} -DNDEBUG=1 -D_DEBUG=1 -ggdb ")
     set(cxx_flags "${cxx_flags} -std=c++0x -Wall -Wextra -Werror")
 
     # Misc. settings

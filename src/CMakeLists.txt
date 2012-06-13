@@ -16,6 +16,8 @@ SET(engine_srcs
         engine/point.cpp
         engine/worldchunk.cpp
         engine/world.cpp
+        graphics/iwindow.cpp
+        graphics/worldview.cpp
         world/worldgenerator.cpp
 )
 
@@ -30,6 +32,9 @@ set(engine/includes
 	engine/world.h
 	engine/worldchunk.h
 	engine/worldcube.h
+    graphics/irenderer.h
+    graphics/iwindow.h
+    graphics/worldview.h
 )
 
 # Application code that is not under unit test... this is generally the
@@ -42,19 +47,6 @@ set(game_srcs
 set(game_incs
 	cubeworld.h
 	gameclient.h
-)
-
-set(graphics_srcs
-	graphics/worldchunkbuilder.cpp
-	graphics/iwindow.cpp
-)
-
-set(graphics_incs
-	graphics/cubevertex.h
-	graphics/iworldview.h
-	graphics/iwindow.h
-	graphics/irenderer.h
-	graphics/worldchunkbuilder.h
 )
 
 set(platform_srcs "")
@@ -72,14 +64,12 @@ if(MSVC)
 		graphics/directx/dxaboutbox.cpp
 		graphics/directx/dxrenderer.cpp
 		graphics/directx/dxwindow.cpp
-		graphics/directx/dxworldview.cpp
 	)
 	
 	set(renderer_incs
 		graphics/directx/dxaboutbox.h
 		graphics/directx/dxrenderer.h
 		graphics/directx/dxwindow.h
-		graphics/directx/dxworldview.h
 	)
 	
 	set(platform_srcs ${winplatform_srcs} ${renderer_srcs})
@@ -89,7 +79,6 @@ else()
         linuxmain.cpp
         graphics/null/nullrenderer.cpp
         graphics/null/nullwindow.cpp
-        graphics/null/nullworldview.cpp
 	)
 endif()
 
@@ -136,7 +125,7 @@ include_directories(
 					 
 # Create a static library for the cubeworld game engine code. This will 
 # seperate the client from the actual game logic.
-add_library(cubeworld_engine STATIC ${engine_srcs} ${engine_incs})
+add_library( cubeworld_engine STATIC ${engine_srcs} ${engine_incs})
 set_target_properties(cubeworld_engine PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(cubeworld_engine common ${Boost_LIBRARIES})
 

@@ -176,7 +176,7 @@ int GameClient::runMainGameLoop()
 
         // Now draw the next frame
         draw( simulationTime, interpolation );
-        mpRenderer->tick();
+        mpRenderer->present();
 
         // If there is a large delta between the system time and the time before
         // the next simulation update, we can afford to sleep a tiny bit and

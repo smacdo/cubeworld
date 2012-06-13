@@ -15,9 +15,8 @@ class WorldChunkBuilder
 public:
     WorldChunkBuilder();
 
+private:
     void addCube( const Vec3& );
-
-    WorldChunkMesh* generateMesh() const;
 
     void addFace( const Vec3& pA, const Vec3& nA,
                   const Vec3& pB, const Vec3& nB,

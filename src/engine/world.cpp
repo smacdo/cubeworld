@@ -2,7 +2,7 @@
 #include "engine/worldchunk.h"
 #include "engine/constants.h"
 #include "engine/point.h"
-#include "graphics/iworldview.h"
+#include "graphics/worldview.h"
 #include <vector>
 #include <limits>
 
@@ -13,8 +13,11 @@
  * \param  rows   World height in cubes (y dimension), must be % 32
  * \param  depth  World depth in cubes (z dimension), must be % 32
  */
-World::World( unsigned int cols, unsigned int rows, unsigned int depth )
-    : mpView( NULL ),
+World::World( unsigned int cols,
+              unsigned int rows,
+              unsigned int depth,
+              WorldView * pView )
+    : mpView( pView ),
       mChunks( rows * cols * depth, 0 ),
       mCols( cols ),
       mRows( rows ),
@@ -24,6 +27,8 @@ World::World( unsigned int cols, unsigned int rows, unsigned int depth )
     assert( rows  % Constants::CHUNK_ROWS  == 0 );
     assert( cols  % Constants::CHUNK_COLS  == 0 );
     assert( depth % Constants::CHUNK_DEPTH == 0 );
+
+    assert( pView != NULL );
 }
 
 /**
@@ -52,10 +57,12 @@ World::~World()
 void World::put( const CubeData& cube, const Point& pos, bool createIfNull )
 {
     WorldChunk* pChunk = getChunkForPos( pos, createIfNull );
-    pChunk->put( cube, makeRelativeToChunk( pos ) );
+    Point cubeRelPos   = makeRelativeToChunk( pos );
+
+    pChunk->put( cube, cubeRelPos );
 
     // Inform the view that the chunk has (potentially) changed
-    mpView->chunkUpdated( pChunk );
+    mpView->chunkUpdated( pos, pChunk );
 }
 
 /**

@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 #include "graphics/null/nullrenderer.h"
+#include "graphics/renderprimitives.h"
+#include "engine/worldchunk.h"
+#include <vector>
 
 NullRenderer::NullRenderer()
 {
@@ -25,7 +28,22 @@ NullRenderer::~NullRenderer()
 
 }
 
-void NullRenderer::tick()
+void NullRenderer::clear()
 {
 
+}
+
+void NullRenderer::present()
+{
+
+}
+
+void NullRenderer::renderChunks( const std::vector<ChunkRenderId>& )
+{
+
+}
+
+ChunkRenderId NullRenderer::uploadChunk( const WorldChunk& )
+{
+    return 0u;
 }

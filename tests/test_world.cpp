@@ -2,6 +2,8 @@
 #include "engine/world.h"
 #include "engine/cubedata.h"
 #include "engine/constants.h"
+#include "graphics/worldview.h"
+#include "graphics/null/nullrenderer.h"
 
 class WorldTests : public ::testing::Test
 {
@@ -10,7 +12,8 @@ protected:
     {
         pWorld = new World( Constants::CHUNK_COLS * 4,
                             Constants::CHUNK_ROWS * 6,
-                            Constants::CHUNK_DEPTH * 5 );
+                            Constants::CHUNK_DEPTH * 5,
+                            new WorldView( new NullRenderer ) );
     }
 
     virtual void TearDown()
@@ -73,10 +76,4 @@ TEST_F(WorldTests,PlacingCubesAcrossChunks)
     pWorld->put( da, pa );
     pWorld->put( db, pb );
     pWorld->put( dc, pc );
-
-}
-
-TEST_F(WorldTests,CubeWorldVisitorVisitsAllCubes)
-{
-
 }
