@@ -18,7 +18,7 @@
  * Returns a pointer (also acts as a iterator) to the start of a static
  * array
  */
-template<typenanme T, std::size_t size>
+template<typename T, std::size_t size>
 inline T* begin( T (&array)[size] )
 {
     return array;

@@ -33,7 +33,7 @@ LogStream::LogStream( std::ostream *pConsoleStream,
 {
     // i really don't like having to do this
     mpStreambuf = dynamic_cast<DebugStreambuf<char>* >( rdbuf() );
-    assert( mpStreambuf != NULL && "Something really evil just happened" );
+    ASSERT_MSG( mpStreambuf != NULL, "Something really evil just happened" );
 
     // Assign the output streams to our internal debug stream
     if ( pConsoleStream != NULL )

@@ -18,9 +18,9 @@
 #define SCOTT_COMMON_GAME2D_FIXEDGRID_H
 
 #include <game2d/point.h>
-#include <math/rect.h>
+#include <game2d/rect.h>
 #include <common/assert.h>
-#include <boost/checked_delete.hpp>
+#include <common/delete.h>
 #include <algorithm>
 
 template<typename T>
@@ -31,12 +31,14 @@ public:
      * Create a fixed grid of dimensions width and height and fill it in
      * with copies of base.
      */
-    FixedGrid( int width, int height, const T& base )
-        : mWidth( width ), mHeight( height ),
+    FixedGrid( unsigned int width, unsigned int height, T base )
+        : mWidth( width ),
+          mHeight( height ),
           mTiles( new T[ mWidth * mHeight ] )
     {
-        assert( width > 0 );
-        assert( height > 0 );
+        std::fill( &mTiles[0],
+                   &mTiles[mWidth * mHeight],
+                   base );
     }
 
     /**
@@ -70,7 +72,7 @@ public:
      */
     virtual ~FixedGrid()
     {
-        boost::checked_array_delete( mTiles );
+        DeleteArray( mTiles );
     }
 
     /**
@@ -78,22 +80,32 @@ public:
      */
     FixedGrid<T>& operator = ( const FixedGrid<T>& rhs )
     {
-        assert( this != &rhs );
-        assert( rhs.mTiles != NULL );
+        ASSERT( this != &rhs );
 
-        // Destroy our current tile array, since we're getting rid of it
-        // in the assignment
-        boost::checked_array_delete( mTiles );
+        if ( rhs.mTiles != NULL )
+        {
+            // Destroy our current tile array, since we're getting rid of it
+            // in the assignment
+            DeleteArray( mTiles );
 
-        // Initialize our fixed grid
-        mWidth  = rhs.mWidth;
-        mHeight = rhs.mHeight;
-        mTiles  = new T[ mWidth * mHeight ];
+            // Initialize our fixed grid
+            mWidth  = rhs.mWidth;
+            mHeight = rhs.mHeight;
+            mTiles  = new T[ mWidth * mHeight ];
 
-        // Now copy all of the elements over
-        std::copy( &rhs.mTiles[0],
-                   &rhs.mTiles[mWidth * mHeight],
-                   &mTiles[0] );
+            // Now copy all of the elements over
+            std::copy( &rhs.mTiles[0],
+                       &rhs.mTiles[mWidth * mHeight],
+                       &mTiles[0] );
+        }
+        else
+        {
+            mWidth  = 0;
+            mHeight = 0;
+            mTiles  = NULL;
+        }
+
+        return *this;
     }
 
     /**
@@ -109,7 +121,7 @@ public:
         {
             // Make sure we destroy our current tile grid before
             // assuming ownership of the new grid
-            boost::checked_array_delete( mTiles );
+            DeleteArray( mTiles );
 
             // Transfer the values to us
             mWidth  = other.mWidth;
@@ -125,6 +137,22 @@ public:
     }
 
     /**
+     * Equality operator. Checks if the dimensions and contents of this fixed
+     * grid are identical to another fixed grid
+     */
+    bool operator == ( const FixedGrid& rhs ) const
+    {
+        return std::equal( &mTiles[0],
+                           &mTiles[mWidth * mHeight],
+                           &(rhs.mTiles[0]) );
+    }
+
+    bool operator != ( const FixedGrid& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    /**
      * "Inserts" a fixed grid into this grid. What this means is that the
      * source grid will be copied into us at the requested position
      *
@@ -136,12 +164,12 @@ public:
         Rect sourceBounds( upperLeft, source.mWidth, source.mHeight );
 
         // Verify that the source grid will fit in us
-        assert( destBounds.contains( sourceBounds ) );
+        CORE_ASSERT( destBounds.contains( sourceBounds ), "Source too large" );
 
         // Now copy the tiles over
-        for ( int sy = 0; sy < source.mHeight; ++sy )
+        for ( unsigned int sy = 0; sy < source.mHeight; ++sy )
         {
-            for ( int sx = 0; sx < source.mWidth; ++sx )
+            for ( unsigned int sx = 0; sx < source.mWidth; ++sx )
             {
                 size_t si = source.offset( sx, sy );
                 size_t di = this->offset( sx + upperLeft.x(),
@@ -157,93 +185,76 @@ public:
      *
      * \param  base  The value to assign to each tile
      */
-    void clear( const T& base )
+    void clear( T base )
     {
-        assert( mTiles != NULL );
-        std::fill( &mTiles[0], &mTiles[mWidth*mHeight], base );
-    }
+        CORE_ASSERT( mTiles != NULL, "FixedGrid is not initialized" );
 
-    /**
-     * Returns a reference to the value stored at the requested position
-     *
-     * \param  point  The fixed grid position to retrieve
-     * \return A reference to the value stored at that position
-     */
-    T& get( const Point& point )
-    {
-        return get( point.x(), point.y() );
+        std::fill( &mTiles[0],
+                   &mTiles[mWidth * mHeight],
+                   base );
     }
 
     /**
      * Returns a reference to the value stored at the requested position.
      *
-     * \param  x  The x offset to look up
-     * \param  y  The y offset to look up
-     * \return A const reference to the value at that position
      */
-    T& get( int x, int y )
+    T& get( const Point& pt  )
     {
-        assert( x >= 0 && x < mWidth );
-        assert( y >= 0 && y < mHeight );
-        return mTiles[ offset( x, y ) ];
+        CORE_ASSERT( mTiles != NULL, "FixedGrid is not initialized" );
+        return mTiles[ offset( pt ) ];
     }
 
     /**
-     * Returns a const reference to the value stored at the requested
-     * position.
+     * Returns a reference to the value stored at the requested position.
      *
-     * \param  point  The fixed grid position to retrieve
-     * \return A const reference to the value at that position
      */
-    const T& get( const Point& point ) const
+    const T& get( const Point& pt ) const
     {
-        return get( point.x(), point.y() );
+        CORE_ASSERT( mTiles != NULL, "FixedGrid is not initialized" );
+        return mTiles[ offset( pt ) ];
     }
 
-    const T& get( int x, int y ) const
+    void set( const Point& pt, const T& value )
     {
-        assert( x >= 0 && x < mWidth  );
-        assert( y >= 0 && y < mHeight );
-        return mTiles[ offset( x, y ) ];
+        CORE_ASSERT( mTiles != NULL, "FixedGrid is not initialized" );
+        mTiles[ offset( pt ) ] = value;
     }
 
-    void set( const Point& point, const T& value )
-    {
-        set( point.x(), point.y(), value );
-    }
-
-    void set( int x, int y, const T& value )
-    {
-        assert( x >= 0 && x < mWidth );
-        assert( y >= 0 && y < mHeight );
-        mTiles[ offset( x, y ) ] = value;
-    }
-
-    int width() const
+    unsigned int width() const
     {
         return mWidth;
     }
 
-    int height() const
+    unsigned int height() const
     {
         return mHeight;
     }
 
-    size_t size() const
+    unsigned int size() const
     {
         return mWidth * mHeight;
     }
 
 protected:
-    size_t offset( int x, int y ) const
+    unsigned int offset( const Point& pt ) const
     {
-        assert( x >= 0 && x < mWidth );
-        assert( y >= 0 && y < mHeight );
+        CORE_ASSERT( pt.x() < mWidth,  "X coordinate out of bounds" );
+        CORE_ASSERT( pt.y() < mHeight, "Y coordinate out of bounds" );
+
+        return pt.y() * mWidth + pt.x();
+    }
+
+    unsigned int offset( unsigned int x, unsigned int y ) const
+    {
+        CORE_ASSERT( x < mWidth,  "X coordinate out of bounds" );
+        CORE_ASSERT( y < mHeight, "Y coordinate out of bounds" );
+
         return y * mWidth + x;
     }
 
-    int mWidth;
-    int mHeight;
+private:
+    unsigned int mWidth;
+    unsigned int mHeight;
     T * mTiles;
 };
 

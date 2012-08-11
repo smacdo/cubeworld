@@ -4,6 +4,9 @@
 
 #include <stdint.h>
 
+namespace StringUtil
+{
+
 std::ostream& printHex( std::ostream& stream,
                         const uint8_t *ptr,
                         size_t len )
@@ -66,4 +69,6 @@ std::ostream& printBinary( std::ostream& stream,
     }
 
     return stream;
+}
+
 }

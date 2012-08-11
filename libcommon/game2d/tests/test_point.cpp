@@ -21,16 +21,16 @@ TEST(PointTests,Constructor_Default)
 {
     const Point a;
 
-    EXPECT_EQ( 0, a.x() );
-    EXPECT_EQ( 0, a.y() );
+    EXPECT_EQ( 0u, a.x() );
+    EXPECT_EQ( 0u, a.y() );
 }
 
 TEST(PointTests,Constructor_XY)
 {
     const Point a( 2, 5 );
 
-    EXPECT_EQ( 2, a.x() );
-    EXPECT_EQ( 5, a.y() );
+    EXPECT_EQ( 2u, a.x() );
+    EXPECT_EQ( 5u, a.y() );
 }
 
 TEST(PointTests,Constructor_Copy)
@@ -38,8 +38,8 @@ TEST(PointTests,Constructor_Copy)
     const Point a( 2, 5 );
     const Point b( a );
 
-    EXPECT_EQ( 2, b.x() );
-    EXPECT_EQ( 5, b.y() );
+    EXPECT_EQ( 2u, b.x() );
+    EXPECT_EQ( 5u, b.y() );
 }
 
 TEST(PointTests,Operator_Equality)
@@ -155,31 +155,23 @@ TEST(PointTests,Operator_SelfAddition)
 
 TEST(PointTests,Operator_Subtraction)
 {
-    const Point a(  2, 5 );
-    const Point b(  7, 1 );
-    const Point r( -5, 4 );
+    const Point a( 7, 5 );
+    const Point b( 5, 1 );
+    const Point r( 2, 4 );
 
     EXPECT_EQ( r, a - b );
 }
 
 TEST(PointTests,Operator_SelfSubtraction)
 {
-    const Point a(  2, 5 );
-    const Point b(  7, 1 );
-    const Point r( -5, 4 );
+    const Point a( 7, 5 );
+    const Point b( 2, 1 );
+    const Point r( 5, 4 );
 
     Point t = a;
     t -= b;
 
     EXPECT_EQ( r, t );
-}
-
-TEST(PointTests,Operator_Negation)
-{
-    Point a( 2, -3 );
-    const Point r( -2, 3 );
-
-    EXPECT_EQ( r, -a );
 }
 
 TEST(PointTests,Translate)

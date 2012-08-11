@@ -16,6 +16,6 @@
 #ifndef SCOTT_LIBCOMMON_CONFIG_H
 #define SCOTT_LIBCOMMON_CONFIG_H
 
-const unsigned int LIBCOMMON_VERSION = 1;
+const unsigned int LIBCOMMON_VERSION 1;
 
 #endif

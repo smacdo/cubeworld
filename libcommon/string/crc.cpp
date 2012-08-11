@@ -27,15 +27,15 @@
  * policies, either expressed or implied, of Scott MacDonald.
  */
 #include <string/crc.h>
-#include <app/debug.h>
+#include <common/assert.h>
+
 #include <string>
-#include <cstring>
 #include <stdint.h>
 
-#define crc_assert(x) assert(x)
+/// Number of entries in the CRC-32 lookup table
+const unsigned int CRC_TABLE_SIZE = 256;
 
-const size_t CRC_TABLE_SIZE = 256;
-
+/// CRC-32 lookup table
 uint32_t CRCTable[CRC_TABLE_SIZE] =
 {
  0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f,
@@ -83,14 +83,22 @@ uint32_t CRCTable[CRC_TABLE_SIZE] =
  0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
 };
 
+/**
+ * Calculate the CRC-32 value of a byte array. The provided array cannot
+ * be null, and must have a non-zero length
+ *
+ * \param  pInput  Pointer to an array of bytes
+ * \param  length  Number of bytes in the array
+ * \return         Computed CRC-32 value
+ */
 uint32_t crc32( const uint8_t * pInput, size_t length )
 {
-    crc_assert( pInput != NULL && "Pointer to data cannot be null" );
+    ASSERT_MSG( pInput != NULL, "Input data pointer cannot be null" );
 
     const uint8_t* byte = pInput;
           uint32_t crc  = 0xFFFFFFFF;
 
-    for ( size_t i = 0; i < length; ++i )
+    for ( unsigned int i = 0; i < length; ++i )
     {
         crc  = (crc >> 8) ^ CRCTable[*byte++ ^ (crc & 0x000000FF)];
     }
@@ -98,12 +106,26 @@ uint32_t crc32( const uint8_t * pInput, size_t length )
     return crc ^ 0xffffffff;
 }
 
-uint32_t crc32( const char * pInput )
+/**
+ * Calculate the CRC-32 value of a c-string. The provided string pointer
+ * cannot be null, and length must be larger than zero.
+ *
+ * \param  pInput  Pointer to a c-string
+ * \param  length  Number of characters in the string
+ * \return         Computed CRC-32 value
+ */
+uint32_t crc32( const char * pInput, size_t length )
 {
     const uint8_t * pBytes = reinterpret_cast<const uint8_t*>( pInput );
-    return crc32( pBytes, strlen( pInput ) * sizeof(char) );
+    return crc32( pBytes, length * sizeof(char) );
 }
 
+/**
+ * Calculate the CRC-32 value of a STL string.
+ *
+ * \param  pInput  STL string input
+ * \return         Computed CRC-32 value
+ */
 uint32_t crc32( const std::string& input )
 {
     const uint8_t * pBytes = reinterpret_cast<const uint8_t*>(input.c_str());

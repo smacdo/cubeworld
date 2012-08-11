@@ -39,10 +39,10 @@ public:
     Frustum( const Vec3& camerapos,
              const Vec3& lookingat,
              const Vec3& upvec,
-             Scalar neardist,
-             Scalar fardist,
-             Scalar fov,
-             Scalar ratio );
+             scalar_t neardist,
+             scalar_t fardist,
+             scalar_t fov,
+             scalar_t ratio );
     bool isInFrustum( const BoundingBox& box ) const;
 
     static const int PlaneCount = 6;

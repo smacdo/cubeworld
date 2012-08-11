@@ -28,15 +28,15 @@ TEST(Math, Vector3_MemoryArrayTest)
 
     const float * pVals = v[0].const_ptr();
 
-    EXPECT_EQ( 1.0f, *(pVals + 0) );
-    EXPECT_EQ( 2.0f, *(pVals + 1) );
-    EXPECT_EQ( 3.0f, *(pVals + 2) );
-    EXPECT_EQ( 4.0f, *(pVals + 3) );
-    EXPECT_EQ( 5.0f, *(pVals + 4) );
-    EXPECT_EQ( 6.0f, *(pVals + 5) );
-    EXPECT_EQ( 7.0f, *(pVals + 6) );
-    EXPECT_EQ( 8.0f, *(pVals + 7) );
-    EXPECT_EQ( 9.0f, *(pVals + 8) );
+    EXPECT_FLOAT_EQ( 1.0f, *(pVals + 0) );
+    EXPECT_FLOAT_EQ( 2.0f, *(pVals + 1) );
+    EXPECT_FLOAT_EQ( 3.0f, *(pVals + 2) );
+    EXPECT_FLOAT_EQ( 4.0f, *(pVals + 3) );
+    EXPECT_FLOAT_EQ( 5.0f, *(pVals + 4) );
+    EXPECT_FLOAT_EQ( 6.0f, *(pVals + 5) );
+    EXPECT_FLOAT_EQ( 7.0f, *(pVals + 6) );
+    EXPECT_FLOAT_EQ( 8.0f, *(pVals + 7) );
+    EXPECT_FLOAT_EQ( 9.0f, *(pVals + 8) );
 }
 
 TEST(Math, Vector3_PointerConstructor)
@@ -211,9 +211,9 @@ TEST(Math, Vector3_SubtractionOperator)
     const Vec3 b(-1.0f, 3.0f,  8.0f );
     const Vec3 c = a - b;
     
-    EXPECT_EQ(   6.0f, c[0] );
-    EXPECT_EQ(  -1.0f, c[1] );
-    EXPECT_EQ( -12.0f, c[2] );
+    EXPECT_FLOAT_EQ(   6.0f, c[0] );
+    EXPECT_FLOAT_EQ(  -1.0f, c[1] );
+    EXPECT_FLOAT_EQ( -12.0f, c[2] );
 }
 
 TEST(Math, Vector3_SelfSubtractionOperator)
@@ -222,9 +222,9 @@ TEST(Math, Vector3_SelfSubtractionOperator)
     const Vec3 b(-1.0f, 3.0f,  8.0f );
     a -= b;
     
-    EXPECT_EQ(   6.0f, a[0] );
-    EXPECT_EQ(  -1.0f, a[1] );
-    EXPECT_EQ( -12.0f, a[2] );
+    EXPECT_FLOAT_EQ(   6.0f, a[0] );
+    EXPECT_FLOAT_EQ(  -1.0f, a[1] );
+    EXPECT_FLOAT_EQ( -12.0f, a[2] );
 }
 
 TEST(Math, Vector3_MultiplyOperator)
@@ -264,8 +264,8 @@ TEST(Math, Vector3_XAccessor)
     Vec3 a( 1.0f, 2.0f, 3.0f );
     Vec3 b( 6.0f, 5.0f, 4.0f );
 
-    EXPECT_EQ( 1.0f, a.x() );
-    EXPECT_EQ( 6.0f, b.x() );
+    EXPECT_FLOAT_EQ( 1.0f, a.x() );
+    EXPECT_FLOAT_EQ( 6.0f, b.x() );
 }
 
 TEST(Math, Vector3_YAccessor)
@@ -273,8 +273,8 @@ TEST(Math, Vector3_YAccessor)
     Vec3 a( 1.0f, 2.0f, 3.0f );
     Vec3 b( 6.0f, 5.0f, 4.0f );
 
-    EXPECT_EQ( 2.0f, a.y() );
-    EXPECT_EQ( 5.0f, b.y() );
+    EXPECT_FLOAT_EQ( 2.0f, a.y() );
+    EXPECT_FLOAT_EQ( 5.0f, b.y() );
 }
 
 TEST(Math, Vector3_ZAccessor)
@@ -282,17 +282,17 @@ TEST(Math, Vector3_ZAccessor)
     Vec3 a( 1.0f, 2.0f, 3.0f );
     Vec3 b( 6.0f, 5.0f, 4.0f );
 
-    EXPECT_EQ( 3.0f, a.z() );
-    EXPECT_EQ( 4.0f, b.z() );
+    EXPECT_FLOAT_EQ( 3.0f, a.z() );
+    EXPECT_FLOAT_EQ( 4.0f, b.z() );
 }
 
 TEST(Math, Vector3_ZeroVector)
 {
     const Vec3 a = Vec3::ZERO;
 
-    EXPECT_EQ( a[0], 0.0f );
-    EXPECT_EQ( a[1], 0.0f );
-    EXPECT_EQ( a[2], 0.0f );
+    EXPECT_FLOAT_EQ( a[0], 0.0f );
+    EXPECT_FLOAT_EQ( a[1], 0.0f );
+    EXPECT_FLOAT_EQ( a[2], 0.0f );
 }
 
 TEST(Math, Vector3_ZeroVectorIsZeroValueConstructed)
@@ -322,7 +322,7 @@ TEST(Math, Vector3_SimpleDotProduct2D)
     const Vec3 a( 60, 80, 0 );
     const Vec3 b( 30, 40, 0 );
 
-    EXPECT_EQ( 5000.0f, dot( a, b ) );
+    EXPECT_FLOAT_EQ( 5000.0f, dot( a, b ) );
 }
 
 TEST(Math, Vector3_SimpleDotProduct3D)
@@ -330,7 +330,7 @@ TEST(Math, Vector3_SimpleDotProduct3D)
     const Vec3 a( 60, 80, 100 );
     const Vec3 b( 30, 40, 50 );
 
-    EXPECT_EQ( 10000.0f, dot( a, b ) );
+    EXPECT_FLOAT_EQ( 10000.0f, dot( a, b ) );
 }
 
 TEST(Math, Vector3_DotOppositeIsNegative)
@@ -341,7 +341,7 @@ TEST(Math, Vector3_DotOppositeIsNegative)
     const Vec3 b( 30, 40, 50 );
     const Vec3 c( -30, -40, -50 );
 
-    EXPECT_EQ( -1 * dot(a,b), dot(a,c) );
+    EXPECT_FLOAT_EQ( -1 * dot(a,b), dot(a,c) );
 }
 
 TEST(Math, Vector3_DotSameOrientIsLengthMul)
@@ -362,7 +362,7 @@ TEST(Math, Vector3_PerpendicularDotsAreZero)
     const Vec3 a( 25.0f, 50.0f, -25.0f );
     const Vec3 b( -125.0f, 50.0f, -25.0f );
 
-    EXPECT_EQ( dot( a, b ), 0.0f );
+    EXPECT_FLOAT_EQ( dot( a, b ), 0.0f );
     EXPECT_FLOAT_EQ( 90.0f, angleBetween( a, b ) );
 }
 
@@ -380,7 +380,7 @@ TEST(Math, Vector3_LengthZero)
 TEST(Math, Vector3_SquaredLength)
 {
     const Vec3 a( 1.0f, 2.0f, 3.0f );
-    EXPECT_EQ( 14.0f, lengthSquared( a ) );
+    EXPECT_FLOAT_EQ( 14.0f, lengthSquared( a ) );
 }
 
 TEST(Math, Vector3_SquareLengthZero)

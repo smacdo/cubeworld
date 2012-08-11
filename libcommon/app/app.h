@@ -30,16 +30,21 @@
 #define SCOTT_APPCORE_H
 #define APPCORE_VERSION 3
 
-void raiseFatalError( const char * message,
-                      const char * reason,
-                      const char * data,
-                      const char * file,
-                      const char * func,
-                      int line );
+namespace App
+{
+    void raiseFatalError( const std::string& message,
+                          const std::string& explanation = "",
+                          const std::string& extraText   = "" );
 
-void throwAssertion( const char * expr,
-                     const char * file,
-                     const char * func,
-                     int line );
+
+    void raiseFatalError( const char * pMessage,
+                          const char * pExplanation = NULL,
+                          const char * pExtraText   = NULL );
+
+    void throwAssertion( const char * expr,
+                         const char * file,
+                         const char * func,
+                         int line );
+}
 
 #endif

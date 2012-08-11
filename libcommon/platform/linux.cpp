@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "app/platform.h"
-#include "common/assert.h"
+#include <platform/platform.h>
+#include <common/assert.h>
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -36,27 +36,30 @@ Time currentTime()
  * Generates a assertion reporting dialog (or console output) to show to the
  * player, before exiting the application
  *
- * \param  message     An accompanying assertion description (if provided)
- * \param  expression  String containing the expression text
- * \param  filename    Name of the file that generated the assertion
- * \param  lineNumber  Line that generated the assertion
+ * \praam  pExpression  Expression that generated failed assert
+ * \param  pReason      Reason provided for failing assert
+ * \param  pFunction    Function that failed
+ * \param  pFilename    Name of the file containing the failing assert
+ * \param  lineNumber   Line number of the assert
  */
-Debug::EAssertionStatus reportAssertion( const char * pMessage,
-                                         const char * pExpression,
-                                         const char * pFilename,
-                                         unsigned int lineNumber )
+Assert::EAssertAction linuxAssertion( const char * pExpression,
+                                      const char * pReason,
+                                      const char * pFunction,
+                                      const char * pFilename,
+                                      unsigned int lineNumber )
 {
     std::cerr
         << "---------- ASSERTION FAILED! -----------" << std::endl
-        << "MESSAGE   : "  << pMessage                << std::endl
         << "EXPRESSION: "  << pExpression             << std::endl
+        << "REASON    : "  << pReason                 << std::endl
+        << "FUNCTION  : "  << pFunction               << std::endl
         << "FILENAME  : "  << pFilename               << std::endl
-        << "LINE      : "  << lineNumber              << std::endl
+        << "LINE NUM  : "  << lineNumber              << std::endl
         << "----------------------------------------" << std::endl
         << std::endl;
 
     // Now return and let the caller know that they should abort
-    return Debug::EAssertion_Halt;
+    return Assert::EASSERT_BREAK;
 }
 
 /**
@@ -127,6 +130,8 @@ void reportSoftwareError( const std::string& message,
  */
 void startup()
 {
+    setAssertHandler( linuxAssertion );
+    // nothing
 }
 
 /**

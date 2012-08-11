@@ -1,3 +1,18 @@
+/*
+ * Copyright 2012 Scott MacDonald
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #include <common/time.h>
 #include <common/assert.h>
 #include <ostream>
@@ -34,7 +49,7 @@ Time::Time( unsigned int seconds )
 Time::Time( float seconds )
     : mSeconds( static_cast<double>(seconds) )
 {
-    assert( seconds >= -TimeDelta && "Time must be positive" );
+    ASSERT_MSG( seconds >= -TimeDelta, "Time must be positive" );
 }
 
 /**
@@ -43,7 +58,7 @@ Time::Time( float seconds )
 Time::Time( double seconds )
     : mSeconds( seconds )
 {
-    assert( seconds >= -TimeDelta && "Time must be positive" );
+    ASSERT_MSG( seconds >= -TimeDelta, "Time must be positive" );
 }
 
 /**
@@ -126,7 +141,7 @@ Time& Time::operator += ( const Time& rhs )
  */
 Time Time::operator - ( const Time& rhs ) const
 {
-    assert( mSeconds >= rhs.mSeconds );
+    ASSERT_MSG( mSeconds >= rhs.mSeconds, "Subtraction cannot result in negative" );
     return Time( mSeconds - rhs.mSeconds );
 }
 
@@ -135,7 +150,7 @@ Time Time::operator - ( const Time& rhs ) const
  */
 Time& Time::operator -= ( const Time& rhs )
 {
-    assert( mSeconds >= rhs.mSeconds );
+    ASSERT_MSG( mSeconds >= rhs.mSeconds, "Subtraction cannot result in negative" );
     
     mSeconds -= rhs.mSeconds;
     return *this;

@@ -80,7 +80,7 @@ public:
      * initialize any of its values
      */
     TMatrix4()
-#ifdef MATRIX_DEBUG_MODE
+#ifdef MATH_DEBUG
         : m11( SCOTT_NAN ), m12( SCOTT_NAN ), m13( SCOTT_NAN ), m14( SCOTT_NAN ),
           m21( SCOTT_NAN ), m22( SCOTT_NAN ), m23( SCOTT_NAN ), m24( SCOTT_NAN ),
           m31( SCOTT_NAN ), m32( SCOTT_NAN ), m33( SCOTT_NAN ), m34( SCOTT_NAN ),
@@ -165,7 +165,7 @@ public:
      */
     const_reference operator[] ( unsigned int offset ) const
     {
-        math_assert( NUM_VALUES && "Matrix4 operator[] out of range" );
+        MATH_ASSERT( NUM_VALUES, "Matrix4 operator[] out of range" );
         return m[offset];
     }
 
@@ -176,7 +176,7 @@ public:
      */
     reference operator[] ( unsigned int offset )
     {
-        math_assert( NUM_VALUES && "Matrix4 operator[] out of range" );
+        MATH_ASSERT( NUM_VALUES, "Matrix4 operator[] out of range" );
         return m[offset];
     }
 
@@ -386,7 +386,7 @@ public:
      */
     bool operator == ( const TMatrix4<T>& rhs ) const
     {
-#ifdef MATH_USE_FUZZY_EQUALS
+#ifdef MATH_FUZZY_EQUALS
         return std::equal( m, m + NUM_VALUES, rhs.m, Math::equalsClose<T> );
 #else
         return std::equal( m, m + NUM_VALUES, rhs.m );
@@ -406,8 +406,8 @@ public:
      */
     value_type at( unsigned int r, unsigned int c ) const
     {
-        math_assert( r < NUM_ROWS && "Matrix row out of range");
-        math_assert( c < NUM_COLS && "Matrix column out of range");
+        MATH_ASSERT( r < NUM_ROWS, "Matrix row out of range");
+        MATH_ASSERT( c < NUM_COLS, "Matrix column out of range");
 
         return m[ M_OFFSET(r,c) ];
     }
@@ -417,8 +417,8 @@ public:
      */
     void set( unsigned int r, unsigned int c, value_type v )
     {
-        math_assert( r < NUM_ROWS && "Matrix row out of range");
-        math_assert( c < NUM_COLS && "Matrix column out of range");
+        MATH_ASSERT( r < NUM_ROWS, "Matrix row out of range");
+        MATH_ASSERT( c < NUM_COLS, "Matrix column out of range");
 
         m[ M_OFFSET(r,c) ] = v;
     }
@@ -428,7 +428,7 @@ public:
      */
     TVector4<T> row( unsigned int r ) const
     {
-        math_assert( r < NUM_ROWS && "Matrix row out of range" );
+        MATH_ASSERT( r < NUM_ROWS, "Matrix row out of range" );
 
         return TVector4<T>( m[ M_OFFSET(r,0) ],
                             m[ M_OFFSET(r,1) ],
@@ -441,7 +441,7 @@ public:
      */
     void setRow( const TVector4<T>& v, unsigned int r )
     {
-        math_assert( r < NUM_ROWS && "Matrix row out of range" );
+        MATH_ASSERT( r < NUM_ROWS, "Matrix row out of range" );
 
         m[ M_OFFSET(r,0) ] = v[0];
         m[ M_OFFSET(r,1) ] = v[1];
@@ -454,7 +454,7 @@ public:
      */
     TVector4<T> column( unsigned int c ) const
     {
-        math_assert( c < NUM_COLS && "Matrix col out of range" );
+        MATH_ASSERT( c < NUM_COLS, "Matrix col out of range" );
 
         return TVector4<T>( m[ M_OFFSET(0,c) ],
                             m[ M_OFFSET(1,c) ],
@@ -467,7 +467,7 @@ public:
      */
     void setColumn( const TVector4<T>& v, unsigned int c )
     {
-        math_assert( c < NUM_COLS && "Matrix col out of range" );
+        MATH_ASSERT( c < NUM_COLS, "Matrix col out of range" );
 
         m[ M_OFFSET(0,c) ] = v[0];
         m[ M_OFFSET(1,c) ] = v[1];
@@ -738,8 +738,8 @@ const TMatrix4<T> TMatrix4<T>::IDENTITY = TMatrix4(
 /////////////////////////////////////////////////////////////////////////////
 // Common typedefs
 /////////////////////////////////////////////////////////////////////////////
-#ifdef MATH_COMMON_TYPEDEFS
-typedef TMatrix4<float> Mat4;
+#ifdef MATH_TYPEDEFS
+typedef TMatrix4<scalar_t> Mat4;
 typedef TMatrix4<float> Mat4f;
 typedef TMatrix4<double> Mat4d;
 #endif

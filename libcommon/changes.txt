@@ -1,0 +1,14 @@
+0.0.1: Sep 13, 2010. scott macdonald <scott@whitespaceconsideredharmful.com>
+    - initial stuff!
+
+0.1.0: Jun 22, 2012. Scott MacDonald <scott@whitespaceconsideredharmful.com>
+    - Sorted code into appropriate subfolders
+    - Restructured CMake code to be cleaner and more understandable
+    - Initial Windows platform support
+    - Initial Mac OSX platform support
+    - Linux builds fully supported
+    - Introduction of unit testing
+    - Math and common are mostly under test
+
+#$NEW_VERSION$ $REVISION_ID$: $DATE$. $AUTHOR$
+#    - $DESCRIPTION$

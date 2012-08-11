@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "app/platform.h"
-#include <googletest/googletest.h>
+#include "platform/platform.h"
 #include <string>
 #include <sstream>
 #include <iostream>

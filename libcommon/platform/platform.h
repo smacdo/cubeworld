@@ -69,10 +69,11 @@ namespace App
                           const std::string& details = "" );
 
     // Report a code assertion
-    Debug::EAssertionStatus reportAssertion( const char *pMessage,
-                                             const char *pExpression,
-                                             const char* pFilename,
-                                             unsigned int line );
+    Assert::EAssertAction reportAssertion( const char *pExpression,
+                                           const char *pReason,
+                                           const char *pFunction,
+                                           const char *pFile,
+                                           unsigned int line );
 
     // Platform specific error reporting
     void reportSoftwareError( const std::string& message,

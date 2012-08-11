@@ -28,12 +28,12 @@ TEST(Math, Vector2_MemoryArrayTest)
 
     const float * pVals = v[0].const_ptr();
 
-    EXPECT_EQ( 1.0f, *(pVals + 0) );
-    EXPECT_EQ( 2.0f, *(pVals + 1) );
-    EXPECT_EQ( 3.0f, *(pVals + 2) );
-    EXPECT_EQ( 4.0f, *(pVals + 3) );
-    EXPECT_EQ( 5.0f, *(pVals + 4) );
-    EXPECT_EQ( 6.0f, *(pVals + 5) );
+    EXPECT_FLOAT_EQ( 1.0f, *(pVals + 0) );
+    EXPECT_FLOAT_EQ( 2.0f, *(pVals + 1) );
+    EXPECT_FLOAT_EQ( 3.0f, *(pVals + 2) );
+    EXPECT_FLOAT_EQ( 4.0f, *(pVals + 3) );
+    EXPECT_FLOAT_EQ( 5.0f, *(pVals + 4) );
+    EXPECT_FLOAT_EQ( 6.0f, *(pVals + 5) );
 }
 
 TEST(Math, Vector2_PointerConstructor)
@@ -196,8 +196,8 @@ TEST(Math, Vector2_SubtractionOperator)
     const Vec2 b(-1.0f, 3.0f );
     const Vec2 c = a - b;
     
-    EXPECT_EQ(   6.0f, c[0] );
-    EXPECT_EQ(  -1.0f, c[1] );
+    EXPECT_FLOAT_EQ(   6.0f, c[0] );
+    EXPECT_FLOAT_EQ(  -1.0f, c[1] );
 }
 
 TEST(Math, Vector2_SelfSubtractionOperator)
@@ -206,8 +206,8 @@ TEST(Math, Vector2_SelfSubtractionOperator)
     const Vec2 b(-1.0f, 3.0f );
     a -= b;
     
-    EXPECT_EQ(   6.0f, a[0] );
-    EXPECT_EQ(  -1.0f, a[1] );
+    EXPECT_FLOAT_EQ(   6.0f, a[0] );
+    EXPECT_FLOAT_EQ(  -1.0f, a[1] );
 }
 
 TEST(Math, Vector2_MultiplyOperator)
@@ -247,8 +247,8 @@ TEST(Math, Vector2_XAccessor)
     Vec2 a( 1.0f, 2.0f );
     Vec2 b( 6.0f, 5.0f );
 
-    EXPECT_EQ( 1.0f, a.x() );
-    EXPECT_EQ( 6.0f, b.x() );
+    EXPECT_FLOAT_EQ( 1.0f, a.x() );
+    EXPECT_FLOAT_EQ( 6.0f, b.x() );
 }
 
 TEST(Math, Vector2_YAccessor)
@@ -256,16 +256,16 @@ TEST(Math, Vector2_YAccessor)
     Vec2 a( 1.0f, 2.0f );
     Vec2 b( 6.0f, 5.0f );
 
-    EXPECT_EQ( 2.0f, a.y() );
-    EXPECT_EQ( 5.0f, b.y() );
+    EXPECT_FLOAT_EQ( 2.0f, a.y() );
+    EXPECT_FLOAT_EQ( 5.0f, b.y() );
 }
 
 TEST(Math, Vector2_ZeroVector)
 {
     const Vec2 a = Vec2::ZERO;
 
-    EXPECT_EQ( a[0], 0.0f );
-    EXPECT_EQ( a[1], 0.0f );
+    EXPECT_FLOAT_EQ( a[0], 0.0f );
+    EXPECT_FLOAT_EQ( a[1], 0.0f );
 }
 
 TEST(Math, Vector2_ZeroVectorIsZeroValueConstructed)
@@ -290,7 +290,7 @@ TEST(Math, Vector2_LengthZero)
 TEST(Math, Vector2_SquaredLength)
 {
     const Vec2 a( 1.0f, 2.0f );
-    EXPECT_EQ( 5.0f, lengthSquared( a ) );
+    EXPECT_FLOAT_EQ( 5.0f, lengthSquared( a ) );
 }
 
 TEST(Math, Vector2_SquareLengthZero)

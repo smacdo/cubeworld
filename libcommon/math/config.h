@@ -16,19 +16,19 @@
 #ifndef SCOTT_MATH_CONFIG_H
 #define SCOTT_MATH_CONFIG_H
 
-#define MATH_COMMON_TYPEDEFS
-#define MATH_USE_FUZZY_EQUALS
-/* #undef MATH_USE_DOUBLES */
-#define MATH_DEBUG_MODE
+#define MATH_TYPEDEFS
+#define MATH_FUZZY_EQUALS
+/* #undef MATH_DOUBLE */
+#define MATH_DEBUG
 
 /**
  * Defines the Scalar type, which is used by the math library to determine
  * the precision of a floating point value.
  */
-#ifdef MATH_USE_DOUBLES
-    typedef double Scalar;
+#ifdef MATH_DOUBLE
+    typedef double scalar_t;
 #else
-    typedef float Scalar;
+    typedef float scalar_t;
 #endif
 
 /**
@@ -37,15 +37,14 @@
  * assertions and continue using assertions in the rest of the application.
  * By default, math_assert is only enabled when MATH_DEBUG_MODE is defined.
  */
-#ifdef MATH_DEBUG_MODE
-#   include <app/debug.h>
+#ifdef MATH_DEBUG
+#   include <common/assert.h>
 #   include <limits>
-#   define math_assert(x) scott_assert("Math assertion failed", x)
+#   define MATH_ASSERT(expr,msg) CORE_ASSERT(expr,msg)
 #   define SCOTT_NAN      std::numeric_limits<T>::signaling_NaN()
-#   define MATRIX_DEBUG_MODE 1
-#   define VECTOR_DEBUG_MODE 1
 #else
-#   define math_assert(x) 
+#   define MATH_ASSERT(expr,msg) (static_cast<void>(0))
+#   define SCOTT_NAN (static_cast<void>(0))
 #endif
 
 #endif

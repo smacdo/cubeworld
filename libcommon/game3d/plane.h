@@ -45,13 +45,13 @@ public:
     Plane();
 
     // Constructor
-    Plane( const Vec3& normal, const Scalar& distance );
+    Plane( const Vec3& normal, const scalar_t& distance );
 
     // Constructor
-    Plane( const Scalar& nX,
-           const Scalar& nY,
-           const Scalar& nZ,
-           const Scalar& distance );
+    Plane( const scalar_t& nX,
+           const scalar_t& nY,
+           const scalar_t& nZ,
+           const scalar_t& distance );
 
     // Constructor
     Plane( const Vec3& ptA,

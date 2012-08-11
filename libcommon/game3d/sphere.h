@@ -43,7 +43,7 @@ public:
      * Sphere constructor that creates a new sphere from a vector representing
      * the sphere's center, and a scalar representing the sphere's radius
      */
-    Sphere( const Vec3& center, const Scalar& radius )
+    Sphere( const Vec3& center, const scalar_t& radius )
         : mCenter( center ),
           mRadius( radius )
     {
@@ -54,21 +54,21 @@ public:
      * representing a vector for the sphere's center, and another scalar for
      * the sphere's radius
      */
-    Sphere( const Scalar& x, const Scalar& y, const Scalar& z,
-            const Scalar& radius )
+    Sphere( const scalar_t& x, const scalar_t& y, const scalar_t& z,
+            const scalar_t& radius )
         : mCenter( Vec3( x, y, z ) ),
           mRadius( radius )
     {
     }
 
     Sphere translate( const Vec3& distance ) const;
-    Sphere scale( Scalar amount ) const;
-    Sphere rotate( const Vec3& axis, Scalar amount ) const;
+    Sphere scale( scalar_t amount ) const;
+    Sphere rotate( const Vec3& axis, scalar_t amount ) const;
 
     bool intersects( const Ray& ray ) const;
 
     Vec3 center() const;
-    Scalar radius() const;
+    scalar_t radius() const;
 
 private:
 
@@ -80,7 +80,7 @@ private:
     /**
      * Radius of the sphere
      */
-    Scalar mRadius;
+    scalar_t mRadius;
 };
 
 #endif

@@ -207,7 +207,7 @@ namespace Math
     template<typename T>
     T wrap( const T& val, const T& max )
     {
-        math_assert( val >= 0 && "Value to be wrapped must be positive" );
+        MATH_ASSERT( val >= 0, "Value to be wrapped must be positive" );
         return val % max;
     }
 

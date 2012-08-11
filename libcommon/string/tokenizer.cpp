@@ -50,7 +50,7 @@ StringTokenizer::StringTokenizer( const std::string& input )
 
 bool StringTokenizer::hasNext() const
 {
-    assert (! (m_hasNextToken && m_errorFlag) );
+    ASSERT(! (m_hasNextToken && m_errorFlag) );
 
     if ( hasError() )
     {
@@ -100,7 +100,7 @@ std::string StringTokenizer::currentToken() const
 
 std::string StringTokenizer::nextToken()
 {
-    assert (! (m_hasNextToken && m_errorFlag) );
+    ASSERT(! (m_hasNextToken && m_errorFlag) );
     parseNext();
     return m_currentToken;
 }
@@ -180,7 +180,7 @@ void StringTokenizer::parseNext()
             }
             else
             {
-                assert( token_start == token_end );
+                ASSERT( token_start == token_end );
 
                 // Create and end the token as being only this
                 // character
@@ -222,7 +222,7 @@ void StringTokenizer::parseNext()
     //
     if (! hasError() )
     {
-        assert( token_start < token_end );
+        ASSERT( token_start < token_end );
 
         m_currentToken = m_input.substr(
                                     token_start,
@@ -244,7 +244,7 @@ void StringTokenizer::parseNext()
     m_startpos = token_end;
 
     // Sanity checks
-    assert (! (m_hasNextToken && m_errorFlag) );
+    ASSERT(! (m_hasNextToken && m_errorFlag) );
 }
 
 void StringTokenizer::raiseError( size_t epos, const std::string& message )

@@ -13,26 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SCOTT_COMMON_ASSERT_H
-#define SCOTT_COMMON_ASSERT_H
 
-// Check for presence of the NDEBUG macro. If it exists, the built in
-// assertion will be disabled. There's no good way to go about manually
-// disabling the builtin assertion macro, so we must rely on NDEBUG turning
-// it off.
+//---------------------------------------------------------------------------
+// The following macro defines affect assertion functionality
 //
-// Long story short: This file's custom assert cannot coexist with builtin
-// assert. Turn it off
-#ifndef NDEBUG
-#   error "Builtin assert(x) enabled. Disable it with NDEBUG for custom asserts"
-#endif
-
-// If the compiler's debug mode is enabled, then turn on assertions.
-// TODO: Make this more robust
-#if defined(_DEBUG)
-#   define ASSERTS_ENABLED  1
-#   define ASSERTS_VERIFY   1
-#endif
+//   - DISABLE_ASSERTS: ASSERT is compiled out and never executed
+//   - ENABLE_ASSERT_HANDLER: Allows custom assertion reporting. If disabled,
+//                            asserts are handed to the standard ::assert(EXPR)
+//   - NDEBUG: Always disables assertions, both ASSERT and assert
+//
+// Parts of this file are heavily inspired from boost's assert.hpp
+//----------------------------------------------------------------------------
+// Undefine our assert macros, in case someone already defined them (BAD!)
+#undef ASSERT
+#undef ASSERT_MSG
+#undef VERIFY
 
 // Define the platform specific way of generating a debugger trap
 #ifdef _MSC_VER
@@ -42,75 +37,109 @@
 #endif
 
 //
-// Assertion handling methods
+// ASSERT - replacement for the system assert(expr) macro. This custom macro
+// adds additional error reporting functionality, including the ability to
+// install a custom assert handler
 //
-namespace Debug
-{
-    enum EAssertionStatus
-    {
-        EAssertion_Halt,
-        EAssertion_Continue
-    };
-
-    typedef EAssertionStatus (*assertionHandler)(const char*,
-                                                 const char*,
-                                                 const char*,
-                                                 unsigned int );
-
-    // Install a custom assertion handler
-    void setAssertionHandler( assertionHandler handler );
-
-    // Raises a software assertion
-    EAssertionStatus raiseAssertion( const char *pMessage,
-                                     const char *pExpression,
-                                     const char *pFile,
-                                     unsigned int line );
-
-    // Places the application into unit test mode
-    void setInUnitTestMode( bool isInUnitTestMode );
-
-    // Tells unit tester if we should allow program to keep running
-    void setTestAssertShouldDie( bool shouldDie );
-
-    // Reset default behavior
-    void resetTestAssertShouldDie();
-};
-
-//
-// Custom assertion handling
-//
-#ifdef ASSERTS_ENABLED
-#   define scott_assert(msg,cond)           \
+#if defined( DISABLE_ASSERTS ) || defined( NDEBUG )
+#   define ASSERT(expr) ((void)0)
+#elif defined( ENABLE_ASSERT_HANDLER )
+#   include <miniboost/current_function.hpp>
+#   define ASSERT(expr)                     \
     do                                      \
     {                                       \
-        if ( !(cond) )                      \
+        if ( !(expr) )                      \
         {                                   \
-            if ( Debug::raiseAssertion(msg,#cond,__FILE__,__LINE__) == \
-                 Debug::EAssertion_Halt )   \
+            if ( Assert::raiseAssertion(#expr,NULL,BOOST_CURRENT_FUNCTION,__FILE__,__LINE__) ) \
                 assert_break;               \
         }                                   \
     } while( 0 )
-#   define assert2(expr,msg) scott_assert(msg,expr)
-#   define assert_null(var) scott_assert("Pointer was expected to be null",#var##" == NULL")
-#   define assert_notNull(var) scott_assert("Pointer was expected to be non-null",#var##" != NULL")
-
-#   ifdef ASSERTS_VERIFY        // only enabled for full sanity checks
-#       define verify(expression)  scott_assert(NULL,expression)
-#   else
-#       define verify(expression)  do { (void)sizeof(x); } while(0)
-#   endif
-#   ifdef assert
-#       undef assert
-#   endif
-#   define assert(x) scott_assert(NULL,x)
 #else
-#   ifndef assert
-#       define assert(x)          do { (void)sizeof(x); } while(0)
-#   endif
-#   define assert2(x,m)       do { (void)sizeof(x); } while(0)
-#   define assert_null(x)     do { (void)sizeof(x); } while(0)
-#   define assert_notNull(x)  do { (void)sizeof(x); } while(0)
-#   define verify(x)          do { (void)sizeof(x); } while(0)
+#   define ASSERT(expr) assert(expr)
 #endif
+
+//
+// ASSERT_MSG - Similiar to the ASSERT macro, but the second statement allows
+// the developer to specify an error message that is displayed when the
+// assertion fails
+//
+#if defined( DISABLE_ASSERTS ) || defined( NDEBUG )
+#   define ASSERT_MSG(expr, msg) ((void)0)
+#elif defined( ENABLE_ASSERT_HANDLER )
+#   define ASSERT_MSG(expr,msg)             \
+    do                                      \
+    {                                       \
+        if ( !(expr) )                      \
+        {                                   \
+            if ( Assert::raiseAssertion(#expr,msg,BOOST_CURRENT_FUNCTION,__FILE__,__LINE__) ) \
+                assert_break;               \
+        }                                   \
+    } while( 0 )
+#else
+#   error WTF
+#   define ASSERT_MSG(expr,msg) ASSERT(expr && (msg))
+#endif
+
+//
+// VERIFY - Identical to ASSERT, except that it is not compiled out in release
+// mode.
+//
+// (It will be disabled if DISABLE_ASSERTS is defined, OR NDEBUG is turned on
+// AND ENABLE_ASSERT_HANDLER is disabled)
+//
+#if defined(DISABLE_ASSERTS) || ( !defined(ENABLE_ASSERT_HANDLER) && defined(NDEBUG) )
+#   define VERIFY(expr) ((void)(expr))
+#else
+#   define VERIFY(expr) ASSERT(expr)
+#endif
+
+// Utility ASSERTs
+#define CORE_ASSERT(expr,msg) ASSERT_MSG(expr,msg)
+#define ASSERT_NULL(var) ASSERT_MSG((var)==NULL,#var " is not null");
+#define ASSERT_NOT_NULL(var) ASSERT_MSG((var)!=NULL,#var " is null");
+
+//--------------------------------------------------------------------------//
+// Assertion handling routines                                              //
+//--------------------------------------------------------------------------//
+#ifndef SCOTT_COMMON_ASSERT_H       // we only want this for the function defs
+#define SCOTT_COMMON_ASSERT_H
+
+namespace Assert
+{
+    enum EAssertAction
+    {
+        EASSERT_EXIT,
+        EASSERT_BREAK,
+        EASSERT_CONTINUE
+    };
+
+    // Assertion handler function callback typedef. Makes passing the
+    // function pointer a lot easier
+    typedef EAssertAction (*assert_func_t)( const char*,
+                                            const char*,
+                                            const char*,
+                                            const char*,
+                                            unsigned int );
+
+    // The default assertion handler, prints to the console and aborts
+    bool raiseAssertion( const char * pExpression,
+                         const char * pReason,
+                         const char * pFunction,
+                         const char * pFile,
+                         unsigned int pLine );
+
+    // Set a custom assertion handler 
+    void setAssertHandler( assert_func_t pAssertHandler );
+
+    // Retrieve the current assertion handler
+    assert_func_t getAssertHandler();
+
+    // The default assertion handler, prints to the console and aborts
+    EAssertAction defaultAssertHandler( const char * pExpression,
+                                        const char * pReason,
+                                        const char * pFunction,
+                                        const char * pFile,
+                                        unsigned int pLine );
+}
 
 #endif

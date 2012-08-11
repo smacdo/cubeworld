@@ -32,7 +32,7 @@ template<>
 TVector4<float> normalized( const TVector4<float>& v )
 {
     float len = length( v );
-    math_assert( len > 0.0f );
+    ASSERT_MSG( len > 0.0f, "Cannot normalize vector of length zero" );
 
     // If the vector is already normalizd (length is one), then simply return
     // the vector without renormalizing it
@@ -50,7 +50,7 @@ template<>
 TVector3<float> normalized( const TVector3<float>& v )
 {
     float len = length( v );
-    math_assert( len > 0.0f );
+    ASSERT_MSG( len > 0.0f, "Cannot normalize vector of length zero" );
 
     // If the vector is already normalizd (length is one), then simply return
     // the vector without renormalizing it
@@ -68,7 +68,7 @@ template<>
 TVector2<float> normalized( const TVector2<float>& v )
 {
     float len = length( v );
-    math_assert( len > 0.0f );
+    ASSERT_MSG( len > 0.0f, "Cannot normalize vector of length zero" );
 
     // If the vector is already normalizd (length is one), then simply return
     // the vector without renormalizing it

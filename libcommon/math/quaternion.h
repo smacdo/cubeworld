@@ -55,7 +55,7 @@ public:
      * Quaternion default constructor
      */
     TQuaternion()
-#ifdef MATH_DEBUG_MODE
+#ifdef MATH_DEBUG
         : mW( std::numeric_limits<T>::signaling_NaN() ),
           mX( std::numeric_limits<T>::signaling_NaN() ),
           mY( std::numeric_limits<T>::signaling_NaN() ),
@@ -123,7 +123,7 @@ public:
      */
     const_reference operator[]( unsigned int index ) const
     {
-        math_assert( index < 4 && "Quaternion index out of range" );
+        MATH_ASSERT( index < 4, "Quaternion index out of range" );
         return *(&mW + index);
     }
 
@@ -132,7 +132,7 @@ public:
      */
     reference operator[]( unsigned int index )
     {
-        math_assert( index < 4 && "Quaternion index out of range" );
+        MATH_ASSERT( index < 4, "Quaternion index out of range" );
         return *(&mW + index);
     }
 
@@ -360,8 +360,9 @@ const TQuaternion<T> TQuaternion<T>::ZERO = TQuaternion<T>( 0, 0, 0, 0 );
 template<typename T>
 const TQuaternion<T> TQuaternion<T>::IDENTITY = TQuaternion<T>( 1, 0, 0, 0 );
 
-#ifdef MATH_COMMON_TYPEDEFS
-typedef TQuaternion<float> Quat;
+#ifdef MATH_TYPEDEFS
+typedef TQuaternion<scalar_t> Quat;
+typedef TQuaternion<float> Quatf;
 typedef TQuaternion<double> Quatd;
 #endif
 

@@ -4,7 +4,7 @@
 #include <string>
 #include <sstream>
 
-namespace String
+namespace Util
 {
     /**
      * Attempts to lexically convert the given object into a STL
@@ -46,7 +46,7 @@ namespace String
      * \return Returns true if the conversion succeeded, false otherwise
      */
     template<typename T>
-    inline bool FromStringCast( const std::string& input, const T& output )
+    inline bool FromString( const std::string& input, const T& output )
     {
         std::stringstream ss;
         ss << input;

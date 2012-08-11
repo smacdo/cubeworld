@@ -35,13 +35,13 @@ private:
      * Copy constructor is marked private to prevent instances from
      * being copy constructed accidently
      */
-    Singleton( const SingletonBase& sb );
+    Singleton( const Singleton& sb );
 
     /**
      * Assignment operator is marked private to prevent instances from
      * being copied accidently
      */
-    Singleton operator = ( const SingletonBase& sb );
+    Singleton operator = ( const Singleton& sb );
 };
 
 #endif

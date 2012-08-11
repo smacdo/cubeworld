@@ -1,9 +1,3 @@
-#########################################################################
-### Project source build script                                       ###
-###  - This portion of the build will compile all testable code into  ###
-###    a static library, and then link the entire project binary      ###
-###    together along with any required libraries and settings        ###
-#########################################################################
 #========================================================================
 # Game engine and gameplay code
 #========================================================================
@@ -138,6 +132,8 @@ add_executable(cubeworld_client
 	${graphics_srcs} ${graphics_incs}
 	${platform_srcs} ${platform_incs}
 )
+add_warnings( cubeworld_client )
+
 set_target_properties(cubeworld_client PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(cubeworld_client
                         common cubeworld_engine googletest

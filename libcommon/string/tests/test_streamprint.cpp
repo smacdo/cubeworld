@@ -2,6 +2,8 @@
 #include <string/util.h>
 #include <sstream>
 
+using namespace StringUtil;
+
 TEST(StringUtils,ZeroByteToHex)
 {
     uint8_t v = 0;

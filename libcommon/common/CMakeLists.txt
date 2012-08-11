@@ -20,8 +20,13 @@ set(sources
 )
 
 set(tests
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_assert.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_delete.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_deref.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_scopedptr.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_singleton.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_time.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_utils.cpp
 )
 
 set( libcommon_incs  ${libcommon_incs}  ${includes} PARENT_SCOPE )

@@ -28,25 +28,27 @@ namespace App {
  * Generates a assertion reporting dialog (or console output) to show to the
  * player, before exiting the application
  *
- * \param  message     An accompanying assertion description (if provided)
- * \param  expression  String containing the expression text
- * \param  filename    Name of the file that generated the assertion
- * \param  lineNumber  Line that generated the assertion
+ * \param  pExpression  Text of the failing expression
+ * \param  pReason      Message accompanying the assert (NULL for none)
+ * \param  pFunction    Name of the function where the assert failed
+ * \param  pFile        Name of the code file where the assert failed
+ * \param  line         Line number of the file where the assert failed
  */
-Debug::EAssertionStatus reportAssertion( const std::string& message,
-                                         const std::string& expression,
-                                         const std::string& filename,
-                                         unsigned int lineNumber )
+Assert::EAssertAction reportAssertion( const char * expression,
+                                       const char * reason,
+                                       const char * function,
+                                       const char * file,
+                                       unsigned int lineNumber )
 {
     // Convert the assertion message into an NSString and use it as the
     // main dialog message
-    NSString *pMessage = [[NSString alloc] initWithUTF8String: message.c_str()];
+    NSString *pMessage = [[NSString alloc] initWithUTF8String: reason];
 
     // Format the assertion message to be better viewed in a dialog box
     NSString *pAssertion =
         [NSString stringWithFormat: @"assert( %s )\n%s:%u",
-                                    expression.c_str(),
-                                    filename.c_str(),
+                                    expression,
+                                    filename,
                                     lineNumber ];
 
     NSAlert *pAlert = [[NSAlert alloc] init];
@@ -61,12 +63,12 @@ Debug::EAssertionStatus reportAssertion( const std::string& message,
 
     if ( status == 1 )
     {
-        // User wants to exit, so just crash
-        App::quit( App::EPROGRAM_ASSERT_FAILED );
+        return Assert::EASSERT_EXIT;
     }
-
-    // Now return and let the caller know that they should abort
-    return Debug::EAssertion_Halt;
+    else
+    {
+        return Assert::EASSERT_BREAK;
+    }
 }
 
 /**
@@ -129,6 +131,7 @@ void reportSoftwareError( const std::string& message,
  */
 void startup()
 {
+    Assert::setAssertHandler( reportAssertion );
 }
 
 /**

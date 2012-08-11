@@ -30,14 +30,14 @@
 #include <game3d/ray.h>
 #include <limits>
 
-Plane::Plane( const Vec3& normal, const Scalar& distance )
+Plane::Plane( const Vec3& normal, const scalar_t& distance )
     : mNormal( normal ),
       mDistance( distance )
 {
 }
 
-Plane::Plane( const Scalar& nX, const Scalar& nY, const Scalar& nZ,
-              const Scalar& distance )
+Plane::Plane( const scalar_t& nX, const scalar_t& nY, const scalar_t& nZ,
+              const scalar_t& distance )
     : mNormal( Vec3( nX, nY, nZ ) ),
       mDistance( distance )
 {
@@ -45,15 +45,15 @@ Plane::Plane( const Scalar& nX, const Scalar& nY, const Scalar& nZ,
 
 bool Plane::intersects( const Ray& ray, Vec3 * pOutIntersectionPt ) const
 {
-    Scalar d2 = dot( mNormal, ray.direction() );
+    scalar_t d2 = dot( mNormal, ray.direction() );
 
     if ( d2 > -Math::ZeroEpsilonF ) 
     {
         return false;     // ray is parallel to plane, or ray hits wrong side
     }
 
-    Scalar d1 = -( dot( mNormal, ray.origin() ) + mDistance );
-    Scalar  t = d1 / d2;
+    scalar_t d1 = -( dot( mNormal, ray.origin() ) + mDistance );
+    scalar_t  t = d1 / d2;
     
     if ( t < Math::ZeroEpsilonF )
     {

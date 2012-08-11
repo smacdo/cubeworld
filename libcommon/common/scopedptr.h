@@ -1,6 +1,13 @@
 #ifndef SCOTT_COMMON_POINTER_H
 #define SCOTT_COMMON_POINTER_H
 
+#include <common/assert.h>
+#include <common/delete.h>
+
+// Forward declarations
+template<class T> class scoped_ptr;
+template<class T> inline void swap( scoped_ptr<T>& rhs, scoped_ptr<T>& lhs );
+
 /**
  * Scoped_ptr is a templated array container that will delete the pointer
  * when the value goes out of scope.
@@ -9,51 +16,54 @@
  * modifications
  */
 template<class T>
-class ScopedPtr
+class scoped_ptr
 {
 public:
     typedef T element_type;
 
-    explicit ScopePtr( const T *ptr = 0 )       // never throws
-        : m_ptr( ptr )
+    explicit scoped_ptr( T *ptr = 0 )       // never throws
+        : mPtr( ptr )
     {
     }
 
-    ~ScopedPtr()                                // never throws
+    ~scoped_ptr()                                // never throws
     {
-        CheckedDelete( m_ptr );
+        Delete( mPtr );
     }
 
     void reset( const T *ptr = 0 )              // never throws
     {
-        internal_assert( p == 0 || p != m_ptr );
-        this_type( m_ptr ).swap( *this );
+        if ( ptr != mPtr )
+        {
+            Delete( mPtr );
+            mPtr = ptr;
+        }
     }
 
     T& operator*() const                        // never throws
     {
-        internal_assert( m_ptr != 0 );
-        return *m_ptr;
+        CORE_ASSERT( mPtr != 0, "Cannot dereference a null scoped pointer" );
+        return *mPtr;
     }
 
     T * operator->() const                      // never throws
     {
-        internal_assert( m_ptr != 0 );
-        return m_ptr;
+        CORE_ASSERT( mPtr != 0, "Cannot dereference a null scoped pointer" );
+        return mPtr;
     }
 
     T * get() const                             // never throws
     {
-        return m_ptr;
+        return mPtr;
     }
 
-    void swap( const ScopedPtr& other )         // never throws
+    void swap( scoped_ptr& other )         // never throws
     {
-        T * tmp = p.m_ptr;
+        T * tmp = other.mPtr;
 
         // Swap
-        other.m_ptr = m_ptr;
-        m_ptr       = tmp;
+        other.mPtr = mPtr;
+        mPtr       = tmp;
     }
 
     /**
@@ -63,21 +73,21 @@ public:
      */
     operator bool() const
     {
-        return m_ptr != 0;
+        return mPtr != 0;
     }
 
 private:
-    T * m_ptr;
+    T * mPtr;
     
     // disable copy constructor
-    ScopedPtr( const ScopedPtr& ptr );
+    scoped_ptr( const scoped_ptr& ptr );
 
     // disable assignment operator
-    ScopedPtr& operator = ( ScopedPtr& ptr );
+    scoped_ptr& operator = ( scoped_ptr& ptr );
 
     // disable comparison operators
-    void operator == ( const ScopedPtr& ptr ) const;
-    void operator != ( const ScopedPtr& ptr ) const;
+    void operator == ( const scoped_ptr& ptr ) const;
+    void operator != ( const scoped_ptr& ptr ) const;
 };
 
 template<class T>

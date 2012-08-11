@@ -71,9 +71,9 @@ namespace MatrixUtil
      * specified axis
      */
     template<typename T>
-    TMatrix4<T> createRotationAroundAxis( T xAngle,
-                                          T yAngle,
-                                          T zAngle )
+    TMatrix4<T> createRotationAroundAxis( T /*xAngle*/,
+                                          T /*yAngle*/,
+                                          T /*zAngle*/ )
     {
         return TMatrix4<T>::IDENTITY;
     }
@@ -109,9 +109,9 @@ namespace MatrixUtil
      * Similiar to gluLookAt
      */
     template<typename T>
-    TMatrix4<T> createLookAt( const TVector3<T>& eye,
-                              const TVector3<T>& lookAt,
-                              const TVector3<T>& up )
+    TMatrix4<T> createLookAt( const TVector3<T>& /*eye*/,
+                              const TVector3<T>& /*lookAt*/,
+                              const TVector3<T>& /*up*/ )
     {
         return TMatrix4<T>::IDENTITY;
     }
@@ -120,12 +120,12 @@ namespace MatrixUtil
      * Creates an OpenGL compatible perspective projection
      */
     template<typename T>
-    TMatrix4<T> createFrustum( T left,
-                               T right,
-                               T bottom,
-                               T top,
-                               T zNear,
-                               T zFar )
+    TMatrix4<T> createFrustum( T /*left*/,
+                               T /*right*/,
+                               T /*bottom*/,
+                               T /*top*/,
+                               T /*zNear*/,
+                               T /*zFar*/ )
     {
         return TMatrix4<T>::IDENTITY;
     }
@@ -134,12 +134,12 @@ namespace MatrixUtil
      * Creates an OpenGL compatible orthographic projection matrix
      */
     template<typename T>
-    TMatrix4<T> createOrtho( T left,
-                             T right,
-                             T bottom,
-                             T top,
-                             T zNear,
-                             T zFar )
+    TMatrix4<T> createOrtho( T /*left*/,
+                             T /*right*/,
+                             T /*bottom*/,
+                             T /*top*/,
+                             T /*zNear*/,
+                             T /*zFar*/ )
     {
         return TMatrix4<T>::IDENTITY;
     }

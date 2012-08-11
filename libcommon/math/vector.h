@@ -91,7 +91,7 @@ public:
      * If you need a zero vector, call the static method ::ZeroVector()
      */
     TVector4()
-#ifdef VECTOR_DEBUG_MODE
+#ifdef MATH_DEBUG
         : mX( std::numeric_limits<T>::signaling_NaN() ),
           mY( std::numeric_limits<T>::signaling_NaN() ),
           mZ( std::numeric_limits<T>::signaling_NaN() ),
@@ -136,7 +136,7 @@ public:
      */
     const_reference operator [] ( unsigned int index ) const
     {
-        math_assert( index < NUM_COMPONENTS && "Vector operator[] out of range" );
+        ASSERT_MSG( index < NUM_COMPONENTS, "Vector operator[] out of range" );
         return v[index];
     }
 
@@ -149,7 +149,7 @@ public:
      */
     reference operator [] ( unsigned int index )
     {
-        math_assert( index < NUM_COMPONENTS && "Vector operator[] out of range" );
+        ASSERT_MSG( index < NUM_COMPONENTS, "Vector operator[] out of range" );
         return v[index];
     }
 
@@ -199,7 +199,7 @@ public:
      */
     bool operator == ( const TVector4<T>& rhs ) const
     {
-#ifdef MATH_USE_FUZZY_EQUALS
+#ifdef MATH_FUZZY_EQUALS
     return ( Math::equalsClose( mX, rhs.mX ) &&
              Math::equalsClose( mY, rhs.mY ) &&
              Math::equalsClose( mZ, rhs.mZ ) &&
@@ -431,7 +431,7 @@ public:
      * If you need a zero vector, call the static method ::ZeroVector()
      */
     TVector3()
-#ifdef VECTOR_DEBUG_MODE
+#ifdef MATH_DEBUG
         : mX( std::numeric_limits<T>::signaling_NaN() ),
           mY( std::numeric_limits<T>::signaling_NaN() ),
           mZ( std::numeric_limits<T>::signaling_NaN() )
@@ -475,7 +475,7 @@ public:
      */
     const_reference operator [] ( unsigned int index ) const
     {
-        math_assert( index < NUM_COMPONENTS && "Vector operator[] out of range" );
+        ASSERT_MSG( index < NUM_COMPONENTS, "Vector operator[] out of range" );
         return v[index];
     }
 
@@ -488,7 +488,7 @@ public:
      */
     reference operator [] ( unsigned int index )
     {
-        math_assert( index < NUM_COMPONENTS && "Vector operator[] out of range" );
+        ASSERT_MSG( index < NUM_COMPONENTS, "Vector operator[] out of range" );
         return v[index];
     }
 
@@ -536,7 +536,7 @@ public:
      */
     bool operator == ( const TVector3<T>& rhs ) const
     {
-#ifdef MATH_USE_FUZZY_EQUALS
+#ifdef MATH_FUZZY_EQUALS
     return ( Math::equalsClose( mX, rhs.mX ) &&
              Math::equalsClose( mY, rhs.mY ) &&
              Math::equalsClose( mZ, rhs.mZ ) );
@@ -804,7 +804,7 @@ public:
      * If you need a zero vector, call the static method ::ZeroVector()
      */
     TVector2()
-#ifdef VECTOR_DEBUG_MODE
+#ifdef MATH_DEBUG
         : mX( std::numeric_limits<T>::signaling_NaN() ),
           mY( std::numeric_limits<T>::signaling_NaN() )
 #endif
@@ -847,7 +847,7 @@ public:
      */
     const_reference operator [] ( unsigned int index ) const
     {
-        math_assert( index < NUM_COMPONENTS && "Vector operator[] out of range" );
+        ASSERT_MSG( index < NUM_COMPONENTS, "Vector operator[] out of range" );
         return v[index];
     }
 
@@ -860,7 +860,7 @@ public:
      */
     reference operator [] ( unsigned int index )
     {
-        math_assert( index < NUM_COMPONENTS && "Vector operator[] out of range" );
+        ASSERT_MSG( index < NUM_COMPONENTS, "Vector operator[] out of range" );
         return v[index];
     }
 
@@ -908,7 +908,7 @@ public:
      */
     bool operator == ( const TVector2<T>& rhs ) const
     {
-#ifdef MATH_USE_FUZZY_EQUALS
+#ifdef MATH_FUZZY_EQUALS
     return ( Math::equalsClose( mX, rhs.mX ) &&
              Math::equalsClose( mY, rhs.mY ) );
 #else
@@ -1188,17 +1188,16 @@ std::ostream& operator << ( std::ostream& os, const TVector2<T>& v )
 /////////////////////////////////////////////////////////////////////////////
 // Vector typedefs - typedef common vector types
 /////////////////////////////////////////////////////////////////////////////
-#ifdef MATH_COMMON_TYPEDEFS
-typedef TVector4<float> Vec4;
+#ifdef MATH_TYPEDEFS
+typedef TVector4<scalar_t> Vec4;
 typedef TVector4<float> Vec4f;
 typedef TVector4<double> Vec4d;
 
-typedef TVector3<long> IVec;
-typedef TVector3<float> Vec3;
+typedef TVector3<scalar_t> Vec3;
 typedef TVector3<float> Vec3f;
 typedef TVector3<double> Vec3d;
 
-typedef TVector2<float> Vec2;
+typedef TVector2<scalar_t> Vec2;
 typedef TVector2<float> Vec2f;
 typedef TVector2<double> Vec2d;
 #endif

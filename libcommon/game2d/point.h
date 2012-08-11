@@ -31,7 +31,7 @@ public:
     Point();
 
     // Constructor that takes an intial x/y point
-    Point( int x, int y );
+    Point( unsigned int x, unsigned int y );
 
     // Copy constructor
     Point( const Point& p );
@@ -61,9 +61,6 @@ public:
     // Subtraction operator
     Point operator - ( const Point& rhs ) const;
 
-    // Negation operator
-    Point operator - () const;
-
     // Self addition operator
     Point& operator += ( const Point& rhs );
 
@@ -77,13 +74,13 @@ public:
     bool isZero() const;
 
     // Get x component
-    int x() const;
+    unsigned int x() const;
 
     // Get y component
-    int y() const;
+    unsigned int y() const;
 
     // Set the x and y component of the point class
-    void set( int x, int y );
+    void set( unsigned int x, unsigned int y );
 
     /////////////////////////
     // Boost serialization //
@@ -98,8 +95,8 @@ public:
     }
 
 private:
-    int mX;
-    int mY;
+    unsigned int mX;
+    unsigned int mY;
 };
 
 std::ostream& operator << ( std::ostream& stream, const Point& point );

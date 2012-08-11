@@ -20,8 +20,8 @@
  * Default constructor. Sets the point to (0,0)
  */
 Point::Point()
-    : mX( 0 ),
-      mY( 0 )
+    : mX( 0u ),
+      mY( 0u )
 {
 }
 
@@ -31,7 +31,7 @@ Point::Point()
  * \param  x  The x coordinate
  * \param  y  The y coordinate
  */
-Point::Point( int x, int y )
+Point::Point( unsigned int x, unsigned int y )
     : mX( x ),
       mY( y )
 {
@@ -100,15 +100,21 @@ Point Point::operator + ( const Point& rhs ) const
  */
 Point Point::operator - ( const Point& rhs ) const
 {
-    return Point( mX - rhs.mX, mY - rhs.mY );
-}
+    unsigned int x = mX - rhs.mX;
+    unsigned int y = mY - rhs.mY;
 
-/**
- * Negation operator
- */
-Point Point::operator - () const
-{
-    return Point( -mX, -mY );
+    // Check for underflow, and clamp result to zero
+    if ( mX > ( x - rhs.mX ) )
+    {
+        x = 0;
+    }
+    
+    if ( mY > ( y - rhs.mY ) )
+    {
+        y = 0;
+    }
+
+    return Point( x, y );
 }
 
 /**
@@ -126,8 +132,23 @@ Point& Point::operator += ( const Point& rhs )
  */
 Point& Point::operator -= ( const Point& rhs )
 {
-    mX -= rhs.mX;
-    mY -= rhs.mY;
+    unsigned int x = mX - rhs.mX;
+    unsigned int y = mY - rhs.mY;
+
+    // Check for underflow, and clamp result to zero
+    if ( mX > ( x - rhs.mX ) )
+    {
+        x = 0;
+    }
+    
+    if ( mY > ( y - rhs.mY ) )
+    {
+        y = 0;
+    }
+
+    mX = x;
+    mY = y;
+
     return *this;
 }
 
@@ -137,7 +158,21 @@ Point& Point::operator -= ( const Point& rhs )
  */
 Point Point::translate( int dx, int dy ) const
 {
-    return Point( mX + dx, mY + dy );
+    unsigned int x = mX + dx;
+    unsigned int y = mY + dy;
+
+    // Check for underflow, and clamp result to zero
+    if ( mX > ( x - dx ) )
+    {
+        x = 0;
+    }
+    
+    if ( mY > ( y - dy ) )
+    {
+        y = 0;
+    }
+
+    return Point( x, y );
 }
 
 /**
@@ -147,13 +182,13 @@ Point Point::translate( int dx, int dy ) const
  */
 bool Point::isZero() const
 {
-    return mX == 0 && mY == 0;
+    return mX == 0u && mY == 0u;
 }
 
 /**
  * Return the x component of the point
  */
-int Point::x() const
+unsigned int Point::x() const
 {
     return mX;
 }
@@ -161,7 +196,7 @@ int Point::x() const
 /**
  * Return the y component of the point
  */
-int Point::y() const
+unsigned int Point::y() const
 {
     return mY;
 }
@@ -172,7 +207,7 @@ int Point::y() const
  * \param  x  Value to set the x component to
  * \param  y  Value to set the y component to
  */
-void Point::set( int x, int y )
+void Point::set( unsigned int x, unsigned int y )
 {
     mX = x;
     mY = y;

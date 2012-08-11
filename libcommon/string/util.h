@@ -8,100 +8,49 @@
 
 namespace StringUtil
 {
-    /**
-     * Writes the contents on a generic STL-like container into a comma separated
-     * string and returns it. The string that separates container entries can be
-     * optionally changed.
-     *
-     * \param  container  The container to print the contents of
-     * \param  sep        String to separate each element
-     * \return            Comma separated list of elements from the container
-     */
+    // Check if a string starts with another string
+    bool startsWith( const std::string& word,
+                     const std::string& prefix );
+
+    // Check if a string ends with another string
+    bool endsWith( const std::string& word,
+                   const std::string& postfix );
+
+    // Convert string to upper case
+    std::string toUpper( const std::string& input );
+    
+    // Append a numeric value to a string
+    std::string makeSuffix( const std::string& base, long suffix );
+
+    // Take an input string and replace each occurrence of findStr with
+    // replaceStr.
+    std::string replace( const std::string& input,
+                         const std::string& findStr,
+                         const std::string& replaceStr );
+
+    // Output byte array as hexadecimal
+    std::ostream& printHex( std::ostream& stream,
+                            const uint8_t *ptr,
+                            size_t len );
+
     template<typename T>
-    std::string DumpContainer( const T& container, const char * sep=", " )
+    std::ostream& printHex( std::ostream& stream, const T& obj )
     {
-        std::stringstream ss;
-
-        typename T::const_iterator itr = container.begin();
-        typename T::const_iterator beg = container.begin();
-        typename T::const_iterator end = container.end();
-
-        for ( ; itr != end; ++itr )
-        {
-            if ( itr != beg )
-            {
-                ss << sep;
-            }
-
-            ss << *itr;
-        }
-
-        return ss.str();
+        const uint8_t * pBase = reinterpret_cast<const uint8_t*>(&obj);
+        return printHex( stream, pBase, sizeof(obj) );
     }
 
+    // Output byte array as binary
+    std::ostream& printBinary( std::ostream& stream,
+                               const uint8_t *ptr,
+                               size_t len );
 
-    std::string loadfile( const std::string& filename, bool *pStatus=NULL );
-
-
+    template<typename T>
+    std::ostream& printBinary( std::ostream& stream, const T& obj )
+    {
+        const uint8_t *pBase = reinterpret_cast<const uint8_t*>(&obj);
+        return printBinary( stream, pBase, sizeof(obj) );
+    }
 }
-
-namespace String
-{
-    inline std::string toUpper( const std::string& );
-}
-
-/**
- * Appends a numeric value to the end of a string. Really use for
- * creating sequences of nameN.
- */
-std::string makeSuffix( const std::string& base, long suffix );
-
-/**
- * Takes an input string, and replaces each occurrence of 'findStr' with
- * 'replaceStr'. Returns the result of this replacement
- */
-std::string replace( const std::string& input,
-                     const std::string& findStr,
-                     const std::string& replaceStr );
-
-/**
- * Print the memory pointed to in hexadecimal form
- */
-std::ostream& printHex( std::ostream& stream,
-                        const uint8_t *ptr,
-                        size_t len );
-
-/**
- * Print the memory pointed to in binary form
- */
-std::ostream& printBinary( std::ostream& stream,
-                           const uint8_t *ptr,
-                           size_t len );
-
-/**
- * Print the given object's data in hexadecimal form
- */
-template<typename T>
-std::ostream& printHex( std::ostream& stream, const T& obj )
-{
-    const uint8_t *base = reinterpret_cast<const uint8_t*>(&obj);
-    printHex( stream, base, sizeof(obj) );
-
-    return stream;
-}
-
-/**
- * Print the given object's data in binary form
- */
-template<typename T>
-std::ostream& printBinary( std::ostream& stream, const T& obj )
-{
-    const uint8_t *base = reinterpret_cast<const uint8_t*>(&obj);
-    printBinary( stream, base, sizeof(obj) );
-
-    return stream;
-}
-
-bool loadfile( const std::string& filename, std::string& output );
 
 #endif

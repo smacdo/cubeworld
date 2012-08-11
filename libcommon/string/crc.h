@@ -28,14 +28,18 @@
  */
 #ifndef SCOTT_COMMON_STRING_CRC_H
 #define SCOTT_COMMON_STRING_CRC_H
-#define SCOTT_COMMON_STRING_CRC_VERSION 1
 
 #include <stdint.h>
 #include <string>
 #include <iostream>
 
+// Calculate CRC-32 value of byte array
 uint32_t crc32( const uint8_t * pInput, size_t length );
-uint32_t crc32( const char * pInput );
+
+// Calculate CRC-32 value of cstring array
+uint32_t crc32( const char * pInput, size_t length );
+
+// Calculate CRC-32 value of STL string
 uint32_t crc32( const std::string& input );
 
 /**

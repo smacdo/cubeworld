@@ -35,13 +35,13 @@
 IntersectResult::IntersectResult()
     : point(Vec3(  0.0f, 0.0f, 0.0f )),
       normal(Vec3( 0.0f, 0.0f, 0.0f )),
-      distance( std::numeric_limits<Scalar>::infinity() )
+      distance( std::numeric_limits<scalar_t>::infinity() )
 {
 }
 
 IntersectResult::IntersectResult( const Vec3& pt,
                                   const Vec3& n,
-                                  Scalar dist )
+                                  scalar_t dist )
     : point( pt ),
       normal( n ),
       distance( dist )
@@ -51,6 +51,6 @@ IntersectResult::IntersectResult( const Vec3& pt,
 bool IntersectResult::didHit() const
 {
 #pragma GCC diagnostic ignored "-Wfloat-equal"
-    return distance != std::numeric_limits<Scalar>::infinity();
+    return distance != std::numeric_limits<scalar_t>::infinity();
 #pragma GCC diagnostic error "-Wfloat-equal"
 }

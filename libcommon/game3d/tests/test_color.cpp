@@ -8,20 +8,20 @@ TEST(Color,DefaultColor)
 {
     Color c;
 
-    EXPECT_EQ( 1.0f, c.r() );
-    EXPECT_EQ( 1.0f, c.g() );
-    EXPECT_EQ( 1.0f, c.b() );
-    EXPECT_EQ( 1.0f, c.a() );
+    EXPECT_FLOAT_EQ( 1.0f, c.r() );
+    EXPECT_FLOAT_EQ( 1.0f, c.g() );
+    EXPECT_FLOAT_EQ( 1.0f, c.b() );
+    EXPECT_FLOAT_EQ( 1.0f, c.a() );
 }
 
 TEST(Color,SimpleColor)
 {
     Color c( 0.25f, 0.50f, 0.75f );
 
-    EXPECT_EQ( 0.25f, c.r() );
-    EXPECT_EQ( 0.50f, c.g() );
-    EXPECT_EQ( 0.75f, c.b() );
-    EXPECT_EQ( 1.00f, c.a() );
+    EXPECT_FLOAT_EQ( 0.25f, c.r() );
+    EXPECT_FLOAT_EQ( 0.50f, c.g() );
+    EXPECT_FLOAT_EQ( 0.75f, c.b() );
+    EXPECT_FLOAT_EQ( 1.00f, c.a() );
 }
 
 TEST(Color,ColorEqual)

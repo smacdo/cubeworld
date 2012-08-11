@@ -4,10 +4,9 @@
 set(includes
         ${CMAKE_CURRENT_SOURCE_DIR}/crc.h
         ${CMAKE_CURRENT_SOURCE_DIR}/lcasts.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/makestring.h
         ${CMAKE_CURRENT_SOURCE_DIR}/reftag.h
         ${CMAKE_CURRENT_SOURCE_DIR}/sequenceformatter.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/stringbuffer.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/transferstring.h
         ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/util.h
 )
@@ -24,6 +23,7 @@ set(tests
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_crc.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_tokenizer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_streamprint.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_transferstring.cpp
 )
 
 set( libcommon_incs  ${libcommon_incs}  ${includes} PARENT_SCOPE )

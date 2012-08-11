@@ -81,14 +81,14 @@ TEST(Math,Utils_IsZero_NotZero)
 
 TEST(Math,Utils_IsZero_WithinBounds)
 {
-    EXPECT_TRUE( isZero( 0.0000000009f ) );
-    EXPECT_TRUE( isZero(-0.0000000009f ) );
+    EXPECT_TRUE(  isZero( 0.000001f ) );
+    EXPECT_TRUE(  isZero(-0.000001f ) );
 }
 
 TEST(Math,Utils_IsZero_OutsideBounds)
 {
-    EXPECT_FALSE( isZero( 0.000000002f ) );
-    EXPECT_FALSE( isZero(-0.000000002f ) );
+    EXPECT_FALSE( isZero( 0.00009f ) );
+    EXPECT_FALSE( isZero(-0.00009f ) );
 }
 
 //===========================================================================

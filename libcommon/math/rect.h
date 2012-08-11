@@ -17,6 +17,7 @@
 #define SCOTT_MATH_RECT_H
 
 #include <math/vector.h>
+#include <math/config.h>
 
 /**
  * 2d axis aligned rectangle.
@@ -28,14 +29,14 @@ public:
         : mTopLeft( topLeft ),
           mSize( rectSize )
     {
-        math_assert( mSize.x() > 0.0f && mSize.y() > 0.0f );
+        ASSERT( mSize.x() > 0.0f && mSize.y() > 0.0f );
     }
 
     RectF( float topX, float topY, float width, float height )
         : mTopLeft( topX, topY ),
           mSize( width, height )
     {
-        math_assert( width > 0.0f && height > 0.0f );
+        ASSERT( width > 0.0f && height > 0.0f );
     }
 
     RectF( const RectF& rect )
@@ -140,12 +141,12 @@ public:
     void adjustSize( const Vec2& newSize )
     {
         mSize += newSize;
-        math_assert( mSize.x() > 0.0f && mSize.y() > 0.0f );
+        ASSERT( mSize.x() > 0.0f && mSize.y() > 0.0f );
     }
 
     void resize( const Vec2& newSize )
     {
-        math_assert( newSize.x() > 0.0f && newSize.y() > 0.0f );
+        ASSERT( newSize.x() > 0.0f && newSize.y() > 0.0f );
         mSize = newSize;
     }
 

@@ -9,8 +9,6 @@ set(headers
     ${CMAKE_CURRENT_SOURCE_DIR}/logging_debugstreambuf.inl
     ${CMAKE_CURRENT_SOURCE_DIR}/logging_stream.h
     ${CMAKE_CURRENT_SOURCE_DIR}/osplatform.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/platform.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/windowsinclude.h
 )
 
 set(sources
@@ -18,22 +16,10 @@ set(sources
     ${CMAKE_CURRENT_SOURCE_DIR}/debug.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/globallog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/log.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/logging.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/logentry.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/logstream.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/platform.cpp
 )
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    SET(sources ${sources} ${CMAKE_CURRENT_SOURCE_DIR}/platform_darwin.mm)
-endif()
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    SET(sources ${sources} ${CMAKE_CURRENT_SOURCE_DIR}/platform_xp.cpp)
-endif()
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    SET(sources ${sources} ${CMAKE_CURRENT_SOURCE_DIR}/platform_unix.cpp)
-endif()
 
 set(tests
         )

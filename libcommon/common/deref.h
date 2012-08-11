@@ -29,7 +29,7 @@
 template<typename T>
 inline const T& deref( const T* ptr )
 {
-    assert2( ptr != NULL, "Pointer was null when dereferencing"  );
+    ASSERT_MSG( ptr != NULL, "Pointer was null when dereferencing"  );
     return *ptr;
 }
 
@@ -43,7 +43,7 @@ inline const T& deref( const T* ptr )
 template<typename T>
 inline T& deref( T* ptr )
 {
-    assert2( ptr != NULL, "Pointer was null when dereferencing" );
+    ASSERT_MSG( ptr != NULL, "Pointer was null when dereferencing" );
     return *ptr;
 }
 
@@ -58,7 +58,7 @@ template<typename T>
 inline T& deref( std::shared_ptr<T> sharedPtr )
 {
     T* ptr = sharedPtr.get();
-    assert( ptr != NULL );
+    ASSERT_MSG( ptr != NULL, "shared_ptr was null when dereferencing" );
 
     return *ptr;
 }

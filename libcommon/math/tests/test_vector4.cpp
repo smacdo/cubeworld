@@ -28,18 +28,18 @@ TEST(Math, Vector4_MemoryArrayTest)
 
     const float * pVals = v[0].const_ptr();
 
-    EXPECT_EQ( 1.0f, *(pVals + 0) );
-    EXPECT_EQ( 2.0f, *(pVals + 1) );
-    EXPECT_EQ( 3.0f, *(pVals + 2) );
-    EXPECT_EQ( 4.0f, *(pVals + 3) );
-    EXPECT_EQ( 5.0f, *(pVals + 4) );
-    EXPECT_EQ( 6.0f, *(pVals + 5) );
-    EXPECT_EQ( 7.0f, *(pVals + 6) );
-    EXPECT_EQ( 8.0f, *(pVals + 7) );
-    EXPECT_EQ( 9.0f, *(pVals + 8) );
-    EXPECT_EQ( 10.0f, *(pVals + 9) );
-    EXPECT_EQ( 11.0f, *(pVals + 10) );
-    EXPECT_EQ( 12.0f, *(pVals + 11) );
+    EXPECT_FLOAT_EQ( 1.0f, *(pVals + 0) );
+    EXPECT_FLOAT_EQ( 2.0f, *(pVals + 1) );
+    EXPECT_FLOAT_EQ( 3.0f, *(pVals + 2) );
+    EXPECT_FLOAT_EQ( 4.0f, *(pVals + 3) );
+    EXPECT_FLOAT_EQ( 5.0f, *(pVals + 4) );
+    EXPECT_FLOAT_EQ( 6.0f, *(pVals + 5) );
+    EXPECT_FLOAT_EQ( 7.0f, *(pVals + 6) );
+    EXPECT_FLOAT_EQ( 8.0f, *(pVals + 7) );
+    EXPECT_FLOAT_EQ( 9.0f, *(pVals + 8) );
+    EXPECT_FLOAT_EQ( 10.0f, *(pVals + 9) );
+    EXPECT_FLOAT_EQ( 11.0f, *(pVals + 10) );
+    EXPECT_FLOAT_EQ( 12.0f, *(pVals + 11) );
 }
 
 TEST(Math, Vector4_PointerConstructor)
@@ -271,8 +271,8 @@ TEST(Math, Vector4_XAccessor)
     Vec4 a( 1.0f, 2.0f, 3.0f, 9.0f );
     Vec4 b( 6.0f, 5.0f, 4.0f, 8.0f );
 
-    EXPECT_EQ( 1.0f, a.x() );
-    EXPECT_EQ( 6.0f, b.x() );
+    EXPECT_FLOAT_EQ( 1.0f, a.x() );
+    EXPECT_FLOAT_EQ( 6.0f, b.x() );
 }
 
 TEST(Math, Vector4_YAccessor)
@@ -280,8 +280,8 @@ TEST(Math, Vector4_YAccessor)
     Vec4 a( 1.0f, 2.0f, 3.0f, 9.0f );
     Vec4 b( 6.0f, 5.0f, 4.0f, 8.0f );
 
-    EXPECT_EQ( 2.0f, a.y() );
-    EXPECT_EQ( 5.0f, b.y() );
+    EXPECT_FLOAT_EQ( 2.0f, a.y() );
+    EXPECT_FLOAT_EQ( 5.0f, b.y() );
 }
 
 TEST(Math, Vector4_ZAccessor)
@@ -289,8 +289,8 @@ TEST(Math, Vector4_ZAccessor)
     Vec4 a( 1.0f, 2.0f, 3.0f, 9.0f );
     Vec4 b( 6.0f, 5.0f, 4.0f, 8.0f );
 
-    EXPECT_EQ( 3.0f, a.z() );
-    EXPECT_EQ( 4.0f, b.z() );
+    EXPECT_FLOAT_EQ( 3.0f, a.z() );
+    EXPECT_FLOAT_EQ( 4.0f, b.z() );
 }
 
 TEST(Math, Vector4_WAccessor)
@@ -298,8 +298,8 @@ TEST(Math, Vector4_WAccessor)
     Vec4 a( 1.0f, 2.0f, 3.0f, 9.0f );
     Vec4 b( 6.0f, 5.0f, 4.0f, 8.0f );
 
-    EXPECT_EQ( 9.0f, a.w() );
-    EXPECT_EQ( 8.0f, b.w() );
+    EXPECT_FLOAT_EQ( 9.0f, a.w() );
+    EXPECT_FLOAT_EQ( 8.0f, b.w() );
 }
 
 TEST(Math, Vector4_ZeroVector)
@@ -334,7 +334,7 @@ TEST(Math, Vector4_LengthZero)
 TEST(Math, Vector4_SquaredLength)
 {
     const Vec4 a( 1.0f, 2.0f, 3.0f, 4.0f );
-    EXPECT_EQ( 30.0f, lengthSquared( a ) );
+    EXPECT_FLOAT_EQ( 30.0f, lengthSquared( a ) );
 }
 
 TEST(Math, Vector4_SquareLengthZero)

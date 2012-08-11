@@ -31,6 +31,9 @@ public:
     PerlinNoise( unsigned int seed );
     ~PerlinNoise();
 
+    float noise( float x ) const;
+    float noise( float x, float y ) const;
+    float noise( float x, float y, float z ) const;
     float noise3( const Vec3& pos ) const;
     float noise3( float x, float y, float z ) const;
     float noise3( float x,

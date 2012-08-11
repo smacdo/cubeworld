@@ -38,9 +38,24 @@ namespace Math
      * \return    Interpolated value in the range [x,y] biased by s
      */
     template<typename T,typename U>
-    T lerp( const T& x, const T& y, const U& s )
+    T lerp( T x, T y, U s )
     {
-        return x + ( ( y - x ) * s);
+        return static_cast<T>( x + ( ( y - x ) * s) );
+    }
+
+    /**
+     * Performs a smooth step interpolation on the range [x, y] using s
+     * as the ratio. Works very similiarly to lerp, however it eases in
+     * and out at the edges.
+     *
+     * \param  x  Starting value
+     * \param  y  Ending value
+     * \param  s  Interpolation factor [0,1]
+     * \return    Interpolated value in the range [x,y] biased by s
+     */
+    template<typename T, typename U>
+    T smoothstep( T x, T y, U s )
+    {
     }
 
     /**
@@ -105,16 +120,14 @@ namespace Math
      * converging on the upper limit.
      */
     template<typename T, typename U>
-    T berp( const T& /*a*/, const T& /*b*/, const U& s )
+    T berp( T a, T b, U s )
     {
         T v = clamp( s, 0, 1 );
-        v = sin(v * Math::Pi * (0.2f + 2.5f * s*s*s)) *
-            pow(1.0f-s,2.2f);
+        v = ( sin( s * Math::Pi * ( 0.2f + 2.5f * s * s * s ) ) *
+              pow( 1.0f - s, 2.2f ) + v ) *
+              ( 1.0f + 1.2f * ( 1.0f - v ) );
 
-    // value = Mathf.Clamp01(value);
-    // value = (Mathf.Sin(value * Mathf.PI * (0.2f + 2.5f * value * value * value)) * Mathf.Pow(1f - value, 2.2f) + value) * (1f + (1.2f * (1f - value)));
-    // return start + (end - start) * value;
-        return v;
+        return a + ( b - a ) * s;
     }
 
     /**
@@ -128,8 +141,8 @@ namespace Math
     template<typename T, typename U>
     T bounce( const T& a, const T& b, const U& s )
     {
-        U x = fabs(sinf( 6.28f * (s + 1.0f) * (s + 1.0f)) * (1.0f - s) );
-        return a + (b-a) * x;
+        U x = abs( sin( 6.28f * (s + 1.0f) * (s + 1.0f) ) * (1.0f - s) );
+        return a + ( b - a ) * x;
     }
 }
 

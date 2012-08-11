@@ -1,34 +1,26 @@
 ###########################################################################
 # CubeWorld                                                               #
-# (c) 2010 Scott MacDonald                                                #
+# (c) 2010-2012 Scott MacDonald                                           #
 #                                                                         #
 # Build system script                                                     #
 ###########################################################################
 cmake_minimum_required(VERSION 2.8)
 project(CubeWorldGame)
 
-#==========================================================================
-# Build setup and paths
-#==========================================================================
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/thirdparty/cmake")
+#=========================================================================#
+# Load common cmake modules to incorporate functionality not found in     #
+# standard CMake distribution                                             #
+#=========================================================================#
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+
+include( config )
+include( GetGitRevisionDescription )
+include( GetCompilerInfoString )
+include( EnableExtraCompilerWarnings )
+include( MSVCMultipleProcessCompile )
+include( SandboxBuildRules )
+
 set(GLUT_ROOT_PATH "$ENV{API_DIR}/freeglut")
-
-#==========================================================================
-# Options
-#==========================================================================
-option(build_libcommon_tests    "Build libcommon unit tests" on)
-option(libcommon_cpp0x          "Build libcommon with C++0x support" on)
-option(libcommon_assert         "Build libcommon with custom asserts" on)
-option(libcommon_debug          "Build libcommon with debugging support" on)
-option(libcommon_warnings       "Build libcommon with warnings" on)
-option(libcommon_more_warnings  "Build libcommon with lots of warnings" off)
-option(libcommon_extra_warnings "Build libcommon with all the warnings" off)
-option(libcommon_performance    "Build libcommon with performance flags" on)
-
-#==========================================================================
-# Build options
-#==========================================================================
-option(STRICT_WARNS  "Enable strict warnings"                        ON)
 
 #==========================================================================
 # Build configuration
@@ -39,14 +31,7 @@ if(MSVC)
 
 	# Enable security checks
 	set(cxx_flags "${cxx_flags} /Gs")
-	
-	# Set strictest warning settings and treat them as errors
-	if(STRICT_WARNS)
-		set(cxx_flags "${cxx_flags} /W4")
-	else()
-		set(cxx_flags "${cxx_flags} /W3 /Wx")
-	endif()
-	
+
 	# Disable several level 4 warnings about ansi compliance
 	#  (-wNNN)
 	#   - Not using Microsoft's 'secure' file functions

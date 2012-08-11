@@ -19,6 +19,7 @@
 #include "app/logging_debugstreambuf.h"
 #include "app/debug.h"
 #include "common/delete.h"
+#include "common/assert.h"
 #include <sstream>
 #include <ctime>
 
@@ -266,7 +267,7 @@ void DebugStreambuf<C,T>::write( const std::basic_string<C,T>& str )
 template<typename C, typename T>
 bool DebugStreambuf<C,T>::writeEntryHeaderConsole() const
 {
-    assert( mpConsoleBuffer != NULL );
+    ASSERT_MSG( mpConsoleBuffer != NULL, "Cannot write to null console buffer" );
 
     // Get the string form of the log level as well as the current
     // time before writing the log entry header
@@ -312,7 +313,7 @@ bool DebugStreambuf<C,T>::writeEntryHeaderConsole() const
 template<typename C, typename T>
 bool DebugStreambuf<C,T>::writeEntryHeaderFile() const
 {
-    assert( mpFileBuffer != NULL );
+    ASSERT_MSG( mpFileBuffer != NULL, "Cannot write to null file buffer" );
 
     // Get the string form of the log level as well as the current
     // time before writing the log entry header
@@ -373,7 +374,7 @@ const char* DebugStreambuf<C,T>::getLogLevelString( ELogLevel level ) const
             return "FATAL";
         case ELogLevel_Count:
         default:
-            assert( false && "Unknown enumeration value for ELogLevel" );
+            ASSERT_MSG( false, "Unknown enumeration value for ELogLevel" );
     }
 
     return "???";

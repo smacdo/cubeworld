@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #include <googletest/googletest.h>
+#include <testing/testing.h>
 #include <memory>
 
 #include "common/deref.h"
@@ -23,7 +24,7 @@
 /**
  * Tests that we can deref a non-null pointer value
  */
-TEST(UtilsTests,DerefValid)
+TEST(DerefTests,Pointer)
 {
     int v = 42;
     int *pV = &v;
@@ -37,9 +38,9 @@ TEST(UtilsTests,DerefValid)
 }
 
 /**
- * Tests if we can deref a non-null constant pointer value
+ * Test if we can deref a non-null constant pointer value
  */
-TEST(UtilsTests,DerefConst)
+TEST(DerefTests,ConstPointer)
 {
     int v = 42;
     const int *pV = &v;
@@ -48,9 +49,9 @@ TEST(UtilsTests,DerefConst)
 }
 
 /**
- * Tests if we can deref a non-null smart pointer value
+ * Test if we can deref a non-null smart pointer value
  */
-TEST(UtilsTest,DerefSmartPointer)
+TEST(DerefTest,SmartPointer)
 {
     std::shared_ptr<int> p( new int(42) );
     EXPECT_EQ( 42, deref( p ) );
@@ -59,28 +60,47 @@ TEST(UtilsTest,DerefSmartPointer)
 /**
  * Tests if we can deref a non-null constant smart pointer value
  */
-TEST(UtilsTest,DerefConstSmartPointer)
+TEST(DerefTest,ConstSmartPointer)
 {
     std::shared_ptr<const int> p( new int(42) );
     EXPECT_EQ( 42, deref( p ) );
 }
 
-TEST(UtilsTests,DerefNullDeath)
+/**
+ * Test if dereferencing a null pointer causes death
+ */
+TEST(DerefDeathTests,NullPointer)
+{
+    int *pV = NULL;
+
+    UTest::assertDeath( true );
+    EXPECT_DEATH( deref( pV ), "ASSERTION FAILED: ptr != NULL" );
+
+    UTest::resetAssertDeath();
+}
+
+/**
+ * Test if dereferencing a null constant pointer causes death
+ */
+TEST(DerefDeathTests,NullConstPointer)
 {
     const int *pV = NULL;
 
-    Debug::setTestAssertShouldDie( true );
-    EXPECT_DEATH( deref( pV ), "ASSERTION FAILED: ptr != __null" );
+    UTest::assertDeath( true );
+    EXPECT_DEATH( deref( pV ), "ASSERTION FAILED: ptr != NULL" );
 
-    Debug::resetTestAssertShouldDie();
+    UTest::resetAssertDeath();
 }
 
-TEST(UtilsTests,DerefNullSmartPointerDeath)
+/**
+ * Test if dereferncing a null smart pointer causes death
+ */
+TEST(DerefDeathTests,NullSmartPointer)
 {
     std::shared_ptr<int> p;
 
-    Debug::setTestAssertShouldDie( true );
-    EXPECT_DEATH( deref( p ), "ASSERTION FAILED: ptr != __null" );
+    UTest::assertDeath( true );
+    EXPECT_DEATH( deref( p ), "ASSERTION FAILED: ptr != NULL" );
 
-    Debug::resetTestAssertShouldDie();
+    UTest::resetAssertDeath();
 }

@@ -25,9 +25,9 @@ using ::testing::AssertionResult;
 using ::testing::AssertionSuccess;
 using ::testing::AssertionFailure;
 
-const int SAMPLE_GRID_WIDTH  = 3;
-const int SAMPLE_GRID_HEIGHT = 4;
-const int SAMPLE_GRID_SIZE   = SAMPLE_GRID_WIDTH * SAMPLE_GRID_HEIGHT;
+const unsigned int SAMPLE_GRID_WIDTH  = 3;
+const unsigned int SAMPLE_GRID_HEIGHT = 4;
+const unsigned int SAMPLE_GRID_SIZE   = SAMPLE_GRID_WIDTH * SAMPLE_GRID_HEIGHT;
 const int SAMPLE_GRID_VALUES[SAMPLE_GRID_SIZE] =
 {
     4, 1, 9,
@@ -49,15 +49,15 @@ public:
 protected:
     virtual void SetUp();
 
-    size_t offset( size_t x, size_t y, size_t width );
+    unsigned int offset( unsigned int x, unsigned int y, unsigned int width );
     AssertionResult checkGrid( const FGrid& grid,
                                const int* expectedValues,
-                               size_t expectedWidth,
-                               size_t expectedHeight );
+                               unsigned int expectedWidth,
+                               unsigned int expectedHeight );
 
 protected:
-    const size_t sampleWidth;
-    const size_t sampleHeight;
+    const unsigned int sampleWidth;
+    const unsigned int sampleHeight;
     const FGrid emptyGrid;
     FGrid sampleGrid;
 
@@ -72,8 +72,8 @@ TEST_F(FixedGridTest,FixedGrid_Constructor)
 {
     const FGrid grid( 2, 3, 10 );
 
-    const size_t W = 2;
-    const size_t H = 3;
+    const unsigned int W = 2;
+    const unsigned int H = 3;
     const int VALUES[H*W] = { 10, 10,    // row 1
                               10, 10,    // row 2
                               10, 10 };  // row 3
@@ -135,16 +135,16 @@ TEST_F(FixedGridTest,Insert_UpperLeft)
     FGrid chunk( 2, 3, 0 );
 
     // Set the chunk up and then insert it
-    chunk.set( 0, 0, 3 ); chunk.set( 1, 0, 5 );
-    chunk.set( 0, 1, 2 ); chunk.set( 1, 1, 6 );
-    chunk.set( 0, 2, 4 ); chunk.set( 1, 2, 7 );
+    chunk.set( Point(0, 0), 3 ); chunk.set( Point(1, 0), 5 );
+    chunk.set( Point(0, 1), 2 ); chunk.set( Point(1, 1), 6 );
+    chunk.set( Point(0, 2), 4 ); chunk.set( Point(1, 2), 7 );
 
     // Insert the chunk into the grid
     grid.insert( Point( 0, 0 ), chunk );
 
     // Here's the expected new grid
-    const size_t W = 3;
-    const size_t H = 4;
+    const unsigned int W = 3;
+    const unsigned int H = 4;
     const int VALUES[H*W] = { 3, 5, 9,
                               2, 6, 7,
                               4, 7, 0,
@@ -160,16 +160,16 @@ TEST_F(FixedGridTest,Insert_Middle)
     FGrid chunk( 2, 3, 0 );
 
     // Set the chunk up and then insert it
-    chunk.set( 0, 0, 3 ); chunk.set( 1, 0, 5 );
-    chunk.set( 0, 1, 2 ); chunk.set( 1, 1, 6 );
-    chunk.set( 0, 2, 4 ); chunk.set( 1, 2, 7 );
+    chunk.set( Point(0, 0), 3 ); chunk.set( Point(1, 0), 5 );
+    chunk.set( Point(0, 1), 2 ); chunk.set( Point(1, 1), 6 );
+    chunk.set( Point(0, 2), 4 ); chunk.set( Point(1, 2), 7 );
 
     // Insert the chunk into the grid
     grid.insert( Point( 1, 1 ), chunk );
 
     // Here's the expected new grid
-    const size_t W = 3;
-    const size_t H = 4;
+    const unsigned int W = 3;
+    const unsigned int H = 4;
     const int VALUES[H*W] = { 4, 1, 9,
                               9, 3, 5,
                               3, 2, 6,
@@ -210,16 +210,6 @@ TEST_F(FixedGridTest,GetWithPoint)
     EXPECT_EQ( grid.get(Point( 2, 3 )), 8 );
 }
 
-TEST_F(FixedGridTest,GetWithXY)
-{
-    const FGrid grid( sampleGrid );
-
-    EXPECT_EQ( grid.get( 0, 0 ), 4 );
-    EXPECT_EQ( grid.get( 1, 1 ), 6 );
-    EXPECT_EQ( grid.get( 2, 1 ), 7 );
-    EXPECT_EQ( grid.get( 2, 3 ), 8 );
-}
-
 TEST_F(FixedGridTest,SetWithPoint)
 {
     FGrid grid( sampleGrid );
@@ -232,24 +222,12 @@ TEST_F(FixedGridTest,SetWithPoint)
     EXPECT_EQ( sampleGrid, grid );
 }
 
-TEST_F(FixedGridTest,SetWithXY)
-{
-    FGrid grid( sampleGrid );
-
-    grid.set( 2, 1, 0 );
-    EXPECT_EQ( 0, grid.get( 2, 1 ) );
-    EXPECT_NE( sampleGrid, grid );
-
-    grid.set( 2, 1, 7 );
-    EXPECT_EQ( sampleGrid, grid );
-}
-
 TEST_F(FixedGridTest,WidthHeightAndSize)
 {
     const FGrid grid( 9, 7, 0 );
 
-    EXPECT_EQ( 9, grid.width() );
-    EXPECT_EQ( 7, grid.height() );
+    EXPECT_EQ( 9u, grid.width() );
+    EXPECT_EQ( 7u, grid.height() );
     EXPECT_EQ( 63u, grid.size() );
 }
 
@@ -262,36 +240,36 @@ FixedGridTest::FixedGridTest()
       emptyGrid( 3, 4, 0 ),
       sampleGrid( sampleWidth, sampleHeight, 0 )
 {
-    sampleGrid.set( 0, 0, 4 );
-    sampleGrid.set( 1, 0, 1 );
-    sampleGrid.set( 2, 0, 9 );
+    sampleGrid.set( Point(0, 0), 4 );
+    sampleGrid.set( Point(1, 0), 1 );
+    sampleGrid.set( Point(2, 0), 9 );
 
-    sampleGrid.set( 0, 1, 9 );
-    sampleGrid.set( 1, 1, 6 );
-    sampleGrid.set( 2, 1, 7 );
+    sampleGrid.set( Point(0, 1), 9 );
+    sampleGrid.set( Point(1, 1), 6 );
+    sampleGrid.set( Point(2, 1), 7 );
 
-    sampleGrid.set( 0, 2, 3 );
-    sampleGrid.set( 1, 2, 2 );
-    sampleGrid.set( 2, 2, 0 );
+    sampleGrid.set( Point(0, 2), 3 );
+    sampleGrid.set( Point(1, 2), 2 );
+    sampleGrid.set( Point(2, 2), 0 );
     
-    sampleGrid.set( 0, 3, 1 );
-    sampleGrid.set( 1, 3, 5 );
-    sampleGrid.set( 2, 3, 8 );
+    sampleGrid.set( Point(0, 3), 1 );
+    sampleGrid.set( Point(1, 3), 5 );
+    sampleGrid.set( Point(2, 3), 8 );
 }
 
 void FixedGridTest::SetUp()
 {
 }
 
-size_t FixedGridTest::offset( size_t x, size_t y, size_t width )
+unsigned int FixedGridTest::offset( unsigned int x, unsigned int y, unsigned int width )
 {
     return y * width + x;
 }
 
 AssertionResult FixedGridTest::checkGrid( const FGrid& actualGrid,
                                           const int* expectedValues,
-                                          size_t expectedWidth,
-                                          size_t expectedHeight )
+                                          unsigned int expectedWidth,
+                                          unsigned int expectedHeight )
 {
     // Make sure expected values array isn't null
     if ( expectedValues == NULL )
@@ -319,11 +297,11 @@ AssertionResult FixedGridTest::checkGrid( const FGrid& actualGrid,
 
     // Verify every element of the actual grid matches the provided
     // expected value array
-    for ( size_t y = 0; y < expectedHeight; ++y )
+    for ( unsigned int y = 0; y < expectedHeight; ++y )
     {
-        for ( size_t x = 0; x < expectedWidth; ++x )
+        for ( unsigned int x = 0; x < expectedWidth; ++x )
         {
-            int gridVal  = actualGrid.get( x, y );
+            int gridVal  = actualGrid.get( Point(x, y) );
             int arrayVal = expectedValues[offset(x,y,expectedWidth)];
 
             if ( gridVal != arrayVal )

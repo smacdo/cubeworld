@@ -4,6 +4,7 @@
  */
 #include <googletest/googletest.h>
 #include <math/quaternion.h>
+#include <cmath>
 
 TEST(Math, Quaternion_DefaultContructor)
 {
@@ -178,8 +179,8 @@ TEST(Math, Quaternion_X)
     const Quat a( 1.0f, 2.0f, 3.0f, 4.0f );
     const Quat b( 1.5f, 2.5f, 3.5f, 4.5f );
 
-    EXPECT_EQ( 2.0f, a.x() );
-    EXPECT_EQ( 2.5f, b.x() );
+    EXPECT_FLOAT_EQ( 2.0f, a.x() );
+    EXPECT_FLOAT_EQ( 2.5f, b.x() );
 }
 
 TEST(Math, Quaternion_Y)
@@ -187,8 +188,8 @@ TEST(Math, Quaternion_Y)
     const Quat a( 1.0f, 2.0f, 3.0f, 4.0f );
     const Quat b( 1.5f, 2.5f, 3.5f, 4.5f );
 
-    EXPECT_EQ( 3.0f, a.y() );
-    EXPECT_EQ( 3.5f, b.y() );
+    EXPECT_FLOAT_EQ( 3.0f, a.y() );
+    EXPECT_FLOAT_EQ( 3.5f, b.y() );
 }
 
 TEST(Math, Quaternion_Z)
@@ -196,8 +197,8 @@ TEST(Math, Quaternion_Z)
     const Quat a( 1.0f, 2.0f, 3.0f, 4.0f );
     const Quat b( 1.5f, 2.5f, 3.5f, 4.5f );
 
-    EXPECT_EQ( 4.0f, a.z() );
-    EXPECT_EQ( 4.5f, b.z() );
+    EXPECT_FLOAT_EQ( 4.0f, a.z() );
+    EXPECT_FLOAT_EQ( 4.5f, b.z() );
 }
 
 TEST(Math, Quaternion_W)
@@ -205,8 +206,8 @@ TEST(Math, Quaternion_W)
     const Quat a( 1.0f, 2.0f, 3.0f, 4.0f );
     const Quat b( 1.5f, 2.5f, 3.5f, 4.5f );
 
-    EXPECT_EQ( 1.0f, a.w() );
-    EXPECT_EQ( 1.5f, b.w() );
+    EXPECT_FLOAT_EQ( 1.0f, a.w() );
+    EXPECT_FLOAT_EQ( 1.5f, b.w() );
 }
 
 TEST(Math,Quaternion_Normal)
@@ -252,18 +253,18 @@ TEST(Math, Quaternion_Zero)
 {
     const Quat q = Quat::ZERO;
 
-    EXPECT_EQ( q.x(), 0.0f );
-    EXPECT_EQ( q.y(), 0.0f );
-    EXPECT_EQ( q.z(), 0.0f );
-    EXPECT_EQ( q.w(), 0.0f );
+    EXPECT_FLOAT_EQ( q.x(), 0.0f );
+    EXPECT_FLOAT_EQ( q.y(), 0.0f );
+    EXPECT_FLOAT_EQ( q.z(), 0.0f );
+    EXPECT_FLOAT_EQ( q.w(), 0.0f );
 }
 
 TEST(Math, Quaternion_Identity)
 {
     const Quat q = Quat::IDENTITY;
 
-    EXPECT_EQ( q.x(), 0.0f );
-    EXPECT_EQ( q.y(), 0.0f );
-    EXPECT_EQ( q.z(), 0.0f );
-    EXPECT_EQ( q.w(), 1.0f );
+    EXPECT_FLOAT_EQ( q.x(), 0.0f );
+    EXPECT_FLOAT_EQ( q.y(), 0.0f );
+    EXPECT_FLOAT_EQ( q.z(), 0.0f );
+    EXPECT_FLOAT_EQ( q.w(), 1.0f );
 }
