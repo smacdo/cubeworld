@@ -13,45 +13,62 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "cubeworld.h"
-#include "graphics/iwindow.h"
-#include "graphics/irenderer.h"
+#include "generation/flatworldgenerator.h"
+#include "engine/material.h"
+#include "engine/cubedata.h"
+#include "engine/world.h"
 
-#include <common/assert.h>
-#include <common/delete.h>
-#include <common/time.h>
+#include <random>
 
-CubeWorldClient::CubeWorldClient( IWindow * pWindow,
-                                  IRenderer * pRenderer )
-    : GameClient( pWindow, pRenderer )
+FlatWorldGenerator::FlatWorldGenerator()
 {
 }
 
-CubeWorldClient::~CubeWorldClient()
+FlatWorldGenerator::~FlatWorldGenerator()
 {
 }
 
-bool CubeWorldClient::initialize()
+/**
+ * Generates a flat world. A flat world has a bedrock layer, several
+ * layers of dirt and stone topped off with grass
+ */
+World * FlatWorldGenerator::generate( unsigned int cols,
+                                      unsigned int rows,
+                                      unsigned int height,
+                                      WorldView * pWorldView )
 {
-    return true;
-}
+    const unsigned int GROUND_LEVELS = 5;
 
-bool CubeWorldClient::loadContent()
-{
-    return false;
-}
+    // We need some randomness, now don't we?
+    std::random_device rd;
+    std::mt19937 rng( rd() );
+    std::uniform_int_distribution<> dice( 0, 1 );
 
-void CubeWorldClient::unloadContent()
-{
+    // First create a new world object
+    World * pWorld = new World( cols, rows, height, pWorldView );
+    
+    // 
+    for ( unsigned int x = 0; x < cols; ++x )
+    {
+        for ( unsigned int z = 0; z < rows; ++z )
+        {
+            // bedrock at the bottom
+            pWorld->put( CubeData( EMATERIAL_BEDROCK ), Point( x, 0, z ) );
 
-}
+            // now multiple in-between layers
+            for ( unsigned int y = 0; y < GROUND_LEVELS; ++y )
+            {
+                EMaterialType m = ( dice(rng) == 0 ? EMATERIAL_GRASS :
+                                                     EMATERIAL_ROCK );
 
-void CubeWorldClient::update( Time /*simTime*/, Time /*deltaTime*/ )
-{
+                pWorld->put( CubeData( m ), Point( x, 1 + y, z ) );
+            }
 
-}
+            // finally top it off with graaaaaassss
+            pWorld->put( CubeData( EMATERIAL_GRASS ),
+                         Point( x, 2 + GROUND_LEVELS, z ) );
+        }
+    }
 
-void CubeWorldClient::draw( Time /*simTime*/, float /*interpolation*/ )
-{
-
+    return pWorld;
 }

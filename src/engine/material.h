@@ -10,6 +10,7 @@
 enum EMaterialType
 {
     EMATERIAL_EMPTY,         // this is air, by default
+    EMATERIAL_BEDROCK,
     EMATERIAL_GRASS,
     EMATERIAL_DIRT,
     EMATERIAL_ROCK,

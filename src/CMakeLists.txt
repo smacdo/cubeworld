@@ -18,7 +18,7 @@ SET(engine_srcs
         engine/world.cpp
         graphics/iwindow.cpp
         graphics/worldview.cpp
-        world/worldgenerator.cpp
+        generation/flatworldgenerator.cpp
 )
 
 set(engine/includes

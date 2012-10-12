@@ -18,14 +18,17 @@
 
 #include <boost/noncopyable.hpp>
 class World;
+class WorldView;
 
 class IWorldGenerator : boost::noncopyable
 {
 public:
-    WorldGenerator();
-    virtual ~WorldGenerator();
+    virtual ~IWorldGenerator() { };
 
-    virtual World* generate();
+    virtual World* generate( unsigned int cols,
+                             unsigned int rows,
+                             unsigned int depth,
+                             WorldView * pWorldView ) = 0;
 private:
 };
 
