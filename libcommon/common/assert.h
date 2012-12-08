@@ -44,7 +44,11 @@
 #if defined( DISABLE_ASSERTS ) || defined( NDEBUG )
 #   define ASSERT(expr) ((void)0)
 #elif defined( ENABLE_ASSERT_HANDLER )
-#   include <miniboost/current_function.hpp>
+#   ifdef USE_BOOST
+#       include <boost/current_function.hpp>
+#   else
+#       include <miniboost/current_function.hpp>
+#   endif
 #   define ASSERT(expr)                     \
     do                                      \
     {                                       \

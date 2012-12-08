@@ -30,6 +30,8 @@
 #define SCOTT_APPCORE_H
 #define APPCORE_VERSION 3
 
+#include <string>
+
 namespace App
 {
     void raiseFatalError( const std::string& message,

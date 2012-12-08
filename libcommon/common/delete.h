@@ -20,6 +20,10 @@
 #include <vector>
 #include <map>
 
+#ifdef USE_BOOST
+#include <boost/checked_delete.hpp>
+#endif
+
 /**
  * CheckedDelete - identical to boost's boost::checked_delete. Ensures that the
  * pointer type being deleted belongs to a fully defined class.

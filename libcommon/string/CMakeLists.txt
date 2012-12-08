@@ -4,7 +4,6 @@
 set(includes
         ${CMAKE_CURRENT_SOURCE_DIR}/crc.h
         ${CMAKE_CURRENT_SOURCE_DIR}/lcasts.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/reftag.h
         ${CMAKE_CURRENT_SOURCE_DIR}/sequenceformatter.h
         ${CMAKE_CURRENT_SOURCE_DIR}/transferstring.h
         ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer.h

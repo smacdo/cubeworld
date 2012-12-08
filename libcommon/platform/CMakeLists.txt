@@ -8,7 +8,6 @@ set(headers
 
 set(sources
     ${CMAKE_CURRENT_SOURCE_DIR}/platform.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/stacktrace.cpp
 )
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

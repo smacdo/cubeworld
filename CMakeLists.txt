@@ -21,6 +21,7 @@ include( MSVCMultipleProcessCompile )
 include( SandboxBuildRules )
 
 set(GLUT_ROOT_PATH "$ENV{API_DIR}/freeglut")
+add_definitions("-DUSE_BOOST")
 
 #==========================================================================
 # Build configuration
@@ -58,6 +59,7 @@ elseif(CMAKE_COMPILER_IS_GNUCXX)
     set(cxx_flags "${cxx_flags} -msse2 -Werror")
 endif()
 
+set( THIRD_PARTY_ROOT "${CMAKE_SOURCE_DIR}/thirdparty" )
 add_subdirectory(thirdparty)
 add_subdirectory(libcommon)
 add_subdirectory(src)

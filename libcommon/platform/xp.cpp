@@ -16,10 +16,9 @@
 #define UNICODE
 #define _UNICODE
 
-#include "common/platform.h"
-#include "common/logging.h"
-#include "common/utils.h"
-#include "config.h"
+#include <platform/platform.h>
+#include <app/logging.h>
+#include <common/delete.h>
 #include <string>
 #include <sstream>
 
@@ -88,10 +87,10 @@ void startup()
         App::quit( App::EPROGRAM_FATAL_ERROR, "Unable to query performance timer frequency" );
     }
 
-    assert( procFreq.QuadPart > 0 );
+    ASSERT_MSG( procFreq.QuadPart > 0, "Unexpected issue when calibrating high perf timer" );
     GTimerFrequency = static_cast<Time>( procFreq.QuadPart );
 
-    assert( GTimerFrequency > 0.0f );
+    ASSERT_MSG( GTimerFrequency > 0.0f, "Unexpected issue when calibrating high perf timer" );
 }
 
 /**

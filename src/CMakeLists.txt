@@ -8,11 +8,12 @@ SET(engine_srcs
         engine/intersection.cpp
         engine/material.cpp
         engine/point.cpp
-        engine/worldchunk.cpp
         engine/world.cpp
+        engine/worldchunk.cpp
+		generation/flatworldgenerator.cpp
         graphics/iwindow.cpp
+		graphics/worldchunkbuilder.cpp
         graphics/worldview.cpp
-        world/worldgenerator.cpp
 )
 
 set(engine/includes
@@ -26,9 +27,14 @@ set(engine/includes
 	engine/world.h
 	engine/worldchunk.h
 	engine/worldcube.h
-    graphics/irenderer.h
-    graphics/iwindow.h
-    graphics/worldview.h
+	generation/iworldgenerator.h
+	generation/floatworldgenerator.h
+	graphics/cubevertex.h
+	graphics/iwindow.h
+	graphics/renderprimitives.h
+	graphics/worldchunkbuilder.h
+	graphics/worldchunkmesh.h
+	graphics/worldview.h
 )
 
 # Application code that is not under unit test... this is generally the
@@ -41,6 +47,7 @@ set(game_srcs
 set(game_incs
 	cubeworld.h
 	gameclient.h
+	resource.h
 )
 
 set(platform_srcs "")
@@ -132,7 +139,7 @@ add_executable(cubeworld_client
 	${graphics_srcs} ${graphics_incs}
 	${platform_srcs} ${platform_incs}
 )
-add_warnings( cubeworld_client )
+enable_warnings( cubeworld_client )
 
 set_target_properties(cubeworld_client PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(cubeworld_client

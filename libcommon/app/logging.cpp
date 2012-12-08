@@ -1,6 +1,6 @@
 #include <app/logging.h>
 
-const char* LOG_LEVEL_NAMES[ELogLevel_Count] 
+const char* LOG_LEVEL_NAMES[ELogLevel_Count] =
 {
     "TRACE",
     "DEBUG",

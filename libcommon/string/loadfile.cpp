@@ -35,12 +35,12 @@ std::string loadfile( const std::string& filename, bool * pStatus )
         ifs.seekg( 0, ios::beg );
 
         // Slurp the file into a temporary byte array
-        vector<char> bytes( fileSize );
+        vector<char> bytes( static_cast<size_t>(fileSize) );
         ifs.read( &bytes[0], fileSize );
 
         // Convert the byte array into a temporary string and then swap
         // the return string
-        std::string temp( &bytes[0], fileSize );
+        std::string temp( &bytes[0], static_cast<size_t>(fileSize) );
 
         contents.swap( temp );
     }
