@@ -6,6 +6,7 @@
 ###########################################################################
 set(test_srcs
     test_alwaystrue.cpp
+    test_flatworld.cpp
     test_worldchunk.cpp
     test_world.cpp
 )

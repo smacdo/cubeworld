@@ -18,15 +18,23 @@
 
 #include "generation/iworldgenerator.h"
 class World;
+class WorldView;
 
-class IFlatWorldGenerator : public IWorldGenerator
+/**
+ * Creates a flat world
+ */
+class FlatWorldGenerator : public IWorldGenerator
 {
 public:
-    IFlatWorldGenerator();
-    ~IFlatWorldGenerator();
+    FlatWorldGenerator();
+    ~FlatWorldGenerator();
 
-    virtual World* generate();
+    virtual World* generate( unsigned int cols,
+                             unsigned int rows,
+                             unsigned int height,
+                             WorldView * pWorldView );
 private:
+    unsigned int mLevelHeight;
 };
 
 #endif

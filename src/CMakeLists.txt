@@ -10,9 +10,9 @@ SET(engine_srcs
         engine/point.cpp
         engine/world.cpp
         engine/worldchunk.cpp
-		generation/flatworldgenerator.cpp
+	generation/flatworldgenerator.cpp
         graphics/iwindow.cpp
-		graphics/worldchunkbuilder.cpp
+	graphics/worldchunkbuilder.cpp
         graphics/worldview.cpp
 )
 
